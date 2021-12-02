@@ -20,7 +20,7 @@ public class FutureTest {
     @Test
     public void get() {
         try {
-            Object obj = ftr.get();
+            T obj = ftr.get();
 
         }
 
