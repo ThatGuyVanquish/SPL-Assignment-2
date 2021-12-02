@@ -6,19 +6,36 @@ package bgu.spl.mics;
  * Only private fields and methods can be added to this class.
  */
 public class MessageBusImpl implements MessageBus {
-
+	/**
+	 *
+	 * @param type The type to subscribe to,
+	 * @param m    The subscribing micro-service.
+	 * @param <T>
+	 * @post hashmap not full
+	 */
 	@Override
 	public <T> void subscribeEvent(Class<? extends Event<T>> type, MicroService m) {
 		// TODO Auto-generated method stub
 
 	}
 
+	/**
+	 *
+	 * @param type 	The type to subscribe to.
+	 * @param m    	The subscribing micro-service.
+	 */
 	@Override
 	public void subscribeBroadcast(Class<? extends Broadcast> type, MicroService m) {
 		// TODO Auto-generated method stub
 
 	}
 
+	/**
+	 *
+	 * @param e      The completed event.
+	 * @param result The resolved result of the completed event.
+	 * @param <T>
+	 */
 	@Override
 	public <T> void complete(Event<T> e, T result) {
 		// TODO Auto-generated method stub
