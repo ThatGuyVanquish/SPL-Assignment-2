@@ -28,9 +28,11 @@ public class Future<T> {
      * @return return the result of type T if it is available, if not wait until it is available.
      * 	       
      */
-	public T get() {
-		//TODO: implement this.
-		return null;
+	public  synchronized T get() throws InterruptedException {
+		while(!isDone())
+			this.wait();
+		return obj;
+
 	}
 	
 	/**
@@ -38,16 +40,16 @@ public class Future<T> {
 	 * @pre object = null
 	 * @post object != null
      */
-	public void resolve (T result) {
-		//TODO: implement this.
+	public synchronized void   resolve (T result) {
+		obj = result;
+		notifyAll();
 	}
 	
 	/**
      * @return true if this object has been resolved, false otherwise
      */
 	public boolean isDone() {
-		//TODO: implement this.
-		return false;
+		return obj!=null;
 	}
 	
 	/**
@@ -61,9 +63,13 @@ public class Future<T> {
      * 	       wait for {@code timeout} TimeUnits {@code unit}. If time has
      *         elapsed, return null.
      */
-	public T get(long timeout, TimeUnit unit) {
-		//TODO: implement this.
-		return null;
+	public T get(long timeout, TimeUnit unit) throws InterruptedException {
+		if (!isDone())
+			wait(TimeUnit.MILLISECONDS.convert(timeout,unit));
+		if (!isDone())
+			return null;
+		else
+			return obj;
 	}
 
 }
