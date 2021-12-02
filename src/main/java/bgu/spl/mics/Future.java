@@ -24,6 +24,7 @@ public class Future<T> {
      * This is a blocking method! It waits for the computation in case it has
      * not been completed.
      * <p>
+	 * @post object != null
      * @return return the result of type T if it is available, if not wait until it is available.
      * 	       
      */
@@ -34,6 +35,8 @@ public class Future<T> {
 	
 	/**
      * Resolves the result of this Future object.
+	 * @pre object = null
+	 * @post object != null
      */
 	public void resolve (T result) {
 		//TODO: implement this.
