@@ -1,16 +1,22 @@
-package bgu.spl.mics;
+
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import bgu.spl.mics.Future;
+import bgu.spl.mics.application.objects.Model;
 import static org.junit.Assert.*;
 
 public class FutureTest {
 
+    private Future<Model> preTrained;
+    private Future<Model> trained;
     @Before
     public void setUp() throws Exception {
-        Future ftr = new Future();
+        preTrained = new Future();
+        trained = new Future();
+
     }
 
     @After
@@ -20,7 +26,6 @@ public class FutureTest {
     @Test
     public void get() {
         try {
-            T obj = ftr.get();
 
         }
 
