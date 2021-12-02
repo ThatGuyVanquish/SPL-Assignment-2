@@ -25,6 +25,7 @@ public class FutureTest {
     public void resolve() {
         ftr.resolve("test");
         assertTrue(ftr.isDone());
+        assertSame("test", ftr.get());
     }
 
     @Test
