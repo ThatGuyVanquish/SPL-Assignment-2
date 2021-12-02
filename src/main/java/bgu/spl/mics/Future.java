@@ -24,7 +24,7 @@ public class Future<T> {
      * This is a blocking method! It waits for the computation in case it has
      * not been completed.
      * <p>
-	 * @post object != null
+	 * @post isDone()
      * @return return the result of type T if it is available, if not wait until it is available.
      * 	       
      */
@@ -33,17 +33,14 @@ public class Future<T> {
 			try {
 				this.wait();
 			}
-			catch (InterruptedException e)
-			{
-
-			}
+			catch (InterruptedException e) {}
 		return obj;
 	}
 	
 	/**
      * Resolves the result of this Future object.
-	 * @pre object = null
-	 * @post object != null
+	 * @pre !isDone()
+	 * @post isDone()
      */
 	public synchronized void resolve (T result) {
 		obj = result;
