@@ -1,5 +1,3 @@
-
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -10,13 +8,11 @@ import static org.junit.Assert.*;
 
 public class FutureTest {
 
-    private Future<Model> preTrained;
-    private Future<Model> trained;
+    private Future<String> ftr;
+
     @Before
     public void setUp() throws Exception {
-        preTrained = new Future();
-        trained = new Future();
-
+        ftr = new Future();
     }
 
     @After
@@ -25,10 +21,9 @@ public class FutureTest {
 
     @Test
     public void get() {
-        try {
-
-        }
-
+        ftr.resolve("test");
+        String results = ftr.get();
+        //im braindead now so if you got any strength left in you, do it
     }
 
     @Test
