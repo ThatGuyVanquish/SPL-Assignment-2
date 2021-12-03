@@ -9,15 +9,45 @@ import java.util.Vector;
  */
 public class CPU {
     private int cores;
-    private Data data;
-    private  DataBatch dataBatch;
-    public CPU(int cores,Data data,DataBatch dataBatch){
-        this.data = data;
-        this.cores= cores;
-        this.dataBatch = dataBatch;
-    }
-    public void Train(){
 
+    public CPU(int cores){
+        this.cores = cores;
+    }
+
+    /**
+     *
+     * @param batch batch to work on
+     * @return the process is complete
+     */
+    public boolean compute(DataBatch batch){
+        Data.Type type = batch.getType();
+        switch (type){
+            case Images:
+            {
+                for (int i = 0; i < 4 * (32/this.cores); i++)
+                    try {
+                        this.wait();
+                    }
+                    catch (InterruptedException e) {};
+            }
+            case Text:
+            {
+                for (int i = 0; i < 2 * (32/this.cores); i++)
+                    try {
+                        this.wait();
+                    }
+                    catch (InterruptedException e) {};
+            }
+            case Tabular:
+            {
+                for (int i = 0; i < 32/this.cores; i++)
+                    try {
+                        this.wait();
+                    }
+                    catch (InterruptedException e) {};
+            }
+        }
+        return true;
     }
 
     private void SentToCluster(){

@@ -37,6 +37,10 @@ public class Data {
         return false;
     }
 
+    public Type getType() {
+        return this.type;
+    }
+
     public synchronized boolean processData(int batches) {
         this.processed += batches;
         return isDone();

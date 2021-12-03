@@ -15,5 +15,9 @@ public class DataBatch {
         this.index = index;
     }
 
+    public Data.Type getType() {
+        return data.getType();
+    }
+
 
 }

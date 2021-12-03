@@ -30,7 +30,7 @@ public class GPUTest {
 
     @Test
     public void getModel() {
-        this.gpu.Train(this.m);
+        this.gpu.train(this.m);
         assertSame(this.m, gpu.getModel());
     }
 

@@ -45,7 +45,7 @@ public class GPU {
      * @inv model.getData().processed@pre <= model.getData().processed
      * @post model.getData().isDone()
      */
-    public void Train(Model model) {
+    public void train(Model model) {
         this.currentModel = model;
         Data data = model.getData();
         int processed = 0;
