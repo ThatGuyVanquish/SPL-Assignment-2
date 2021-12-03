@@ -3,7 +3,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import bgu.spl.mics.Future;
-import bgu.spl.mics.application.objects.Model;
 import static org.junit.Assert.*;
 
 public class FutureTest {

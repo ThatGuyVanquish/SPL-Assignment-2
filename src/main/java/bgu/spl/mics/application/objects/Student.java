@@ -12,10 +12,19 @@ public class Student {
         MSc, PhD
     }
 
-    private int name;
+    private String name;
     private String department;
     private Degree status;
     private int publications;
     private int papersRead;
+
+    public Student(String name, String dpt, Degree deg)
+    {
+        this.name = name;
+        this.department = dpt;
+        this.status = deg;
+        this.publications = 0;
+        this.papersRead = 0;
+    }
 
 }

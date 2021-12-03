@@ -6,5 +6,14 @@ package bgu.spl.mics.application.objects;
  */
 
 public class DataBatch {
-    
+
+    private int index;
+    private Data data;
+
+    public DataBatch(int index, Data data) {
+        this.data = data;
+        this.index = index;
+    }
+
+
 }
