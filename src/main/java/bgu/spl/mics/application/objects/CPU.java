@@ -18,6 +18,7 @@ public class CPU {
      *
      * @param batch batch to work on
      * @return the process is complete
+     * @inv return true
      */
     public boolean compute(DataBatch batch){
         Data.Type type = batch.getType();
@@ -49,11 +50,5 @@ public class CPU {
         }
         return true;
     }
-
-    private void SentToCluster(){
-
-    }
-
-
 
 }
