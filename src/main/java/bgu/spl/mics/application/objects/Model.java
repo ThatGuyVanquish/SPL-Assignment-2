@@ -9,8 +9,8 @@ public class Model {
     private String name;
     private Data data;
     private Student student;
-    private enum status {PreTrained, Training, Trained, Tested};
-    private enum results {None, Good, Bad};
+    enum status {PreTrained, Training, Trained, Tested};
+    enum results {None, Good, Bad};
     private status currentStatus;
     private results currentResult;
 
@@ -27,4 +27,8 @@ public class Model {
     public Student getStudent() { return this.student;}
     public status getStatus() { return this.currentStatus;}
     public results getResult() { return this.currentResult;}
+
+    public synchronized void setResult(results result) { this.currentResult = result;}
+    public synchronized void setStatus(status status) { this.currentStatus = status;}
+
 }

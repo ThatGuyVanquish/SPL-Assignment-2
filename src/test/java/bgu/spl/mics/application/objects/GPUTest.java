@@ -36,5 +36,15 @@ public class GPUTest {
 
     @Test
     public void train() {
+        assertSame(this.gpu.getModel().getStatus(), Model.status.PreTrained);
+        this.gpu.train(this.m);
+        assertSame(this.gpu.getModel().getStatus(), Model.status.Trained);
+    }
+
+    @Test
+    public void test() {
+        assertSame(this.gpu.getModel().getStatus(), Model.status.Trained);
+        this.gpu.test(this.m);
+        assertSame(this.gpu.getModel().getStatus(), Model.status.Tested);
     }
 }

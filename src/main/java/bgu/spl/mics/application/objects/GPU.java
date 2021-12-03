@@ -1,7 +1,7 @@
 package bgu.spl.mics.application.objects;
 
 import bgu.spl.mics.application.services.GPUService;
-
+import bgu.spl.mics.application.objects.Model;
 import java.util.Vector;
 
 /**
@@ -41,12 +41,13 @@ public class GPU {
      *
      * @param model current Model to train
      * @pre !data.isDone()
-     * @pre model.getData().processed == 0
+     * @pre model.getStatus() == PreTrained
      * @inv model.getData().processed@pre <= model.getData().processed
-     * @post model.getData().isDone()
+     * @post model.getStatus() == Trained
      */
     public void train(Model model) {
         this.currentModel = model;
+        model.setStatus(Model.status.Training);
         Data data = model.getData();
         int processed = 0;
         switch (this.type) {
@@ -87,11 +88,34 @@ public class GPU {
                     catch (InterruptedException e){};
                 }
                 // call service to send a message through MessageBus to set future to resolved
-
             }
         }
+        model.setStatus(Model.status.Trained);
     }
 
+    /**
+     *
+     * @param model model to test
+     * @return true
+     * @pre Model.getStatus == Trained
+     * @post Model.getStatus == Tested
+     */
+    public boolean test(Model model) {
+        switch (model.getStudent().getStatus()){
+            case PhD: {
+                if (Math.random() >= 0.8)
+                   model.setResult(Model.results.Good);
+                else model.setResult((Model.results.Bad));
+            }
+            case MSc: {
+                if (Math.random() >= 0.9)
+                    model.setResult(Model.results.Good);
+                else model.setResult((Model.results.Bad));
+            }
+        }
+        model.setStatus(Model.status.Tested);
+        return true;
+    }
 }
     /*
     IDEAS
