@@ -1,4 +1,7 @@
 package bgu.spl.mics;
+import java.util.Vector;
+import java.util.concurrent.ConcurrentHashMap;
+
 
 /**
  * The {@link MessageBusImpl class is the implementation of the MessageBus interface.
@@ -6,39 +9,51 @@ package bgu.spl.mics;
  * Only private fields and methods can be added to this class.
  */
 public class MessageBusImpl implements MessageBus {
-	/**
-	 *
-	 * @param type The type to subscribe to,
-	 * @param m    The subscribing micro-service.
-	 * @param <T>
-	 * @post hashmap not full
-	 */
+	private ConcurrentHashMap<MicroService, Vector<Message>> MicroDict ;
+	private ConcurrentHashMap<Message, Future> MsgToFutr;
+	private ConcurrentHashMap<Class<? extends Message>, Vector<MicroService>> MsgToMicro;
+	private static MessageBusImpl instance = null;
+	private MessageBusImpl(){
+     MicroDict = new ConcurrentHashMap<MicroService, Vector<Message>>();
+	 MsgToFutr = new ConcurrentHashMap<Message, Future>();
+	 MsgToMicro = new ConcurrentHashMap<Class<? extends Message>, Vector<MicroService>>();
+	}
+	 public static MessageBusImpl getInstance() {
+		if (instance==null){
+			instance = new MessageBusImpl();
+		}
+		return  instance;
+	}
+
 	@Override
 	public <T> void subscribeEvent(Class<? extends Event<T>> type, MicroService m) {
-		// TODO Auto-generated method stub
+		if (!MsgToMicro.containsKey(type))
+			MsgToMicro.put(type,new Vector<MicroService>());
+		MsgToMicro.get(type).add(m);
 
 	}
 
 	/**
-	 *
-	 * @param type 	The type to subscribe to.
-	 * @param m    	The subscribing micro-service.
+	 * @param type The type to subscribe to.
+	 * @param m    The subscribing micro-service.
 	 */
 	@Override
 	public void subscribeBroadcast(Class<? extends Broadcast> type, MicroService m) {
-		// TODO Auto-generated method stub
+		if (!MsgToMicro.containsKey(type))
+			MsgToMicro.put(type,new Vector<MicroService>());
+		MsgToMicro.get(type).add(m);
 
 	}
 
 	/**
-	 *
 	 * @param e      The completed event.
 	 * @param result The resolved result of the completed event.
 	 * @param <T>
 	 */
 	@Override
 	public <T> void complete(Event<T> e, T result) {
-		// TODO Auto-generated method stub
+		MsgToFutr.get(e).resolve(result);
+		MsgToFutr.remove(e);
 
 	}
 
@@ -48,22 +63,27 @@ public class MessageBusImpl implements MessageBus {
 
 	}
 
-	
-	@Override
-	public <T> Future<T> sendEvent(Event<T> e) {
-		// TODO Auto-generated method stub
-		return null;
-	}
 
 	@Override
+	public <T> Future<T> sendEvent(Event<T> e) {
+		Future<T>  result = new Future<T>();
+		if (!MsgToMicro.containsKey(e))
+			return null;
+		MicroService s = MsgToMicro.get(e).get(0);//need to implement "round robin", maybe add field?
+		MicroDict.get(s).add(e);
+		MsgToFutr.put(e,result);
+		return result;
+	}
+
+
 	public void register(MicroService m) {
-		// TODO Auto-generated method stub
+		MicroDict.put(m,new Vector<Message>());
 
 	}
 
 	@Override
 	public void unregister(MicroService m) {
-		// TODO Auto-generated method stub
+		MicroDict.remove(m);
 
 	}
 
@@ -73,6 +93,15 @@ public class MessageBusImpl implements MessageBus {
 		return null;
 	}
 
-	
+	@Override
+	public <T> boolean IssubscribeEvent(Class<? extends Event<T>> type, MicroService m) {
+		return MsgToMicro.get(type).contains(m);
+	}
+
+	@Override
+	public boolean IsSubscribedBroadcast(Class<? extends Broadcast> type, MicroService m) {
+		return MsgToMicro.get(type).contains(m);
+	}
 
 }
+

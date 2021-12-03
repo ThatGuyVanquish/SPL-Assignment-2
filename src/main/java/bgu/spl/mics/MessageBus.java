@@ -17,6 +17,8 @@ public interface MessageBus {
      * @param <T>  The type of the result expected by the completed event.
      * @param type The type to subscribe to,
      * @param m    The subscribing micro-service.
+     * @pre Trivial
+     * @post isSubsribeEvent(type,m)==true
      */
     <T> void subscribeEvent(Class<? extends Event<T>> type, MicroService m);
 
@@ -25,6 +27,8 @@ public interface MessageBus {
      * <p>
      * @param type 	The type to subscribe to.
      * @param m    	The subscribing micro-service.
+     * @pre Trivial
+     * @post isSubsribeEvent(type,m)==true
      */
     void subscribeBroadcast(Class<? extends Broadcast> type, MicroService m);
 
@@ -93,5 +97,20 @@ public interface MessageBus {
      *                              to became available.
      */
     Message awaitMessage(MicroService m) throws InterruptedException;
-    
+
+
+    /**
+     *
+     * @param type
+     * @param m
+     * @return True iff e is subscribed to  Event type
+     */
+    <T> boolean IssubscribeEvent(Class<? extends Event<T>> type, MicroService m);
+    /**
+     *
+     * @param type
+     * @param m
+     * @return True iff e is subscribed to type
+     */
+    boolean IsSubscribedBroadcast(Class<? extends Broadcast> type, MicroService m);
 }

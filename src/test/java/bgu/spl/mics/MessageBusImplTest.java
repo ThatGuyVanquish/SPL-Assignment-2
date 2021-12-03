@@ -1,45 +1,69 @@
 package bgu.spl.mics;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
+import bgu.spl.mics.example.messages.ExampleEvent;
+import bgu.spl.mics.example.services.ExampleEventHandlerService;
 import org.junit.Before;
-import org.junit.Test;
-
-import static org.junit.Assert.*;
+import org.junit.experimental.theories.suppliers.TestedOn;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class MessageBusImplTest {
 
+    private static MessageBusImpl messageBus;
+    private static ExampleEvent e;
+    private static MicroService m;
+    private static MicroService m2;
+    private static ExampleEvent e2;
     @Before
-    public void setUp() throws Exception {
+    public void setup() {
+        messageBus = MessageBusImpl.getInstance();
+         e = new ExampleEvent("Test1");
+         m = new ExampleEventHandlerService("Test2", new String[]{"tst,tst"});
+         e2 = new ExampleEvent("Test3");
+         m2 = new ExampleEventHandlerService("Test4", new String[]{"tst,tst"});
+
     }
 
     @Test
-    public void subscribeEvent() {
+    public static void subscribeEvent() {
+
+
     }
 
     @Test
-    public void subscribeBroadcast() {
+    public static void subscribeBroadcast() {
+
     }
 
     @Test
     public void complete() {
+
+    }
+
+
+    @Test
+    public void sendBroadcast(){
+
     }
 
     @Test
-    public void sendBroadcast() {
+    public void sendEvent(){
+
     }
 
     @Test
-    public void sendEvent() {
+    public void register(){
+
     }
 
     @Test
-    public void register() {
+    public void unregister(){
+
     }
 
-    @Test
-    public void unregister() {
-    }
 
-    @Test
-    public void awaitMessage() {
-    }
+
 }
