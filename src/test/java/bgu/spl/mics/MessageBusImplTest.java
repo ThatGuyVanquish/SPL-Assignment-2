@@ -1,14 +1,10 @@
 package bgu.spl.mics;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.jupiter.api.Assertions.*;
+
+import org.junit.Before;
+import org.junit.Test;
 
 import bgu.spl.mics.example.messages.ExampleEvent;
 import bgu.spl.mics.example.services.ExampleEventHandlerService;
-import org.junit.Before;
-import org.junit.experimental.theories.suppliers.TestedOn;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 
 public class MessageBusImplTest {
 
@@ -24,12 +20,10 @@ public class MessageBusImplTest {
          m = new ExampleEventHandlerService("Test2", new String[]{"tst,tst"});
          e2 = new ExampleEvent("Test3");
          m2 = new ExampleEventHandlerService("Test4", new String[]{"tst,tst"});
-
     }
 
     @Test
     public static void subscribeEvent() {
-
 
     }
 
