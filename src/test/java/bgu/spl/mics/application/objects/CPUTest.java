@@ -11,7 +11,7 @@ public class CPUTest {
     private Data data;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         this.cpu = new CPU(69420);
         this.data = new Data(Data.Type.Tabular, 1000);
     }

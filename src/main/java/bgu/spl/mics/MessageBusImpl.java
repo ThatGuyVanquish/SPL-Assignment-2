@@ -9,7 +9,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * Only private fields and methods can be added to this class.
  */
 public class MessageBusImpl implements MessageBus {
-	private ConcurrentHashMap<MicroService, Vector<Message>> MicroDict ;
+	private ConcurrentHashMap<MicroService, Vector<Message>> MicroDict;
 	private ConcurrentHashMap<Message, Future> MsgToFutr;
 	private ConcurrentHashMap<Class<? extends Message>, Vector<MicroService>> MsgToMicro;
 	private static MessageBusImpl instance = null;
@@ -30,7 +30,6 @@ public class MessageBusImpl implements MessageBus {
 		if (!MsgToMicro.containsKey(type))
 			MsgToMicro.put(type,new Vector<MicroService>());
 		MsgToMicro.get(type).add(m);
-
 	}
 
 	/**
@@ -54,7 +53,6 @@ public class MessageBusImpl implements MessageBus {
 	public <T> void complete(Event<T> e, T result) {
 		MsgToFutr.get(e).resolve(result);
 		MsgToFutr.remove(e);
-
 	}
 
 	@Override
@@ -78,13 +76,11 @@ public class MessageBusImpl implements MessageBus {
 
 	public void register(MicroService m) {
 		MicroDict.put(m,new Vector<Message>());
-
 	}
 
 	@Override
 	public void unregister(MicroService m) {
 		MicroDict.remove(m);
-
 	}
 
 	@Override
@@ -94,14 +90,19 @@ public class MessageBusImpl implements MessageBus {
 	}
 
 	@Override
-	public <T> boolean IssubscribeEvent(Class<? extends Event<T>> type, MicroService m) {
-		return MsgToMicro.get(type).contains(m);
+	public boolean isRegistered(MicroService m) {
+		// TODO I generated this method stub
+		return false;
 	}
 
 	@Override
-	public boolean IsSubscribedBroadcast(Class<? extends Broadcast> type, MicroService m) {
-		return MsgToMicro.get(type).contains(m);
+	public boolean isSubscribedToEvent(MicroService m) {
+		return false;
+	}
+
+	@Override
+	public boolean isSubscribedToBroadcast(MicroService m) {
+		return false;
 	}
 
 }
-

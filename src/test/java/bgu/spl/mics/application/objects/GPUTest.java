@@ -15,12 +15,12 @@ public class GPUTest {
     private Student std;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         this.c = new Cluster();
         this.std = new Student("Alfred", "Batman's Laundry", Student.Degree.PhD);
         this.data = new Data(Data.Type.Tabular, 1);
         this.gpu = new GPU(GPU.Type.RTX3090, c);
-        this.m = new Model("Test Model", this.data, this.std);
+        this.m = new Model("Batmobile", this.data, this.std);
     }
 
     @Test

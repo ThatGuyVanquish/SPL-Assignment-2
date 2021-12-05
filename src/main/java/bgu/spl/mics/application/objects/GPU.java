@@ -18,7 +18,7 @@ public class GPU {
     private Model currentModel;
     private Cluster cluster;
     private Type type;
-    int unprocessedData;
+    private int unprocessedData;
 
     public GPU(Type t, Cluster c) {
         this.type = t;

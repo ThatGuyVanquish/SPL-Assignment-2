@@ -22,7 +22,7 @@ public class Data {
         this.processed = 0;
     }
 
-    /*
+    /**
     Creates a new batch
      */
     public synchronized DataBatch batch() {

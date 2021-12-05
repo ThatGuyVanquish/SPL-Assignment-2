@@ -98,19 +98,24 @@ public interface MessageBus {
      */
     Message awaitMessage(MicroService m) throws InterruptedException;
 
+    /**
+     *
+     * @param m micro
+     * @return true if microservice is registered to the hashmap
+     */
+    boolean isRegistered(MicroService m);
 
     /**
      *
-     * @param type
-     * @param m
-     * @return True iff e is subscribed to  Event type
+     * @param m microservice that is supposed to be subscribed to event
+     * @return true if microservice is subscribed
      */
-    <T> boolean IssubscribeEvent(Class<? extends Event<T>> type, MicroService m);
+    <T> boolean isSubscribedToEvent(Class<? extends Event<T>> event, MicroService m);
+
     /**
      *
-     * @param type
-     * @param m
-     * @return True iff e is subscribed to type
+     * @param m microservice that is supposed to be subscribed to broadcast
+     * @return true if microservice is subscribed
      */
-    boolean IsSubscribedBroadcast(Class<? extends Broadcast> type, MicroService m);
+    boolean isSubscribedToBroadcast(Class<? extends Broadcast> broadcast, MicroService m);
 }
