@@ -13,11 +13,13 @@ public class MessageBusImpl implements MessageBus {
 	private ConcurrentHashMap<Message, Future> MsgToFutr;
 	private ConcurrentHashMap<Class<? extends Message>, Vector<MicroService>> MsgToMicro;
 	private static MessageBusImpl instance = null;
+
 	private MessageBusImpl(){
      MicroDict = new ConcurrentHashMap<MicroService, Vector<Message>>();
 	 MsgToFutr = new ConcurrentHashMap<Message, Future>();
 	 MsgToMicro = new ConcurrentHashMap<Class<? extends Message>, Vector<MicroService>>();
 	}
+
 	 public static MessageBusImpl getInstance() {
 		if (instance==null){
 			instance = new MessageBusImpl();
@@ -96,13 +98,18 @@ public class MessageBusImpl implements MessageBus {
 	}
 
 	@Override
-	public boolean isSubscribedToEvent(MicroService m) {
+	public <T> boolean isSubscribedToEvent(Class<? extends Event<T>> event, MicroService m) {
 		return false;
 	}
 
 	@Override
-	public boolean isSubscribedToBroadcast(MicroService m) {
+	public boolean isSubscribedToBroadcast(Class<? extends Broadcast> broadcast, MicroService m) {
 		return false;
+	}
+
+	@Override
+	public <T> Future getFuture(Event<T> e) {
+		return null;
 	}
 
 }

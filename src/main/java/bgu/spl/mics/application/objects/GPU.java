@@ -44,6 +44,7 @@ public class GPU {
      * @pre model.getStatus() == PreTrained
      * @inv model.getData().processed@pre <= model.getData().processed
      * @post model.getStatus() == Trained
+     * @post model.isDone()
      */
     public void train(Model model) {
         this.currentModel = model;

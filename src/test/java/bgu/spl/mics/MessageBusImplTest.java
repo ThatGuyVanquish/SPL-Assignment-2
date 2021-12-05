@@ -14,29 +14,31 @@ public class MessageBusImplTest {
     private static MessageBusImpl messageBus;
     private static ExampleEvent event;
     private static ExampleBroadcast broadcast;
-    private static MicroService ms;
+    private static MicroService ms_event;
+    private static MicroService ms_broadcast;
     private static Future<String> ftr;
 
     @Before
     public void setup() {
         messageBus = MessageBusImpl.getInstance();
-         event = new ExampleEvent("Event");
-         ms = new ExampleEventHandlerService("EventHandler", new String[]{"tst,tst"});
-         broadcast = new ExampleBroadcast("Broadcast");
-         ftr = new Future<>();
-         messageBus.register(ms);
+        event = new ExampleEvent("Event");
+        ms_event = new ExampleEventHandlerService("EventHandler", new String[]{"tst,tst"});
+        broadcast = new ExampleBroadcast("Broadcast");
+        ftr = new Future<>();
+        messageBus.register(ms_event);
+        messageBus.register(ms_broadcast);
     }
 
     @Test
     public static void subscribeEvent() {
-        messageBus.subscribeEvent(event.getClass(), ms);
-        assertTrue(messageBus.isSubscribedToEvent(event.getClass(), ms));
+        messageBus.subscribeEvent(event.getClass(), ms_event);
+        assertTrue(messageBus.isSubscribedToEvent(event.getClass(), ms_event));
     }
 
     @Test
     public static void subscribeBroadcast() {
-        messageBus.subscribeBroadcast(broadcast.getClass(), ms);
-        assertTrue(messageBus.isSubscribedToBroadcast(broadcast.getClass(), ms));
+        messageBus.subscribeBroadcast(broadcast.getClass(), ms_broadcast);
+        assertTrue(messageBus.isSubscribedToBroadcast(broadcast.getClass(), ms_broadcast));
     }
 
     @Test
@@ -47,43 +49,37 @@ public class MessageBusImplTest {
 
     @Test
     public void sendBroadcast(){
-        messageBus.subscribeBroadcast(broadcast.getClass(), ms);
+        messageBus.subscribeBroadcast(broadcast.getClass(), ms_broadcast);
         messageBus.sendBroadcast(broadcast);
-        Message msg;
+        Message msg = null;
         try {
-            msg = messageBus.awaitMessage(ms);
+            msg = messageBus.awaitMessage(ms_broadcast);
         }
-        catch (InterruptedException e) {
-            msg = null;
-            fail();
-        }
+        catch (InterruptedException e) {}
         assertEquals(broadcast, msg);
     }
 
     @Test
     public void sendEvent(){
-        messageBus.subscribeEvent(event.getClass(), ms);
+        messageBus.subscribeEvent(event.getClass(), ms_event);
         messageBus.sendEvent(event);
-        Message msg;
+        Message msg = null;
         try {
-            msg = messageBus.awaitMessage(ms);
+            msg = messageBus.awaitMessage(ms_event);
         }
-        catch (InterruptedException e) {
-            msg = null;
-            fail();
-        }
+        catch (InterruptedException e) {}
         assertEquals(event, msg);
     }
 
     @Test
     public void register(){
-        assertTrue(messageBus.isRegistered(ms));
+        assertTrue(messageBus.isRegistered(ms_event));
     }
 
     @Test
     public void unregister(){
-        messageBus.unregister(ms);
-        assertFalse(messageBus.isRegistered(ms));
+        messageBus.unregister(ms_event);
+        assertFalse(messageBus.isRegistered(ms_event));
     }
 
 }

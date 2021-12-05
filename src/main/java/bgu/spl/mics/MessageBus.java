@@ -15,10 +15,10 @@ public interface MessageBus {
      * Subscribes {@code m} to receive {@link Event}s of type {@code type}.
      * <p>
      * @param <T>  The type of the result expected by the completed event.
-     * @param type The type to subscribe to,
+     * @param type The type to subscribe to
      * @param m    The subscribing micro-service.
      * @pre Trivial
-     * @post isSubsribeEvent(type,m)==true
+     * @post isSubsribdToeEvent(type,m)==true
      */
     <T> void subscribeEvent(Class<? extends Event<T>> type, MicroService m);
 
@@ -28,7 +28,7 @@ public interface MessageBus {
      * @param type 	The type to subscribe to.
      * @param m    	The subscribing micro-service.
      * @pre Trivial
-     * @post isSubsribeEvent(type,m)==true
+     * @post isSubsribedToBroadcast(type,m) == true
      */
     void subscribeBroadcast(Class<? extends Broadcast> type, MicroService m);
 
@@ -41,6 +41,8 @@ public interface MessageBus {
      * @param <T>    The type of the result expected by the completed event.
      * @param e      The completed event.
      * @param result The resolved result of the completed event.
+     * @pre !getFuture(e).isDone()
+     * @post getFuture(e).isDone()
      */
     <T> void complete(Event<T> e, T result);
 
@@ -68,6 +70,8 @@ public interface MessageBus {
      * Allocates a message-queue for the {@link MicroService} {@code m}.
      * <p>
      * @param m the micro-service to create a queue for.
+     * @pre !isRegistered(m)
+     * @post isRegistered(m)
      */
     void register(MicroService m);
 
@@ -78,6 +82,8 @@ public interface MessageBus {
      * registered, nothing should happen.
      * <p>
      * @param m the micro-service to unregister.
+     * @pre isRegistered()
+     * @post !isRegistered()
      */
     void unregister(MicroService m);
 
@@ -95,6 +101,7 @@ public interface MessageBus {
      * @return The next message in the {@code m}'s queue (blocking).
      * @throws InterruptedException if interrupted while waiting for a message
      *                              to became available.
+     * @pre isRegistered(m)
      */
     Message awaitMessage(MicroService m) throws InterruptedException;
 
@@ -106,16 +113,27 @@ public interface MessageBus {
     boolean isRegistered(MicroService m);
 
     /**
-     *
+     * Checks if @param m is subscribed to events of type @param event
      * @param m microservice that is supposed to be subscribed to event
+     * @param event event class to subscribe to
      * @return true if microservice is subscribed
      */
     <T> boolean isSubscribedToEvent(Class<? extends Event<T>> event, MicroService m);
 
     /**
      *
-     * @param m microservice that is supposed to be subscribed to broadcast
+     * Checks if @param m is subscribed to broadcast of type @param broadcast
+     * @param m microservice that is supposed to be subscribed to event
+     * @param broadcast broadcast class to subscribe to
      * @return true if microservice is subscribed
      */
     boolean isSubscribedToBroadcast(Class<? extends Broadcast> broadcast, MicroService m);
+
+    /**
+     * Gets future related to event e
+     * @param e Event future is reated to
+     * @param <T> Class type of Future
+     * @return Future relatedto event e
+     */
+    <T> Future getFuture(Event<T> e);
 }
