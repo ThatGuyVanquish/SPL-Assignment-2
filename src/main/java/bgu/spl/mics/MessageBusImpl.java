@@ -13,6 +13,7 @@ public class MessageBusImpl implements MessageBus {
 	private ConcurrentHashMap<Message, Future> MsgToFutr;
 	private ConcurrentHashMap<Class<? extends Message>, Vector<MicroService>> MsgToMicro;
 	private static MessageBusImpl instance = null;
+	private  Object lockRoundRobin;
 
 	private MessageBusImpl(){
      MicroDict = new ConcurrentHashMap<MicroService, Vector<Message>>();
@@ -69,9 +70,12 @@ public class MessageBusImpl implements MessageBus {
 		Future<T>  result = new Future<T>();
 		if (!MsgToMicro.containsKey(e))
 			return null;
-		MicroService s = MsgToMicro.get(e).get(0);//need to implement "round robin", maybe add field?
-		MicroDict.get(s).add(e);
-		MsgToFutr.put(e,result);
+		synchronized (lockRoundRobin) {
+			MicroService s = MsgToMicro.get(e).remove(0); //round robin implement
+			MicroDict.get(s).add(e);
+			MsgToFutr.put(e, result);
+			MsgToMicro.get(e).add(s);
+		}
 		return result;
 	}
 
@@ -87,29 +91,34 @@ public class MessageBusImpl implements MessageBus {
 
 	@Override
 	public Message awaitMessage(MicroService m) throws InterruptedException {
-		// TODO Auto-generated method stub
-		return null;
+		try {
+			while (MicroDict.get(m).isEmpty()) {
+				m.wait();
+			}
+		}
+		catch (InterruptedException e){ };
+		Message msg = MicroDict.get(m).remove(0);
+		return msg;
 	}
 
 	@Override
 	public boolean isRegistered(MicroService m) {
-		// TODO I generated this method stub
-		return false;
+		return MicroDict.containsKey(m);
 	}
 
 	@Override
 	public <T> boolean isSubscribedToEvent(Class<? extends Event<T>> event, MicroService m) {
-		return false;
+		return MsgToMicro.get(event).contains(m);
 	}
 
 	@Override
 	public boolean isSubscribedToBroadcast(Class<? extends Broadcast> broadcast, MicroService m) {
-		return false;
+		return MsgToMicro.get(broadcast).contains(m);
 	}
 
 	@Override
 	public <T> Future getFuture(Event<T> e) {
-		return null;
+		return MsgToFutr.get(e);
 	}
 
 }
