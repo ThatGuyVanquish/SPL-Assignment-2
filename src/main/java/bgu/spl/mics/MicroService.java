@@ -1,5 +1,7 @@
 package bgu.spl.mics;
 
+import java.util.HashMap;
+
 /**
  * The MicroService is an abstract class that any micro-service in the system
  * must extend. The abstract MicroService class is responsible to get and
@@ -23,13 +25,15 @@ public abstract class MicroService implements Runnable {
     private boolean terminated = false;
     private final String name;
     private  MessageBusImpl MsgBus;
+    private HashMap <Class<? extends Message>,Callback> MsgToCallBack;
 
     /**
      * @param name the micro-service name (used mainly for debugging purposes -
      *             does not have to be unique)
      */
-    public MicroService(String name,MessageBusImpl MsgBus) {
-        this.MsgBus = MsgBus;
+    public MicroService(String name) {
+        MsgBus = MessageBusImpl.getInstance();
+        MsgToCallBack = new HashMap<>();
         this.name = name;
     }
 
@@ -56,6 +60,7 @@ public abstract class MicroService implements Runnable {
      */
     protected final <T, E extends Event<T>> void subscribeEvent(Class<E> type, Callback<E> callback) {
         MsgBus.subscribeEvent(type,this);
+        MsgToCallBack.put(type,callback);
     }
 
     /**
@@ -80,6 +85,7 @@ public abstract class MicroService implements Runnable {
      */
     protected final <B extends Broadcast> void subscribeBroadcast(Class<B> type, Callback<B> callback) {
         MsgBus.subscribeBroadcast(type,this);
+        MsgToCallBack.put(type,callback);
     }
 
     /**
@@ -149,10 +155,14 @@ public abstract class MicroService implements Runnable {
      */
     @Override
     public final void run() {
+        MsgBus.register(this);
         initialize();
         while (!terminated) {
-            MsgBus.awaitMessage(this); //need to implement with callback and shit
+          Message msg =   MsgBus.awaitMessage(this);
+          Callback callback = MsgToCallBack.get(msg);
+          callback.call(msg);
         }
+        MsgBus.unregister(this);
     }
 
 }

@@ -60,8 +60,10 @@ public class MessageBusImpl implements MessageBus {
 
 	@Override
 	public void sendBroadcast(Broadcast b) {
-		// TODO Auto-generated method stub
-
+		Vector<MicroService> broad = MsgToMicro.get(b);
+		for(MicroService microService : broad){
+			MicroDict.get(broad).add(b);
+		}
 	}
 
 
@@ -87,6 +89,7 @@ public class MessageBusImpl implements MessageBus {
 	@Override
 	public void unregister(MicroService m) {
 		MicroDict.remove(m);
+		// need to delete in other queues as well?
 	}
 
 	@Override

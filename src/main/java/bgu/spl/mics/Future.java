@@ -68,7 +68,8 @@ public class Future<T> {
 	public T get(long timeout, TimeUnit unit){
 		if (!isDone())
 			try {
-				wait(TimeUnit.MILLISECONDS.convert(timeout,unit));
+
+				wait(unit.toMillis(timeout));
 			}
 			catch (InterruptedException e) {
 
