@@ -1,5 +1,6 @@
 package bgu.spl.mics.application;
 
+import bgu.spl.mics.MessageBusImpl;
 import bgu.spl.mics.application.objects.*;
 import bgu.spl.mics.application.services.*;
 import bgu.spl.mics.application.objects.Cluster;
@@ -17,14 +18,18 @@ import java.util.Vector;
  */
 
 public class CRMSRunner {
-    private static JsonParser parser = new JsonParser();
+    private static final JsonParser PARSER = new JsonParser();
+    private static final Cluster CLUSTER = Cluster.getInstance();
+    private static final MessageBusImpl MESSAGE_BUS = MessageBusImpl.getInstance();
 
     public static void main(String[] args) {
         //InputStream inputStream = CRMSRunner.class.getClassLoader().getResourceAsStream(args[0]); The line we'd probably use to compile
         InputStream inputStream = CRMSRunner.class.getClassLoader().getResourceAsStream("test.json");
         Reader reader = new InputStreamReader(inputStream);
-        JsonElement rootElement = parser.parse(reader);
+        JsonElement rootElement = PARSER.parse(reader);
         JsonObject rootObject = rootElement.getAsJsonObject();
+
+        // Creating all of the Student Services
         Vector<StudentService> studentVector = new Vector<>(); // Vector to store StudentService objects, need to move to msgBus?
         JsonArray students = rootObject.getAsJsonArray("Students");
         for (JsonElement student : students) {
@@ -42,7 +47,10 @@ public class CRMSRunner {
                     break;
             }
             Student newStudent = new Student(name, department, deg);
-            studentVector.add(new StudentService(name, newStudent));
+            StudentService currentStudentService = new StudentService(name, newStudent);
+            studentVector.add(currentStudentService);
+            Thread thread = new Thread(currentStudentService);
+            // Creating the models which are connected to the current Student object
             Vector<Model> modelVector = new Vector<>();
             JsonArray models = currentStudent.getAsJsonArray("models");
             for (JsonElement e : models)
@@ -66,8 +74,10 @@ public class CRMSRunner {
                 modelVector.add(new Model(modelName, currentModelData, newStudent));
             }
             newStudent.addModels(modelVector);
+            thread.start();
         }
-        Cluster _c = Cluster.getInstance();
+
+        // Creating the GPU Services
         Vector<GPUService> gpus = new Vector<>();
         JsonArray gpuArr = rootObject.getAsJsonArray("GPUS");
         for (JsonElement e : gpuArr) {
@@ -84,13 +94,21 @@ public class CRMSRunner {
                     gpuType = GPU.Type.GTX1080;
                     break;
             }
-            gpus.add(new GPUService(gpuTypeStr, new GPU(gpuType, _c)));
+            GPUService currentGPU = new GPUService(gpuTypeStr, new GPU(gpuType, CLUSTER));
+            gpus.add(currentGPU);
+            Thread thread = new Thread(currentGPU);
+            thread.start();
         }
+
+        // Creating the CPU Services
         Vector<CPUService> cpus = new Vector<>();
         JsonArray cpuArr = rootObject.getAsJsonArray("CPUS");
         for (JsonElement e : cpuArr) {
             int cpuCoreCount = e.getAsInt();
-            cpus.add(new CPUService(e.getAsString(),new CPU(cpuCoreCount)));
+            CPUService currentCPU = new CPUService(e.getAsString(), new CPU(cpuCoreCount));
+            cpus.add(currentCPU);
+            Thread thread = new Thread(currentCPU);
+            thread.start();
         }
         Vector<ConferenceService> confVector = new Vector<>();
         JsonArray confArr = rootObject.getAsJsonArray("Conferences");
@@ -99,8 +117,12 @@ public class CRMSRunner {
             int confDate = e.getAsJsonObject().get("date").getAsInt();
             confVector.add(new ConferenceService(confName, new ConfrenceInformation(confName, confDate)));
         }
+
+        // Creating the TimeService MicroService
         int tickTime = rootObject.get("TickTime").getAsInt();
         int tickDur = rootObject.get("Duration").getAsInt();
         TimeService _globalTimer = new TimeService(tickTime, tickDur);
+        //Probably need to initialize _globalTimer here so that it would run ticks
+
     }
 }
