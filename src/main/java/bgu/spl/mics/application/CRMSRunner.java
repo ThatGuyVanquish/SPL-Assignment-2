@@ -48,6 +48,10 @@ public class CRMSRunner {
             }
             Student newStudent = new Student(name, department, deg);
             StudentService currentStudentService = new StudentService(name, newStudent);
+            MESSAGE_BUS.register(currentStudentService); // register only puts in the hashmap of (MicroService, Message vector)
+            /*
+            Might need to subscribe to TickBroadcast and so on
+             */
             studentVector.add(currentStudentService);
             Thread thread = new Thread(currentStudentService);
             // Creating the models which are connected to the current Student object
@@ -96,6 +100,10 @@ public class CRMSRunner {
             }
             GPUService currentGPU = new GPUService(gpuTypeStr, new GPU(gpuType, CLUSTER));
             gpus.add(currentGPU);
+            MESSAGE_BUS.register(currentGPU);
+            /*
+            Might need to register to receive broadcasts and events
+             */
             Thread thread = new Thread(currentGPU);
             thread.start();
         }
@@ -107,6 +115,10 @@ public class CRMSRunner {
             int cpuCoreCount = e.getAsInt();
             CPUService currentCPU = new CPUService(e.getAsString(), new CPU(cpuCoreCount));
             cpus.add(currentCPU);
+            MESSAGE_BUS.register(currentCPU);
+            /*
+            Might need to register to receive broadcasts and events
+             */
             Thread thread = new Thread(currentCPU);
             thread.start();
         }
@@ -115,7 +127,12 @@ public class CRMSRunner {
         for (JsonElement e : confArr) {
             String confName = e.getAsJsonObject().get("name").getAsString();
             int confDate = e.getAsJsonObject().get("date").getAsInt();
-            confVector.add(new ConferenceService(confName, new ConfrenceInformation(confName, confDate)));
+            ConferenceService currentConf = new ConferenceService(confName, new ConfrenceInformation(confName, confDate));
+            confVector.add(currentConf);
+            MESSAGE_BUS.register(currentConf); // Is this necessary?
+            /*
+            Might need to register to receive broadcasts and events
+             */
         }
 
         // Creating the TimeService MicroService
