@@ -140,6 +140,6 @@ public class CRMSRunner {
         int tickDur = rootObject.get("Duration").getAsInt();
         TimeService _globalTimer = new TimeService(tickTime, tickDur);
         //Probably need to initialize _globalTimer here so that it would run ticks
-
+        System.out.println("blyat");
     }
 }
