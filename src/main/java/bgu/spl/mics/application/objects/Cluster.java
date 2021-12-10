@@ -10,7 +10,7 @@ package bgu.spl.mics.application.objects;
  */
 public class Cluster {
 
-	public static Cluster clusterInst = new Cluster();
+	public static final Cluster clusterInst = new Cluster();
 	/**
      * Retrieves the single instance of this class.
      */

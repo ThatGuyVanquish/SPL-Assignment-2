@@ -71,17 +71,17 @@ public class CRMSRunner {
         Vector<GPUService> gpus = new Vector<>();
         JsonArray gpuArr = rootObject.getAsJsonArray("GPUS");
         for (JsonElement e : gpuArr) {
-            String gpuTypeStr = e.getAsString().toLowerCase();
+            String gpuTypeStr = e.getAsString();
             GPU.Type gpuType = null;
             switch (gpuTypeStr) {
-                case "rtx3090" :
+                case "RTX3090" :
                     gpuType = GPU.Type.RTX3090;
                     break;
-                case "gtx1080" :
-                    gpuType = GPU.Type.GTX1080;
-                    break;
-                case "rtx2080" :
+                case "RTX2080" :
                     gpuType = GPU.Type.RTX2080;
+                    break;
+                case "GTX1080" :
+                    gpuType = GPU.Type.GTX1080;
                     break;
             }
             gpus.add(new GPUService(gpuTypeStr, new GPU(gpuType, _c)));
