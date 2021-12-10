@@ -14,6 +14,10 @@ public class CPU {
         this.cores = cores;
     }
 
+    public String toString() {
+        return "" + this.cores;
+    }
+
     /**
      *
      * @param batch batch to work on

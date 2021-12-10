@@ -1,5 +1,7 @@
 package bgu.spl.mics.application.objects;
 
+import java.util.Vector;
+
 /**
  * Passive object representing single student.
  * Add fields and methods to this class as you see fit (including public methods and constructors).
@@ -8,7 +10,7 @@ public class Student {
     /**
      * Enum representing the Degree the student is studying for.
      */
-    enum Degree {
+    public enum Degree {
         MSc, PhD
     }
 
@@ -17,6 +19,7 @@ public class Student {
     private Degree status;
     private int publications;
     private int papersRead;
+    private Vector<Model> modelVector;
 
     public Student(String name, String dpt, Degree deg)
     {
@@ -27,6 +30,19 @@ public class Student {
         this.papersRead = 0;
     }
 
+    public void addModels(Vector<Model> modelVector) {
+        this.modelVector = modelVector;
+    }
+
+    public String toString() {
+        String ret = "Name: " + this.name + " Dept: " + this.department + " Status: " + this.status + "\n" + "Models:\n";
+        int i = 1;
+        for (Model m : this.modelVector) {
+            ret += i + ") " + m.toString() + "\n";
+            i++;
+        }
+        return ret;
+    }
     public String getName() {
         return name;
     }

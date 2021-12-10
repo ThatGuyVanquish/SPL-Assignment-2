@@ -6,6 +6,8 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 import bgu.spl.mics.application.objects.*;
 
+import java.util.Vector;
+
 public class GPUTest {
 
     private Model m;
@@ -17,10 +19,10 @@ public class GPUTest {
     @Before
     public void setUp() {
         this.c = new Cluster();
-        this.std = new Student("Alfred", "Batman's Laundry", Student.Degree.PhD);
         this.data = new Data(Data.Type.Tabular, 1);
         this.gpu = new GPU(GPU.Type.RTX3090, c);
         this.m = new Model("Batmobile", this.data, this.std);
+        this.std = new Student("Alfred", "Batman's Laundry", Student.Degree.PhD);
     }
 
     @Test

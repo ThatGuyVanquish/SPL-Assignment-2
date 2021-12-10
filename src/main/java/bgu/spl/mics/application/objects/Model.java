@@ -9,12 +9,12 @@ public class Model {
     private String name;
     private Data data;
     private Student student;
-    enum status {PreTrained, Training, Trained, Tested};
-    enum results {None, Good, Bad};
+    public enum status {PreTrained, Training, Trained, Tested};
+    public enum results {None, Good, Bad};
     private status currentStatus;
     private results currentResult;
 
-    public Model(String Name, Data data, Student student) {
+    public Model(String name, Data data, Student student) {
         this.name = name;
         this.data = data;
         this.student = student;
@@ -30,5 +30,9 @@ public class Model {
 
     public synchronized void setResult(results result) { this.currentResult = result;}
     public synchronized void setStatus(status status) { this.currentStatus = status;}
+
+    public String toString() {
+        return "Model Name: " + this.name + " Data: " + this.data.toString() + " Status: " + this.currentStatus.toString() + " Result: " + this.currentResult.toString();
+    }
 
 }

@@ -8,7 +8,7 @@ public class Data {
     /**
      * Enum representing the Data type.
      */
-    enum Type {
+    public enum Type {
         Images, Text, Tabular
     }
 
@@ -46,4 +46,7 @@ public class Data {
         return isDone();
     }
 
+    public String toString() {
+        return "Type: " + this.type.toString() + " Size: " + this.size;
+    }
 }

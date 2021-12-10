@@ -94,12 +94,9 @@ public class MessageBusImpl implements MessageBus {
 
 	@Override
 	public Message awaitMessage(MicroService m) throws InterruptedException {
-		try {
-			while (MicroDict.get(m).isEmpty()) {
-				m.wait();
-			}
+		while (MicroDict.get(m).isEmpty()) {
+			m.wait();
 		}
-		catch (InterruptedException e){ };
 		Message msg = MicroDict.get(m).remove(0);
 		return msg;
 	}

@@ -13,7 +13,7 @@ public class GPU {
     /**
      * Enum representing the type of the GPU.
      */
-    enum Type {RTX3090, RTX2080, GTX1080}
+    public enum Type {RTX3090, RTX2080, GTX1080}
 
     private Model currentModel;
     private Cluster cluster;
@@ -25,6 +25,10 @@ public class GPU {
         this.currentModel = null;
         this.cluster = c;
         this.unprocessedData = 0;
+    }
+
+    public String toString() {
+        return "GPU: " + this.type.toString();
     }
 
     public Type getType() {
@@ -53,10 +57,10 @@ public class GPU {
         int processed = 0;
         switch (this.type) {
             case RTX3090: { // Wait 1 tick
-                this.cluster.process(data); // Sends all the data to the cluster
+                //this.cluster.process(data); // Sends all the data to the cluster
                 while (!data.processData(processed))
                 {
-                    processed = this.cluster.askForData(32); // Asking for as many processed batches cluster has, up to 32
+                    //processed = this.cluster.askForData(32); // Asking for as many processed batches cluster has, up to 32
                     try {
                         this.wait();
                     }
@@ -65,10 +69,10 @@ public class GPU {
                 // call service to send a message through MessageBus to set future to resolved
             }
             case RTX2080: { // Wait 2 Ticks
-                this.cluster.process(data); // Sends all the data to the cluster
+                //this.cluster.process(data); // Sends all the data to the cluster
                 while (!data.processData(processed))
                 {
-                    processed = this.cluster.askForData(32); // Asking for as many processed batches cluster has, up to 32
+                    //processed = this.cluster.askForData(32); // Asking for as many processed batches cluster has, up to 32
                     try {
                         for (int i = 0; i < 2; i++)
                             this.wait();
@@ -78,10 +82,10 @@ public class GPU {
                 // call service to send a message through MessageBus to set future to resolved
             }
             case GTX1080: { // Wait 4 Ticks
-                this.cluster.process(data); // Sends all the data to the cluster
+                //this.cluster.process(data); // Sends all the data to the cluster
                 while (!data.processData(processed))
                 {
-                    processed = this.cluster.askForData(32); // Asking for as many processed batches cluster has, up to 32
+                    //processed = this.cluster.askForData(32); // Asking for as many processed batches cluster has, up to 32
                     try {
                         for (int i = 0; i < 4; i++)
                             this.wait();
