@@ -17,5 +17,5 @@ public class Cluster {
 	public static Cluster getInstance() {
 		return clusterInst;
 	}
-
+    public void AddProcessedData(DataBatch dataBatch){}
 }
