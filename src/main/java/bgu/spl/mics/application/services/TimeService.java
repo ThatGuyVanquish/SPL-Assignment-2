@@ -21,8 +21,8 @@ public class TimeService extends MicroService{
 
 	private int _tickTime;
 	private int _duration;
-	private boolean RunOut;
-    private Timer time;
+	private boolean endApp;
+    private static final Timer TIMER = new Timer();
 //	private static TimerTask wrap(Runnable r) { //secend method, using a wrapper to using lambda fucn instead of annonymos class
 //		return new TimerTask() {
 //
@@ -36,18 +36,14 @@ public class TimeService extends MicroService{
 		super("Time Service");
 		this._tickTime = tickTime;
 		this._duration = duration;
-		time = new Timer();
-		RunOut = false;
-
-
+		this.endApp = false;
 	}
 
 	@Override
 	protected void initialize() {
-		time.schedule(new  TimerTask(){ public void run(){ sendBroadcast(null); terminate(); RunOut = true;};},_tickTime*_duration); // after ticktime*duration, timerTask will occur
-		while (!RunOut){
-			time.schedule(new  TimerTask(){ public void run(){ sendBroadcast(new TickBroadcast());};},_tickTime);
+		TIMER.schedule(new  TimerTask(){ public void run(){ sendBroadcast(null); terminate(); endApp = true;};}, (long) _tickTime * _duration); // Initiates app termination sequence
+		while (!endApp){
+			TIMER.schedule(new  TimerTask(){ public void run(){ sendBroadcast(new TickBroadcast());};},_tickTime);
 		}
 	}
-
 }
