@@ -98,7 +98,7 @@ public class CRMSRunner {
                     gpuType = GPU.Type.GTX1080;
                     break;
             }
-            GPUService currentGPU = new GPUService(gpuTypeStr, new GPU(gpuType, CLUSTER));
+            GPUService currentGPU = new GPUService(gpuTypeStr, new GPU(gpuType));
             gpus.add(currentGPU);
             MESSAGE_BUS.register(currentGPU);
             /*
