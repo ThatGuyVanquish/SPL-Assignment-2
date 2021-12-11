@@ -9,10 +9,13 @@ import java.util.concurrent.ConcurrentHashMap;
  * Only private fields and methods can be added to this class.
  */
 public class MessageBusImpl implements MessageBus {
+	private static class SingletonHolder{
+		private  static MessageBusImpl instance = new MessageBusImpl();
+	}
 	private ConcurrentHashMap<MicroService, Vector<Message>> MicroDict;
 	private ConcurrentHashMap<Message, Future> MsgToFutr;
 	private ConcurrentHashMap<Class<? extends Message>, Vector<MicroService>> MsgToMicro;
-	private static MessageBusImpl instance = null;
+
 	private  Object lockRoundRobin;
 
 	private MessageBusImpl(){
@@ -22,17 +25,16 @@ public class MessageBusImpl implements MessageBus {
 	}
 
 	 public static MessageBusImpl getInstance() {
-		if (instance==null){
-			instance = new MessageBusImpl();
-		}
-		return  instance;
+		return SingletonHolder.instance;
 	}
 
 	@Override
 	public <T> void subscribeEvent(Class<? extends Event<T>> type, MicroService m) {
-		if (!MsgToMicro.containsKey(type))
-			MsgToMicro.put(type,new Vector<MicroService>());
-		MsgToMicro.get(type).add(m);
+		synchronized (MsgToMicro) {
+			if (!MsgToMicro.containsKey(type))
+				MsgToMicro.put(type, new Vector<MicroService>());
+			MsgToMicro.get(type).add(m);
+		}
 	}
 
 	/**
@@ -41,9 +43,11 @@ public class MessageBusImpl implements MessageBus {
 	 */
 	@Override
 	public void subscribeBroadcast(Class<? extends Broadcast> type, MicroService m) {
-		if (!MsgToMicro.containsKey(type))
-			MsgToMicro.put(type,new Vector<MicroService>());
-		MsgToMicro.get(type).add(m);
+		synchronized (MsgToMicro) {
+			if (!MsgToMicro.containsKey(type))
+				MsgToMicro.put(type, new Vector<MicroService>());
+			MsgToMicro.get(type).add(m);
+		}
 
 	}
 
@@ -54,8 +58,10 @@ public class MessageBusImpl implements MessageBus {
 	 */
 	@Override
 	public <T> void complete(Event<T> e, T result) {
-		MsgToFutr.get(e).resolve(result);
-		MsgToFutr.remove(e);
+		synchronized (MsgToFutr) {
+			MsgToFutr.get(e).resolve(result);
+			MsgToFutr.remove(e);
+		}
 	}
 
 	@Override
@@ -77,6 +83,7 @@ public class MessageBusImpl implements MessageBus {
 			MicroDict.get(s).add(e);
 			MsgToFutr.put(e, result);
 			MsgToMicro.get(e).add(s);
+			MicroDict.get(s).notifyAll();
 		}
 		return result;
 	}
@@ -88,14 +95,19 @@ public class MessageBusImpl implements MessageBus {
 
 	@Override
 	public void unregister(MicroService m) {
-		MicroDict.remove(m);
-		// need to delete in other queues as well?
+		Vector<Message> Subsricedto = MicroDict.remove(m);
+		for(Message messege : Subsricedto){
+			MsgToMicro.get(messege).remove(m);
+		}
+
 	}
 
 	@Override
 	public Message awaitMessage(MicroService m) throws InterruptedException {
-		while (MicroDict.get(m).isEmpty()) {
-			m.wait();
+		synchronized (lockRoundRobin) {
+			while (MicroDict.get(m).isEmpty()) {
+				MicroDict.get(m).wait();
+			}
 		}
 		Message msg = MicroDict.get(m).remove(0);
 		return msg;
