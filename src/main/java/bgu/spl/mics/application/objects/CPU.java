@@ -33,7 +33,8 @@ public class CPU {
                     try {
                         this.wait();
                     }
-                    catch (InterruptedException e) {};
+                    catch (InterruptedException ignored) {};
+                break;
             }
             case Text:
             {
@@ -41,7 +42,8 @@ public class CPU {
                     try {
                         this.wait();
                     }
-                    catch (InterruptedException e) {};
+                    catch (InterruptedException ignored) {};
+                break;
             }
             case Tabular:
             {
@@ -49,7 +51,8 @@ public class CPU {
                     try {
                         this.wait();
                     }
-                    catch (InterruptedException e) {};
+                    catch (InterruptedException ignored) {};
+                break;
             }
         }
         return true;

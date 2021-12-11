@@ -16,7 +16,7 @@ public class DataBatch {
     }
 
     public Data.Type getType() {
-        return data.getType();
+        return this.data.getType();
     }
 
 
