@@ -1,9 +1,6 @@
 package bgu.spl.mics.application.services;
 
-import bgu.spl.mics.DataPreProcessEvent;
-import bgu.spl.mics.MicroService;
-import bgu.spl.mics.TestModelEvent;
-import bgu.spl.mics.TrainModelEvent;
+import bgu.spl.mics.*;
 import bgu.spl.mics.application.objects.GPU;
 
 /**
@@ -18,15 +15,20 @@ import bgu.spl.mics.application.objects.GPU;
 public class GPUService extends MicroService {
 
     private GPU gpu;
-
+    private int TickUsed;
     public GPUService(String name, GPU gpu) {
         super(name);
         this.gpu = gpu;
+        TickUsed=0;
     }
 
     @Override
     protected void initialize() {
-        // TODO Implement this
+        Callback<TickBroadcast> callback1 = (TickBroadcast c)-> {TickUsed = TickUsed+1;};
+        subscribeBroadcast(TickBroadcast.class,callback1);
+        Callback<TrainModelEvent> callback2 = (TrainModelEvent c)-> {gpu.train(c.getModel());};
+        subscribeEvent(TrainModelEvent.class,callback2);
 
     }
+    public int getTickUsed(){return TickUsed;}
 }

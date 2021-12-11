@@ -21,31 +21,33 @@ public class TimeService extends MicroService{
 
 	private int _tickTime;
 	private int _duration;
+	private boolean RunOut;
     private Timer time;
-	private TimerTask timerTask;
-	private static TimerTask wrap(Runnable r) {
-		return new TimerTask() {
-
-			@Override
-			public void run() {
-				r.run();
-			}
-		};
-	}
+//	private static TimerTask wrap(Runnable r) { //secend method, using a wrapper to using lambda fucn instead of annonymos class
+//		return new TimerTask() {
+//
+//			@Override
+//			public void run() {
+//				r.run();
+//			}
+//		};
+//	}
 	public TimeService(int tickTime, int duration) {
 		super("Time Service");
 		this._tickTime = tickTime;
 		this._duration = duration;
 		time = new Timer();
+		RunOut = false;
 
 
 	}
 
 	@Override
 	protected void initialize() {
-		time.schedule(wrap(()->sendBroadcast(new TickBroadcast())),_tickTime);
-		time.schedule(wrap(()->sendBroadcast(null)),_tickTime*_duration); // after ticktime*duration, timerTask will occur
-
+		time.schedule(new  TimerTask(){ public void run(){ sendBroadcast(null); terminate(); RunOut = true;};},_tickTime*_duration); // after ticktime*duration, timerTask will occur
+		while (!RunOut){
+			time.schedule(new  TimerTask(){ public void run(){ sendBroadcast(new TickBroadcast());};},_tickTime);
+		}
 	}
 
 }

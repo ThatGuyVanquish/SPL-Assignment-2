@@ -1,7 +1,9 @@
 package bgu.spl.mics.application.services;
 
+import bgu.spl.mics.Callback;
 import bgu.spl.mics.DataPreProcessEvent;
 import bgu.spl.mics.MicroService;
+import bgu.spl.mics.TickBroadcast;
 import bgu.spl.mics.application.objects.CPU;
 
 /**
@@ -13,14 +15,19 @@ import bgu.spl.mics.application.objects.CPU;
  */
 public class CPUService extends MicroService {
     private CPU cpu;
+    private int TickUsed;
     public CPUService(String name, CPU cpu) {
         super(name);
         this.cpu = cpu;
+        TickUsed = 0;
     }
 
     @Override
     protected void initialize() {
-        // TODO Implement this
+        Callback<TickBroadcast> callback1 = (TickBroadcast c)-> {cpu.UptadeTick();};
+        subscribeBroadcast(TickBroadcast.class,callback1);
 
     }
+    public int getTickUsed(){return TickUsed;}
+
 }
