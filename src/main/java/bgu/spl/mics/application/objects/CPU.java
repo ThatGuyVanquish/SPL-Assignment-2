@@ -22,8 +22,11 @@ public class CPU {
     }
     public void addDataBatch(DataBatch batch){ //will be called from the cluster
         databatch.add(batch);
-        if (CurrentDataBatch==null)
+        if (CurrentDataBatch==null){
             CurrentDataBatch = databatch.remove(0);
+            notifyAll();
+        }
+
     }
     private void SetNextBatch(){
         cluster.AddProcessedData(CurrentDataBatch); //send processed data to cluster
@@ -35,8 +38,11 @@ public class CPU {
     }
 
     public void UptadeTick(){ // called every tick
-        if (databatch.isEmpty())
-            return;
+        if (CurrentDataBatch==null)
+            try{
+                wait();
+            }catch (InterruptedException e){}
+
         NumOfTicksPassed++;
         Data.Type type = CurrentDataBatch.getType();
         switch (type){
