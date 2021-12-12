@@ -1,5 +1,7 @@
 package bgu.spl.mics.application.objects;
 
+import java.util.Vector;
+
 /**
  * Passive object representing a data used by a model.
  * Add fields and methods to this class as you see fit (including public methods and constructors).
@@ -31,6 +33,19 @@ public class Data {
         return null;
     }
 
+    public synchronized Vector<DataBatch> batch(int size) { // Splits into a vector based on size
+        if (!isDone()){
+            Vector<DataBatch> ret = new Vector<>();
+            int index = this.size-this.processed;
+            while (index < this.size) {
+                ret.add(new DataBatch(index, this));
+                index += 1000;
+            }
+            return ret;
+        }
+        return null;
+    }
+
     public boolean isDone() {
         if (this.size == this.processed)
             return true;
@@ -41,8 +56,8 @@ public class Data {
         return this.type;
     }
 
-    public synchronized boolean processData(int batches) {
-        this.processed += batches;
+    public synchronized boolean processData() {
+        this.processed += 1000;
         return isDone();
     }
 

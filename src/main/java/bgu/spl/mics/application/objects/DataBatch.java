@@ -19,5 +19,8 @@ public class DataBatch {
         return this.data.getType();
     }
 
+    public Data getData() {
+        return this.data;
+    }
 
 }
