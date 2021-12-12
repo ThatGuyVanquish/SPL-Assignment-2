@@ -1,10 +1,9 @@
 package bgu.spl.mics.application.objects;
 
 import bgu.spl.mics.Event;
+import bgu.spl.mics.FinishedTrainingEvent;
 import bgu.spl.mics.MessageBusImpl;
 import bgu.spl.mics.TrainModelEvent;
-import bgu.spl.mics.application.services.GPUService;
-import bgu.spl.mics.application.objects.Model;
 import java.util.Vector;
 
 /**
@@ -99,7 +98,7 @@ public class GPU {
         if (this.currentModel == null) { return; }
         if (this.currentModel.getData().isDone()) {
             this.currentModel.setStatus(Model.status.Trained);
-            MESSAGE_BUS.sendEvent(new finishedTrainingEvent());
+            MESSAGE_BUS.sendEvent(new FinishedTrainingEvent(this.currentModel));
             this.currentModel = null;
             this.tickCounter = 0;
             return;
