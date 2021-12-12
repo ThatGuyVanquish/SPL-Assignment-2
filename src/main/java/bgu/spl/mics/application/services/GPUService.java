@@ -25,7 +25,7 @@ public class GPUService extends MicroService {
 
     @Override
     protected void initialize() {
-        Callback<TickBroadcast> tickCallback = (TickBroadcast tickBroadcast)-> {gpu.Update();}; // Shouldn't add one as it would count ALL ticks as runtime
+        Callback<TickBroadcast> tickCallback = (TickBroadcast tickBroadcast)-> {gpu.CalledOnTick();}; // Shouldn't add one as it would count ALL ticks as runtime
         subscribeBroadcast(TickBroadcast.class, tickCallback);
         Callback<TrainModelEvent> trainCallback = (TrainModelEvent e)-> {gpu.train(e.getModel());};
         subscribeEvent(TrainModelEvent.class, trainCallback);

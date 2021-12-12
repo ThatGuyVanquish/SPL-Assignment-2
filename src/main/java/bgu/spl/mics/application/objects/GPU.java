@@ -71,9 +71,10 @@ public class GPU {
     public  void train(Model e){ //
         currentModel = e;
         this.currentModel.setStatus(Model.status.Training);
+        CLUSTER.
     }
 
-    public void Update(){
+    public void CalledOnTick(){
         if (currentModel.getStatus() == Model.status.Training){
 
         }
