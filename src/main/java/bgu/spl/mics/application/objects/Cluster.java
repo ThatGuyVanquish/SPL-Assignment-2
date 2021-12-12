@@ -14,13 +14,25 @@ import java.util.Vector;
  */
 public class Cluster {
 
+	private Cluster(){}
+
 	private static final Cluster CLUSTER = new Cluster();
 	private static final MessageBusImpl MESSAGE_BUS = MessageBusImpl.getInstance();
+	private Vector<GPU> gpuVector;
+	private Vector<CPU> cpuVector;
 	/**
      * Retrieves the single instance of this class.
      */
 	public static Cluster getInstance() {
 		return CLUSTER;
+	}
+
+	public void addGPU(GPU gpu) {
+		this.gpuVector.add(gpu);
+	}
+
+	public void addCPU(CPU cpu) {
+		this.cpuVector.add(cpu);
 	}
 
 	public void processData(Vector<DataBatch> dataBatchVector) {

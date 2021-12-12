@@ -81,7 +81,6 @@ public class CRMSRunner {
         }
 
         // Creating the GPU Services
-        Vector<GPUService> gpus = new Vector<>();
         JsonArray gpuArr = rootObject.getAsJsonArray("GPUS");
         for (JsonElement e : gpuArr) {
             String gpuTypeStr = e.getAsString();
@@ -97,8 +96,9 @@ public class CRMSRunner {
                     gpuType = GPU.Type.GTX1080;
                     break;
             }
-            GPUService currentGPU = new GPUService(gpuTypeStr, new GPU(gpuType));
-            gpus.add(currentGPU);
+            GPU newGPU = new GPU(gpuType);
+            CLUSTER.addGPU(newGPU);
+            GPUService currentGPU = new GPUService(gpuTypeStr, newGPU);
             MESSAGE_BUS.register(currentGPU);
             /*
             Might need to register to receive broadcasts and events
@@ -108,12 +108,13 @@ public class CRMSRunner {
         }
 
         // Creating the CPU Services
-        Vector<CPUService> cpus = new Vector<>();
         JsonArray cpuArr = rootObject.getAsJsonArray("CPUS");
         for (JsonElement e : cpuArr) {
             int cpuCoreCount = e.getAsInt();
-            CPUService currentCPU = new CPUService(e.getAsString(), new CPU(cpuCoreCount));
-            cpus.add(currentCPU);
+            CPU newCPU = new CPU(cpuCoreCount);
+            CLUSTER.addCPU(newCPU);
+            CPUService currentCPU = new CPUService(e.getAsString(), newCPU);
+
             MESSAGE_BUS.register(currentCPU);
             /*
             Might need to register to receive broadcasts and events

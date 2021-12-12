@@ -18,7 +18,6 @@ public class GPUTest {
 
     @Before
     public void setUp() {
-        this.c = new Cluster();
         this.data = new Data(Data.Type.Tabular, 1);
         this.gpu = new GPU(GPU.Type.RTX3090);
         this.m = new Model("Batmobile", this.data, this.std);

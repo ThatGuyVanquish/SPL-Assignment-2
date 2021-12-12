@@ -1,5 +1,6 @@
 package bgu.spl.mics.application.objects;
 
+import bgu.spl.mics.application.objects.Data;
 import java.util.Vector;
 
 /**
@@ -12,6 +13,7 @@ public class CPU {
     private int  tickCounter;
     private Vector<DataBatch> dbVector;
     private DataBatch currentDB;
+    private long timeToProcessAll;
 
     private static final Cluster CLUSTER = Cluster.getInstance();
     public CPU(int cores){
@@ -19,6 +21,7 @@ public class CPU {
         this.tickCounter = 0;
         this.dbVector = new Vector<DataBatch>();
         this.currentDB = null;
+        this.timeToProcessAll = 0;
     }
 
     /**
@@ -28,6 +31,20 @@ public class CPU {
      */
     public synchronized void addDataBatch(DataBatch batch){
         dbVector.add(batch);
+        switch (batch.getData().getType()) { // Calculate how much time would it take to process current Data Batch
+            case Images: {
+                this.timeToProcessAll += 4 * (32/this.cores);
+                break;
+            }
+            case Text: {
+                this.timeToProcessAll += 2 * (32/this.cores);
+                break;
+            }
+            case Tabular: {
+                this.timeToProcessAll += 32/this.cores;
+                break;
+            }
+        }
         if (currentDB==null){
             currentDB = dbVector.remove(0);
         }
@@ -55,18 +72,21 @@ public class CPU {
         switch (type){
             case Images: {
                 if (tickCounter >= (32/this.cores * 4)) {
+                    this.timeToProcessAll -= tickCounter;
                     setNextBatch();
                 }
                 break;
             }
             case Text: {
                 if (tickCounter >= (32 / this.cores) * 2) {
+                    this.timeToProcessAll -= tickCounter;
                     setNextBatch();
                 }
                 break;
             }
             case Tabular: {
                 if (tickCounter >= 32 / this.cores) {
+                    this.timeToProcessAll -= tickCounter;
                     setNextBatch();
                 }
                 break;
@@ -76,6 +96,10 @@ public class CPU {
 
     public String toString() {
         return "" + this.cores;
+    }
+
+    public long getTimeToProcessAll() {
+        return this.timeToProcessAll;
     }
 
 }
