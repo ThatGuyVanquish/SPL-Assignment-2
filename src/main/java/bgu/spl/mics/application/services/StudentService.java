@@ -1,10 +1,10 @@
 package bgu.spl.mics.application.services;
 
-import bgu.spl.mics.MicroService;
-import bgu.spl.mics.PublishResultsEvent;
-import bgu.spl.mics.TestModelEvent;
-import bgu.spl.mics.TrainModelEvent;
+import bgu.spl.mics.*;
+import bgu.spl.mics.application.objects.Model;
 import bgu.spl.mics.application.objects.Student;
+
+import java.util.Vector;
 
 /**
  * Student is responsible for sending the {@link TrainModelEvent},
@@ -25,7 +25,16 @@ public class StudentService extends MicroService {
 
     @Override
     protected void initialize() {
-        // TODO Implement this
+        Vector<Model> studentModel= student.getModels();
+        for (Model model:studentModel){
+            sendEvent(new TrainModelEvent(model));
+        }
+        Callback<TerminateBroadCast> TerminateCallBack = (TerminateBroadCast c) -> this.terminate();
+        subscribeBroadcast(TerminateBroadCast.class,TerminateCallBack);
+        Callback<FinishedTrainingEvent> callback
+        subscribeEvent(FinishedTrainingEvent.class,);
+
+
 
     }
 }

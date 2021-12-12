@@ -62,4 +62,6 @@ public class Student {
     public int getPapersRead() {
         return papersRead;
     }
+
+    public Vector<Model> getModels(){return modelVector; }
 }
