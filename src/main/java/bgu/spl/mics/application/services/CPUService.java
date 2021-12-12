@@ -15,19 +15,22 @@ import bgu.spl.mics.application.objects.CPU;
  */
 public class CPUService extends MicroService {
     private CPU cpu;
-    private int TickUsed;
+    private long ticksRunning;
     public CPUService(String name, CPU cpu) {
         super(name);
         this.cpu = cpu;
-        TickUsed = 0;
+        this.ticksRunning = 0;
     }
 
     @Override
     protected void initialize() {
-        Callback<TickBroadcast> callback1 = (TickBroadcast c)-> {cpu.UptadeTick();};
+        Callback<TickBroadcast> callback1 = (TickBroadcast c)-> this.updateRuntime((cpu.process())); // New! Now updates runtime :)
         subscribeBroadcast(TickBroadcast.class,callback1);
-
     }
-    public int getTickUsed(){return TickUsed;}
+    public long getRuntime(){return ticksRunning;}
+
+    public void updateRuntime(long ticks) {
+        this.ticksRunning += ticks;
+    }
 
 }

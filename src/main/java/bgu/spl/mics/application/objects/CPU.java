@@ -9,112 +9,80 @@ import java.util.Vector;
  */
 public class CPU {
     private int cores;
-    private int  NumOfTicksPassed;
-    private Vector<DataBatch> databatch;
-    private DataBatch CurrentDataBatch;
-    private Cluster cluster;
+    private int  tickCounter;
+    private Vector<DataBatch> dbVector;
+    private DataBatch currentDB;
+    private static final Cluster CLUSTER = Cluster.getInstance();
     public CPU(int cores){
         this.cores = cores;
-        NumOfTicksPassed = 0;
-        databatch = new Vector<DataBatch>();
-        cluster = Cluster.getInstance();
-        CurrentDataBatch = null;
+        this.tickCounter = 0;
+        this.dbVector = new Vector<DataBatch>();
+        this.currentDB = null;
     }
-    public void addDataBatch(DataBatch batch){ //will be called from the cluster
-        databatch.add(batch);
-        if (CurrentDataBatch==null){
-            CurrentDataBatch = databatch.remove(0);
-            notifyAll();
+
+    /**
+     * Method to add a single databatch to the CPU's "to do" DataBatch vector
+     * @param batch
+     * @post currentDB != null
+     */
+    public void addDataBatch(DataBatch batch){ // Why isn't this receiving a vector? Also shouldn't this be synchronized?
+        dbVector.add(batch);
+        if (currentDB==null){
+            currentDB = dbVector.remove(0);
+            notifyAll(); // Would the CPU be waiting as this is called?
         }
-
     }
-    private void SetNextBatch(){
-        cluster.AddProcessedData(CurrentDataBatch); //send processed data to cluster
-        if (!databatch.isEmpty())
-            CurrentDataBatch = databatch.remove(0);
+
+    /**
+     * Sends processed data (if available) to the cluster and loads the next dataBatch (if available)
+     * to the CPU to process.
+     * Resets the tick counter for the next processing task
+     * @post tickCounter == 0
+     */
+    private void setNextBatch(){
+        CLUSTER.addProcessedData(currentDB); // Packing processed data and sending it back to the cluster to be sent to the GPU
+        if (!dbVector.isEmpty())
+            currentDB = dbVector.remove(0);
         else
-            CurrentDataBatch = null;
-        NumOfTicksPassed=0;
+            currentDB = null;
+        tickCounter = 0;
     }
 
-    public void UptadeTick(){ // called every tick
-        if (CurrentDataBatch==null)
-            try{
+    public long process() {
+        if (currentDB == null) {
+            try {
                 wait();
-            }catch (InterruptedException e){}
-
-        NumOfTicksPassed++;
-        Data.Type type = CurrentDataBatch.getType();
+            }
+            catch (InterruptedException e) {
+                tickCounter++;
+            }
+        }
+        Data.Type type = currentDB.getType();
         switch (type){
             case Images:
             {
-                if (NumOfTicksPassed<=(32/this.cores *4)) {
-                    SetNextBatch();
+                if (tickCounter<=(32/this.cores *4)) {
+                    setNextBatch();
                 }
             }
             case Text:
             {
-                if(NumOfTicksPassed<=(32/this.cores *2)) {
-                    SetNextBatch();
-
+                if (tickCounter <= (32 / this.cores) * 2) {
+                    setNextBatch();
                 }
             }
             case Tabular:
             {
-                if(NumOfTicksPassed<=(32/this.cores *1)) {
-                    SetNextBatch();
-
+                if (tickCounter <= 32 / this.cores) {
+                    setNextBatch();
                 }
             }
         }
+        return (long)tickCounter;
     }
-
-
 
     public String toString() {
         return "" + this.cores;
     }
-
-    /**
-     *
-     * @param batch batch to work on
-     * @return the process is complete
-     * @inv return true
-     */
-//    public boolean compute(DataBatch batch){ // ineffincent, the cluster gets blocked alot like this need to change implemention
-//        NumOfTicksPassed = 0; // starting the counting of ticks only when is called
-//        Data.Type type = batch.getType();
-//        switch (type){
-//            case Images:
-//            {
-//                while(NumOfTicksPassed<=(32/this.cores *4)) {
-//                    try {
-//                        this.wait();
-//                    } catch (InterruptedException e) {}
-//
-//                }
-//            }
-//            case Text:
-//            {
-//                while(NumOfTicksPassed<=(32/this.cores *2)) {
-//                    try {
-//                        this.wait();
-//                    } catch (InterruptedException e) {}
-//
-//                }
-//            }
-//            case Tabular:
-//            {
-//                while(NumOfTicksPassed<=(32/this.cores *1)) {
-//                    try {
-//                        this.wait();
-//                    } catch (InterruptedException e) {}
-//
-//                }
-//            }
-//        }
-//
-//        return true;
-//    }
 
 }
