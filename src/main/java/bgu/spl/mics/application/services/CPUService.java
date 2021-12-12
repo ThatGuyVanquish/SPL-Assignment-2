@@ -16,16 +16,13 @@ public class CPUService extends MicroService {
     public CPUService(String name, CPU cpu) {
         super(name);
         this.cpu = cpu;
-
     }
 
     @Override
     protected void initialize() {
-        Callback<TickBroadcast> callback1 = (TickBroadcast c)-> cpu.process();; // New! Now updates runtime :)
+        Callback<TickBroadcast> callback1 = (TickBroadcast c)-> cpu.process();
         subscribeBroadcast(TickBroadcast.class,callback1);
         Callback<TerminateBroadCast> callback2 = (TerminateBroadCast c) -> this.terminate();
         subscribeBroadcast(TerminateBroadCast.class,callback2);
     }
-
-
 }

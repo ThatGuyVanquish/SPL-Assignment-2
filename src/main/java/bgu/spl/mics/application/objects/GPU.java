@@ -74,7 +74,11 @@ public class GPU {
         CLUSTER.
     }
 
+<<<<<<< Updated upstream
     public void CalledOnTick(){
+=======
+    public void processData(){
+>>>>>>> Stashed changes
         if (currentModel.getStatus() == Model.status.Training){
 
         }

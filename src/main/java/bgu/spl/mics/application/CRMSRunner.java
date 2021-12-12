@@ -48,7 +48,6 @@ public class CRMSRunner {
             }
             Student newStudent = new Student(name, department, deg);
             StudentService currentStudentService = new StudentService(name, newStudent);
-            MESSAGE_BUS.register(currentStudentService); // register only puts in the hashmap of (MicroService, Message vector)
             /*
             Might need to subscribe to TickBroadcast and so on
              */

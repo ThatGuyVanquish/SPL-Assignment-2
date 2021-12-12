@@ -12,6 +12,7 @@ public class CPU {
     private int  tickCounter;
     private Vector<DataBatch> dbVector;
     private DataBatch currentDB;
+
     private static final Cluster CLUSTER = Cluster.getInstance();
     public CPU(int cores){
         this.cores = cores;
@@ -49,32 +50,29 @@ public class CPU {
     }
 
     public void process() {
-        if (currentDB == null) { // its a "if" and not a while because only 1 thread will run this
-        return;
-        }
+        if (currentDB == null) { return; }
         tickCounter++;
         Data.Type type = currentDB.getType();
         switch (type){
-            case Images:
-            {
-                if (tickCounter<=(32/this.cores *4)) {
+            case Images: {
+                if (tickCounter >= (32/this.cores * 4)) {
                     setNextBatch();
                 }
+                break;
             }
-            case Text:
-            {
-                if (tickCounter <= (32 / this.cores) * 2) {
+            case Text: {
+                if (tickCounter >= (32 / this.cores) * 2) {
                     setNextBatch();
                 }
+                break;
             }
-            case Tabular:
-            {
-                if (tickCounter <= 32 / this.cores) {
+            case Tabular: {
+                if (tickCounter >= 32 / this.cores) {
                     setNextBatch();
                 }
+                break;
             }
         }
-
     }
 
     public String toString() {
