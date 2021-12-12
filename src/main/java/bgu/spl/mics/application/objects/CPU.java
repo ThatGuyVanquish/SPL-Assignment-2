@@ -26,11 +26,10 @@ public class CPU {
      * @param batch
      * @post currentDB != null
      */
-    public void addDataBatch(DataBatch batch){ // Why isn't this receiving a vector? Also shouldn't this be synchronized?
+    public synchronized void addDataBatch(DataBatch batch){
         dbVector.add(batch);
         if (currentDB==null){
             currentDB = dbVector.remove(0);
-
         }
     }
 
@@ -41,7 +40,7 @@ public class CPU {
      * @post tickCounter == 0
      */
     private void setNextBatch(){
-        CLUSTER.addProcessedData(currentDB); // Packing processed data and sending it back to the cluster to be sent to the GPU
+        CLUSTER.sendProcessedData(currentDB); // Packing processed data and sending it back to the cluster to be sent to the GPU
         if (!dbVector.isEmpty())
             currentDB = dbVector.remove(0);
         else
