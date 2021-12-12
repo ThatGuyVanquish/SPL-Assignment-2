@@ -10,7 +10,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class MessageBusImpl implements MessageBus {
 	private static class SingletonHolder{
-		private  static MessageBusImpl instance = new MessageBusImpl();
+		private static MessageBusImpl instance = new MessageBusImpl();
 	}
 	private ConcurrentHashMap<MicroService, Vector<Message>> MicroDict;
 	private ConcurrentHashMap<Message, Future> MsgToFutr;
