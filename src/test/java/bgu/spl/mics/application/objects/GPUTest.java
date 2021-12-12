@@ -20,7 +20,7 @@ public class GPUTest {
     public void setUp() {
         this.c = new Cluster();
         this.data = new Data(Data.Type.Tabular, 1);
-        this.gpu = new GPU(GPU.Type.RTX3090, c);
+        this.gpu = new GPU(GPU.Type.RTX3090);
         this.m = new Model("Batmobile", this.data, this.std);
         this.std = new Student("Alfred", "Batman's Laundry", Student.Degree.PhD);
     }
@@ -32,14 +32,14 @@ public class GPUTest {
 
     @Test
     public void getModel() {
-        this.gpu.train(this.m);
+        //this.gpu.train(this.m);
         assertSame(this.m, gpu.getModel());
     }
 
     @Test
     public void train() {
         assertSame(this.gpu.getModel().getStatus(), Model.status.PreTrained);
-        this.gpu.train(this.m);
+        //this.gpu.train(this.m);
         assertSame(this.gpu.getModel().getStatus(), Model.status.Trained);
     }
 
