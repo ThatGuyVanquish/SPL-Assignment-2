@@ -54,6 +54,10 @@ public class GPU {
      * @post model.getStatus() == Trained
      * @post model.isDone()
      */
+    public  void train(){
+        this.currentModel.setStatus(Model.status.Training);
+    }
+
     public long train(TrainModelEvent trainEvent) {
         this.currentEvent = trainEvent;
         this.currentModel = trainEvent.getModel();

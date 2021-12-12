@@ -29,6 +29,8 @@ public class GPUService extends MicroService {
         Callback<TrainModelEvent> trainCallback = (TrainModelEvent e)-> {gpu.train(e);};
         subscribeEvent(TrainModelEvent.class, trainCallback);
         Callback<TestModelEvent> testCallback = (TestModelEvent e)-> gpu.test(e.getModel());
+        Callback<TerminateBroadCast> TerminateCallBack = (TerminateBroadCast c) -> this.terminate();
+        subscribeBroadcast(TerminateBroadCast.class,TerminateCallBack);
 
     }
     public int getTickUsed(){return ticksRunning;}

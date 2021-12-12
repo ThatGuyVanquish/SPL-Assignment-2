@@ -2,6 +2,7 @@ package bgu.spl.mics.application.services;
 
 import bgu.spl.mics.Broadcast;
 import bgu.spl.mics.MicroService;
+import bgu.spl.mics.TerminateBroadCast;
 import bgu.spl.mics.TickBroadcast;
 
 import javax.security.auth.callback.Callback;
@@ -22,6 +23,7 @@ public class TimeService extends MicroService{
 	private int _tickTime;
 	private int _duration;
 	private boolean endApp;
+	private int tickPassed;
     private static final Timer TIMER = new Timer();
 //	private static TimerTask wrap(Runnable r) { //secend method, using a wrapper to using lambda fucn instead of annonymos class
 //		return new TimerTask() {
@@ -37,13 +39,17 @@ public class TimeService extends MicroService{
 		this._tickTime = tickTime;
 		this._duration = duration;
 		this.endApp = false;
+		tickPassed=0;
+
 	}
 
 	@Override
 	protected void initialize() {
-		TIMER.schedule(new  TimerTask(){ public void run(){ sendBroadcast(null); terminate(); endApp = true;};}, (long) _tickTime * _duration); // Initiates app termination sequence
-		while (!endApp){
-			TIMER.schedule(new  TimerTask(){ public void run(){ sendBroadcast(new TickBroadcast());};},_tickTime);
+		while (tickPassed<=_duration){
+			TIMER.schedule(new  TimerTask(){ public void run(){ sendBroadcast(new TickBroadcast());tickPassed++;};},_tickTime);
 		}
+		TIMER.cancel();
+		sendBroadcast(new TerminateBroadCast());
+		terminate();
 	}
 }

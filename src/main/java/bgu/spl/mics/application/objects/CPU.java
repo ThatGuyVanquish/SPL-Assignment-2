@@ -49,14 +49,15 @@ public class CPU {
     }
 
     public long process() {
-        if (currentDB == null) {
+        if (currentDB == null) { // its a "if" and not a while because only 1 thread will run this
             try {
                 wait();
             }
             catch (InterruptedException e) {
-                tickCounter++;
+              //  tickCounter++;  need to be outside of catch scope
             }
         }
+        tickCounter++;
         Data.Type type = currentDB.getType();
         switch (type){
             case Images:
