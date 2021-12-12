@@ -1,7 +1,6 @@
 package bgu.spl.mics.application.services;
 
-import bgu.spl.mics.MicroService;
-import bgu.spl.mics.PublishConfrenceBroadcast;
+import bgu.spl.mics.*;
 import bgu.spl.mics.application.objects.ConfrenceInformation;
 
 /**
@@ -16,15 +15,29 @@ import bgu.spl.mics.application.objects.ConfrenceInformation;
 public class ConferenceService extends MicroService {
 
     private ConfrenceInformation conf;
-
+    private  int tickPassed;
+    //after the time of the conf, the service need to PublicConferenceBroadcast, and then register
     public ConferenceService(String name, ConfrenceInformation conf) {
         super(name);
         this.conf = conf;
+        tickPassed =0;
+
+
     }
 
     @Override
     protected void initialize() {
-        // TODO Implement this
+        Callback<TickBroadcast> tickCallback = (TickBroadcast tickBroadcast)-> {
+            tickPassed++; if(tickPassed>=conf.getDate()){
+                sendBroadcast(new PublishConfrenceBroadcast());
+            }
+        }
+                ; // Shouldn't add one as it would count ALL ticks as runtime
+        subscribeBroadcast(TickBroadcast.class, tickCallback);
+        Callback<PublishResultsEvent> publishCallBack =  (PublishResultsEvent c) -> {
+
+        };
+        subscribeEvent(PublishResultsEvent.class,publishCallBack);
 
     }
 }

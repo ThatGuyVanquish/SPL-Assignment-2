@@ -33,6 +33,8 @@ public class StudentService extends MicroService {
         subscribeBroadcast(TerminateBroadCast.class,TerminateCallBack);
         Callback<FinishedTrainingEvent> finishedTrainingEventCallback = (FinishedTrainingEvent c) -> {sendEvent(new TestModelEvent(c.getModel()))};
         subscribeEvent(FinishedTrainingEvent.class, finishedTrainingEventCallback);
+        sendEvent(new PublishResultsEvent(studentModel));
+        subscribeBroadcast(PublishConfrenceBroadcast.class);
 
 
 

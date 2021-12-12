@@ -35,4 +35,7 @@ public class ConfrenceInformation {
         return ret;
     }
 
+    public int getDate() {
+        return date;
+    }
 }
