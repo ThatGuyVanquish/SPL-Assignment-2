@@ -2,6 +2,7 @@ package bgu.spl.mics.application.services;
 
 import bgu.spl.mics.*;
 import bgu.spl.mics.application.objects.GPU;
+import bgu.spl.mics.application.objects.Model;
 
 /**
  * GPU service is responsible for handling the
@@ -24,9 +25,9 @@ public class GPUService extends MicroService {
 
     @Override
     protected void initialize() {
-        Callback<TickBroadcast> tickCallback = (TickBroadcast tickBroadcast)-> {ticksRunning++;}; // Shouldn't add one as it would count ALL ticks as runtime
+        Callback<TickBroadcast> tickCallback = (TickBroadcast tickBroadcast)-> {gpu.Update();}; // Shouldn't add one as it would count ALL ticks as runtime
         subscribeBroadcast(TickBroadcast.class, tickCallback);
-        Callback<TrainModelEvent> trainCallback = (TrainModelEvent e)-> {gpu.train(e);};
+        Callback<TrainModelEvent> trainCallback = (TrainModelEvent e)-> {e.getModel().setStatus(Model.status.Training);};
         subscribeEvent(TrainModelEvent.class, trainCallback);
         Callback<TestModelEvent> testCallback = (TestModelEvent e)-> gpu.test(e.getModel());
         Callback<TerminateBroadCast> TerminateCallBack = (TerminateBroadCast c) -> this.terminate();

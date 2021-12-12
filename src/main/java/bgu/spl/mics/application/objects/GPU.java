@@ -24,11 +24,24 @@ public class GPU {
     private Type type;
     private long tickCounter;
     private Event<Model> currentEvent;
+    private Vector<DataBatch> processedDataBatch;
 
     public GPU(Type t) {
         this.type = t;
         this.currentModel = null;
         this.currentEvent = null;
+        processedDataBatch = new Vector<DataBatch>();
+        switch (this.type) {
+            case GTX1080: {
+              processedDataBatch.setSize(8);
+            }
+            case RTX2080: {
+                processedDataBatch.setSize(16);
+            }
+            case RTX3090: {
+                processedDataBatch.setSize(32);
+            }
+        }
     }
 
     public String toString() {
@@ -58,54 +71,60 @@ public class GPU {
         this.currentModel.setStatus(Model.status.Training);
     }
 
-    public long train(TrainModelEvent trainEvent) {
-        this.currentEvent = trainEvent;
-        this.currentModel = trainEvent.getModel();
-        currentModel.setStatus(Model.status.Training);
-        Data data = currentModel.getData();
-        switch (this.type) {
-            case RTX3090: { // Waits 1 tick
-                while (!data.isDone())
-                {
-                    CLUSTER.processData(32);
-                    try {
-                        this.wait();
-                    }
-                    catch (InterruptedException e){tickCounter++;}
-                }
-            }
-            case RTX2080: { // Wait 2 Ticks
-                while (!data.isDone())
-                {
-                    CLUSTER.processData(16);
-                    for (int i = 0; i < 2; i++) {
-                        try {
-                            this.wait();
-                        } catch (InterruptedException e) {
-                            tickCounter++;
-                        }
-                    }
-                }
-            }
-            case GTX1080: { // Wait 4 Ticks
-                while (!data.isDone())
-                {
-                    CLUSTER.processData(8);
-                    for (int i = 0; i < 4; i++) {
-                        try {
-                            this.wait();
-                        } catch (InterruptedException e) {
-                            tickCounter++;
-                        }
-                    }
-                }
-            }
+    public void Update(){
+        if (currentModel.getStatus() == Model.status.Training){
+
         }
-        MESSAGE_BUS.getFuture(this.currentEvent).resolve(this.currentModel);
-        // call service to send a message through MessageBus to set future to resolved
-        this.currentModel.setStatus(Model.status.Trained);
-        return tickCounter;
     }
+//
+//    public long train(TrainModelEvent trainEvent) {
+//        this.currentEvent = trainEvent;
+//        this.currentModel = trainEvent.getModel();
+//        currentModel.setStatus(Model.status.Training);
+//        Data data = currentModel.getData();
+//        switch (this.type) {
+//            case RTX3090: { // Waits 1 tick
+//                while (!data.isDone())
+//                {
+//                    CLUSTER.processData(32);
+//                    try {
+//                        this.wait();
+//                    }
+//                    catch (InterruptedException e){tickCounter++;}
+//                }
+//            }
+//            case RTX2080: { // Wait 2 Ticks
+//                while (!data.isDone())
+//                {
+//                    CLUSTER.processData(16);
+//                    for (int i = 0; i < 2; i++) {
+//                        try {
+//                            this.wait();
+//                        } catch (InterruptedException e) {
+//                            tickCounter++;
+//                        }
+//                    }
+//                }
+//            }
+//            case GTX1080: { // Wait 4 Ticks
+//                while (!data.isDone())
+//                {
+//                    CLUSTER.processData(8);
+//                    for (int i = 0; i < 4; i++) {
+//                        try {
+//                            this.wait();
+//                        } catch (InterruptedException e) {
+//                            tickCounter++;
+//                        }
+//                    }
+//                }
+//            }
+//        }
+//        MESSAGE_BUS.getFuture(this.currentEvent).resolve(this.currentModel);
+//        // call service to send a message through MessageBus to set future to resolved
+//        this.currentModel.setStatus(Model.status.Trained);
+//        return tickCounter;
+//    }
 
     /**
      *

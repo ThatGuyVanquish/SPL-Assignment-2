@@ -29,7 +29,7 @@ public class CPU {
         dbVector.add(batch);
         if (currentDB==null){
             currentDB = dbVector.remove(0);
-            notifyAll(); // Would the CPU be waiting as this is called?
+
         }
     }
 
@@ -48,14 +48,9 @@ public class CPU {
         tickCounter = 0;
     }
 
-    public long process() {
+    public void process() {
         if (currentDB == null) { // its a "if" and not a while because only 1 thread will run this
-            try {
-                wait();
-            }
-            catch (InterruptedException e) {
-              //  tickCounter++;  need to be outside of catch scope
-            }
+        return;
         }
         tickCounter++;
         Data.Type type = currentDB.getType();
@@ -79,7 +74,7 @@ public class CPU {
                 }
             }
         }
-        return (long)tickCounter;
+
     }
 
     public String toString() {
