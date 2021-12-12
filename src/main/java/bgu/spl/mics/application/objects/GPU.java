@@ -22,26 +22,32 @@ public class GPU {
     private static final Cluster CLUSTER = Cluster.getInstance();
     private static final MessageBusImpl MESSAGE_BUS = MessageBusImpl.getInstance();
     private Type type;
-    private long tickCounter;
     private Event<Model> currentEvent;
-    private Vector<DataBatch> processedDataBatch;
+    private Vector<DataBatch> awaitingProcessing;
+    private DataBatch currentDB;
+    private int tickCounter;
+    private int processDuration;
 
     public GPU(Type t) {
         this.type = t;
         this.currentModel = null;
         this.currentEvent = null;
-        processedDataBatch = new Vector<DataBatch>();
+        this.currentDB = null;
+        this.tickCounter = 0;
+        this.awaitingProcessing = new Vector<DataBatch>();
         switch (this.type) {
             case GTX1080: {
-              processedDataBatch.setSize(8);
+                this.awaitingProcessing.setSize(8);
+                this.processDuration = 4;
             }
             case RTX2080: {
-                processedDataBatch.setSize(16);
+                this.awaitingProcessing.setSize(16);
+                this.processDuration = 2;
             }
             case RTX3090: {
-                processedDataBatch.setSize(32);
+                this.awaitingProcessing.setSize(32);
+                this.processDuration = 1;
             }
-
         }
     }
 
@@ -68,70 +74,44 @@ public class GPU {
      * @post model.getStatus() == Trained
      * @post model.isDone()
      */
-    public  void train(Model e){ //
-        currentModel = e;
+    public  void train(TrainModelEvent trainEvent){
+        this.currentModel = trainEvent.getModel();
+        this.currentEvent = trainEvent;
         this.currentModel.setStatus(Model.status.Training);
-        CLUSTER.
+        CLUSTER.processData(this.currentModel.getData().batch(this.awaitingProcessing.size(), this));
     }
 
-<<<<<<< Updated upstream
-    public void CalledOnTick(){
-=======
-    public void processData(){
->>>>>>> Stashed changes
-        if (currentModel.getStatus() == Model.status.Training){
+    public synchronized void addBatch(DataBatch dataBatch) {
+        this.awaitingProcessing.add(dataBatch);
+    }
 
+    private void setNextBatch(){
+        if (!this.awaitingProcessing.isEmpty()) {
+            this.currentDB = this.awaitingProcessing.remove(0);
+            CLUSTER.processData(this.currentModel.getData().batch(this));
+        }
+        else
+            this.currentDB = null;
+        tickCounter = 0;
+    }
+
+    public void processData(){
+        if (this.currentModel == null) { return; }
+        if (this.currentModel.getData().isDone()) {
+            this.currentModel.setStatus(Model.status.Trained);
+            MESSAGE_BUS.sendEvent(new finishedTrainingEvent());
+            this.currentModel = null;
+            this.tickCounter = 0;
+            return;
+        }
+        if (currentModel.getStatus() == Model.status.Training){
+            this.tickCounter++;
+            if (this.tickCounter >= this.processDuration) {
+                this.currentModel.getData().processData();
+                setNextBatch();
+            }
         }
     }
-//
-//    public long train(TrainModelEvent trainEvent) {
-//        this.currentEvent = trainEvent;
-//        this.currentModel = trainEvent.getModel();
-//        currentModel.setStatus(Model.status.Training);
-//        Data data = currentModel.getData();
-//        switch (this.type) {
-//            case RTX3090: { // Waits 1 tick
-//                while (!data.isDone())
-//                {
-//                    CLUSTER.processData(32);
-//                    try {
-//                        this.wait();
-//                    }
-//                    catch (InterruptedException e){tickCounter++;}
-//                }
-//            }
-//            case RTX2080: { // Wait 2 Ticks
-//                while (!data.isDone())
-//                {
-//                    CLUSTER.processData(16);
-//                    for (int i = 0; i < 2; i++) {
-//                        try {
-//                            this.wait();
-//                        } catch (InterruptedException e) {
-//                            tickCounter++;
-//                        }
-//                    }
-//                }
-//            }
-//            case GTX1080: { // Wait 4 Ticks
-//                while (!data.isDone())
-//                {
-//                    CLUSTER.processData(8);
-//                    for (int i = 0; i < 4; i++) {
-//                        try {
-//                            this.wait();
-//                        } catch (InterruptedException e) {
-//                            tickCounter++;
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//        MESSAGE_BUS.getFuture(this.currentEvent).resolve(this.currentModel);
-//        // call service to send a message through MessageBus to set future to resolved
-//        this.currentModel.setStatus(Model.status.Trained);
-//        return tickCounter;
-//    }
 
     /**
      *
@@ -143,13 +123,13 @@ public class GPU {
     public boolean test(Model model) {
         switch (model.getStudent().getStatus()){
             case PhD: {
-                if (Math.random() >= 0.8)
+                if (Math.random() >= 0.2)
                    model.setResult(Model.results.Good);
                 else model.setResult((Model.results.Bad));
                 break;
             }
             case MSc: {
-                if (Math.random() >= 0.9)
+                if (Math.random() >= 0.4)
                     model.setResult(Model.results.Good);
                 else model.setResult((Model.results.Bad));
                 break;
@@ -159,13 +139,3 @@ public class GPU {
         return true;
     }
 }
-    /*
-    IDEAS
-    -------------------
-    A vector to hold Data Batches which are currently being processed
-
-    GPU receives a data item, then checks type and sends a number times the time in ticks
-    it takes to the cpu to process it and receives data back doesnt matter which data
-
-    Cluster will hold processed data until gpu asks for it
-     */
