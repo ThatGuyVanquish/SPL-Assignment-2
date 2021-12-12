@@ -9,14 +9,20 @@ public class DataBatch {
 
     private int index;
     private Data data;
+    private GPU gpu;
 
-    public DataBatch(int index, Data data) {
+    public DataBatch(int index, Data data, GPU gpu) {
         this.data = data;
         this.index = index;
+        this.gpu = gpu;
     }
 
     public Data.Type getType() {
         return this.data.getType();
+    }
+
+    public GPU getGPU() {
+        return this.gpu;
     }
 
     public Data getData() {

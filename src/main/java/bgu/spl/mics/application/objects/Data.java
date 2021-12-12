@@ -27,18 +27,18 @@ public class Data {
     /**
     Creates a new batch
      */
-    public synchronized DataBatch batch() {
+    public synchronized DataBatch batch(GPU gpu) {
         if (!isDone())
-            return new DataBatch(size-processed, this);
+            return new DataBatch(size-processed, this, gpu);
         return null;
     }
 
-    public synchronized Vector<DataBatch> batch(int size) { // Splits into a vector based on size
+    public synchronized Vector<DataBatch> batch(int size, GPU gpu) { // Splits into a vector based on size
         if (!isDone()){
             Vector<DataBatch> ret = new Vector<>();
             int index = this.size-this.processed;
             while (index < this.size) {
-                ret.add(new DataBatch(index, this));
+                ret.add(new DataBatch(index, this, gpu));
                 index += 1000;
             }
             return ret;
