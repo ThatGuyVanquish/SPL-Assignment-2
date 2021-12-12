@@ -41,6 +41,7 @@ public class GPU {
             case RTX3090: {
                 processedDataBatch.setSize(32);
             }
+
         }
     }
 
@@ -67,7 +68,8 @@ public class GPU {
      * @post model.getStatus() == Trained
      * @post model.isDone()
      */
-    public  void train(){
+    public  void train(Model e){ //
+        currentModel = e;
         this.currentModel.setStatus(Model.status.Training);
     }
 

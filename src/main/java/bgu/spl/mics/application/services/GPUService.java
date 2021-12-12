@@ -27,7 +27,7 @@ public class GPUService extends MicroService {
     protected void initialize() {
         Callback<TickBroadcast> tickCallback = (TickBroadcast tickBroadcast)-> {gpu.Update();}; // Shouldn't add one as it would count ALL ticks as runtime
         subscribeBroadcast(TickBroadcast.class, tickCallback);
-        Callback<TrainModelEvent> trainCallback = (TrainModelEvent e)-> {e.getModel().setStatus(Model.status.Training);};
+        Callback<TrainModelEvent> trainCallback = (TrainModelEvent e)-> {gpu.train(e.getModel());};
         subscribeEvent(TrainModelEvent.class, trainCallback);
         Callback<TestModelEvent> testCallback = (TestModelEvent e)-> gpu.test(e.getModel());
         Callback<TerminateBroadCast> TerminateCallBack = (TerminateBroadCast c) -> this.terminate();
