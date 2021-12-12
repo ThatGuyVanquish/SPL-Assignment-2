@@ -3,6 +3,7 @@ package bgu.spl.mics.application.objects;
 
 import bgu.spl.mics.MessageBusImpl;
 
+import java.util.PriorityQueue;
 import java.util.Vector;
 
 /**
@@ -20,6 +21,7 @@ public class Cluster {
 	private static final MessageBusImpl MESSAGE_BUS = MessageBusImpl.getInstance();
 	private Vector<GPU> gpuVector;
 	private Vector<CPU> cpuVector;
+	private PriorityQueue<CPU> cpusByTime;
 	/**
      * Retrieves the single instance of this class.
      */
