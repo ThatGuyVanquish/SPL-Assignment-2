@@ -30,8 +30,8 @@ public class Cluster {
 		return CLUSTER;
 	}
 
-	public void addGPU(GPU gpu) {
-		this.gpuVector.add(gpu);
+	public void addGPUS(Vector<GPU> gpus) {
+		this.gpuVector = gpus;
 	}
 
 	public void addCPUS(Vector<CPU> cpus) {
@@ -42,20 +42,20 @@ public class Cluster {
 	public void processData(Vector<DataBatch> dataBatchVector) {
 		CPU currentCPU = null;
 		if (!cpuQueue.isEmpty()) currentCPU = cpuQueue.poll();
-		for (DataBatch currentDB : dataBatchVector) {
+		while (!dataBatchVector.isEmpty()) {
 			if (currentCPU != null) {
-				if (cpuQueue.peek() != null && Long.compare(currentCPU.getTimeToProcessAll(), cpuQueue.peek().getTimeToProcessAll()) == 1)
-				{
-					cpuQueue.add(currentCPU);
-					currentCPU = cpuQueue.poll();
+				if (cpuQueue.peek() != null) {
+					if (Long.compare(currentCPU.getTimeToProcessAll(), cpuQueue.peek().getTimeToProcessAll()) >= 0) {
+						cpuQueue.add(currentCPU);
+						currentCPU = cpuQueue.poll();
+					}
 				}
-					//Check if current CPU should keep receiving batches or swap to next cpu
-
-				currentCPU.addDataBatch(currentDB);
-				cpuQueue.add(currentCPU);
+				currentCPU.addDataBatch(dataBatchVector.remove(0));
 			}
 		}
+		cpuQueue.add(currentCPU);
 	}
+
 	public void processData(DataBatch dataBatch) {
 		if (!cpuQueue.isEmpty()) {
 			CPU currentCPU = cpuQueue.poll();
