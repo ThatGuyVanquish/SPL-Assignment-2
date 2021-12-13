@@ -35,7 +35,6 @@ public class Cluster {
 	}
 
 	public void addCPUS(Vector<CPU> cpus) {
-		cpus.sort(new CPUCoreComparator()); // Firstly sort by CPU cores as CPUS don't have work initially
 		cpuQueue = new PriorityQueue<>(new CPUWorkComparator());
 		cpuQueue.addAll(cpus);
 	}
@@ -61,15 +60,6 @@ public class Cluster {
 
 	public void sendProcessedData(DataBatch dataBatch) {
 		dataBatch.getGPU().addBatch(dataBatch);
-	}
-
-	private static class CPUCoreComparator implements Comparator<CPU> {
-		@Override
-		public int compare(CPU cpu1, CPU cpu2) {
-			if (cpu1.getCores() >= cpu2.getCores()) return 1;
-			if (cpu1.getCores() < cpu2.getCores()) return -1;
-			return 0;
-		}
 	}
 
 	private static class CPUWorkComparator implements Comparator<CPU> {
