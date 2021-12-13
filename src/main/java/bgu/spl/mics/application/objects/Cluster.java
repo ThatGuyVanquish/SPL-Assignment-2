@@ -3,10 +3,8 @@ package bgu.spl.mics.application.objects;
 
 import bgu.spl.mics.MessageBusImpl;
 
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.PriorityQueue;
-import java.util.Vector;
+import java.util.*;
+import java.util.concurrent.PriorityBlockingQueue;
 
 /**
  * Passive object representing the cluster.
@@ -22,7 +20,7 @@ public class Cluster {
 	private static final Cluster CLUSTER = new Cluster();
 	private static final MessageBusImpl MESSAGE_BUS = MessageBusImpl.getInstance();
 	private Vector<GPU> gpuVector;
-	private PriorityQueue<CPU> cpuQueue;
+	private PriorityBlockingQueue<CPU> cpuQueue;
 	/**
      * Retrieves the single instance of this class.
      */
@@ -35,7 +33,7 @@ public class Cluster {
 	}
 
 	public void addCPUS(Vector<CPU> cpus) {
-		cpuQueue = new PriorityQueue<>(new CPUWorkComparator());
+		cpuQueue = new PriorityBlockingQueue<CPU>(cpus.size(), new CPUWorkComparator());
 		cpuQueue.addAll(cpus);
 	}
 
@@ -53,7 +51,7 @@ public class Cluster {
 				currentCPU.addDataBatch(dataBatchVector.remove(0));
 			}
 		}
-		cpuQueue.add(currentCPU);
+		if (currentCPU != null) cpuQueue.add(currentCPU);
 	}
 
 	public void processData(DataBatch dataBatch) {
