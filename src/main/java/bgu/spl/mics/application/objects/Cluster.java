@@ -40,15 +40,28 @@ public class Cluster {
 	}
 
 	public void processData(Vector<DataBatch> dataBatchVector) {
-		// Should look at all CPUs and send appropriate amount of batches to CPUs
+		CPU currentCPU = null;
+		if (!cpuQueue.isEmpty()) currentCPU = cpuQueue.poll();
+		for (DataBatch currentDB : dataBatchVector) {
+			if (currentCPU != null) {
+				if (cpuQueue.peek() != null && Long.compare(currentCPU.getTimeToProcessAll(), cpuQueue.peek().getTimeToProcessAll()) == 1)
+				{
+					cpuQueue.add(currentCPU);
+					currentCPU = cpuQueue.poll();
+				}
+					//Check if current CPU should keep receiving batches or swap to next cpu
+
+				currentCPU.addDataBatch(currentDB);
+				cpuQueue.add(currentCPU);
+			}
+		}
 	}
 	public void processData(DataBatch dataBatch) {
-		// Should look at all CPUs and send appropriate amount of batches to CPUs
-		/**
-		 * Choice of cpu
-		 */
-		//someCPU.addDataBatch(dataBatch);
-		//
+		if (!cpuQueue.isEmpty()) {
+			CPU currentCPU = cpuQueue.poll();
+			currentCPU.addDataBatch(dataBatch);
+			cpuQueue.add(currentCPU);
+		}
 	}
 
     public void addProcessedData(DataBatch dataBatch){ //
