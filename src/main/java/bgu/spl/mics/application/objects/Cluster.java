@@ -3,6 +3,7 @@ package bgu.spl.mics.application.objects;
 
 import bgu.spl.mics.MessageBusImpl;
 
+import java.util.Comparator;
 import java.util.PriorityQueue;
 import java.util.Vector;
 
@@ -20,8 +21,7 @@ public class Cluster {
 	private static final Cluster CLUSTER = new Cluster();
 	private static final MessageBusImpl MESSAGE_BUS = MessageBusImpl.getInstance();
 	private Vector<GPU> gpuVector;
-	private Vector<CPU> cpuVector;
-	private PriorityQueue<CPU> cpusByTime;
+	private PriorityQueue<CPU> cpuQueue;
 	/**
      * Retrieves the single instance of this class.
      */
@@ -33,8 +33,10 @@ public class Cluster {
 		this.gpuVector.add(gpu);
 	}
 
-	public void addCPU(CPU cpu) {
-		this.cpuVector.add(cpu);
+	public void addCPUS(Vector<CPU> cpus) {
+		cpus.sort(new CPUCoreComparator()); // Firstly sort by CPU cores as CPUS don't have work initially
+		cpuQueue = new PriorityQueue<>(new CPUWorkComparator());
+		cpuQueue.addAll(cpus);
 	}
 
 	public void processData(Vector<DataBatch> dataBatchVector) {
@@ -58,5 +60,29 @@ public class Cluster {
 
 	public void sendProcessedData(DataBatch dataBatch) {
 		dataBatch.getGPU().addBatch(dataBatch);
+	}
+
+	private static class CPUCoreComparator implements Comparator<CPU> {
+		@Override
+		public int compare(CPU cpu1, CPU cpu2) {
+			if (cpu1.getCores() >= cpu2.getCores()) return -1;
+			if (cpu1.getCores() < cpu2.getCores()) return 1;
+			return 0;
+		}
+	}
+
+	private static class CPUWorkComparator implements Comparator<CPU> {
+
+		@Override
+		public int compare(CPU cpu1, CPU cpu2) {
+			long cpu1Time = cpu1.getTimeToProcessAll();
+			long cpu2Time = cpu2.getTimeToProcessAll();
+			if (cpu1Time > cpu2Time) return 1;
+			else if (cpu1Time < cpu2Time) return -1;
+			else {
+				if (cpu1.getCores() > cpu2.getCores()) return 1;
+			}
+			return -1;
+		}
 	}
 }

@@ -98,8 +98,9 @@ public class CPU {
         return "" + this.cores;
     }
 
+    public int getCores() { return this.cores; }
+
     public long getTimeToProcessAll() {
         return this.timeToProcessAll;
     }
-
 }

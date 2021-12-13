@@ -109,12 +109,12 @@ public class CRMSRunner {
 
         // Creating the CPU Services
         JsonArray cpuArr = rootObject.getAsJsonArray("CPUS");
+        Vector<CPU> cpus = new Vector<>();
         for (JsonElement e : cpuArr) {
             int cpuCoreCount = e.getAsInt();
             CPU newCPU = new CPU(cpuCoreCount);
-            CLUSTER.addCPU(newCPU);
+            cpus.add(newCPU);
             CPUService currentCPU = new CPUService(e.getAsString(), newCPU);
-
             MESSAGE_BUS.register(currentCPU);
             /*
             Might need to register to receive broadcasts and events
@@ -122,6 +122,7 @@ public class CRMSRunner {
             Thread thread = new Thread(currentCPU);
             thread.start();
         }
+        CLUSTER.addCPUS(cpus);
         Vector<ConferenceService> confVector = new Vector<>();
         JsonArray confArr = rootObject.getAsJsonArray("Conferences");
         for (JsonElement e : confArr) {
