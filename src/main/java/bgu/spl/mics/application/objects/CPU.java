@@ -10,7 +10,8 @@ import java.util.Vector;
  */
 public class CPU {
     private int cores;
-    private int  tickCounter;
+    private int tickCounter;
+    private int runtime;
     private Vector<DataBatch> dbVector;
     private DataBatch currentDB;
     private long timeToProcessAll;
@@ -19,6 +20,7 @@ public class CPU {
     public CPU(int cores){
         this.cores = cores;
         this.tickCounter = 0;
+        this.runtime = 0;
         this.dbVector = new Vector<DataBatch>();
         this.currentDB = null;
         this.timeToProcessAll = 0;
@@ -67,7 +69,8 @@ public class CPU {
 
     public void process() {
         if (currentDB == null) { return; }
-        tickCounter++;
+        this.tickCounter++;
+        this.runtime++;
         Data.Type type = currentDB.getType();
         switch (type){
             case Images: {
@@ -103,4 +106,6 @@ public class CPU {
     public long getTimeToProcessAll() {
         return this.timeToProcessAll;
     }
+
+    public void addRuntime() { CLUSTER.addCPURuntime(this.runtime); }
 }

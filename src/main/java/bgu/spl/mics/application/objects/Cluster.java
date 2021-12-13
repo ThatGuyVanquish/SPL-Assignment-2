@@ -21,6 +21,10 @@ public class Cluster {
 	private static final MessageBusImpl MESSAGE_BUS = MessageBusImpl.getInstance();
 	private Vector<GPU> gpuVector;
 	private PriorityBlockingQueue<CPU> cpuQueue;
+	private int cpuTime = 0;
+	private int gpuTime = 0;
+	private int batchesProcessed = 0;
+
 	/**
      * Retrieves the single instance of this class.
      */
@@ -62,14 +66,9 @@ public class Cluster {
 		}
 	}
 
-    public void addProcessedData(DataBatch dataBatch){ //
-		if (dataBatch != null)
-		{
-			dataBatch.getData().processData();
-		}
-	}
-
 	public void sendProcessedData(DataBatch dataBatch) {
+		this.batchesProcessed++;
+		dataBatch.getData().processData();
 		dataBatch.getGPU().addBatch(dataBatch);
 	}
 
@@ -81,4 +80,8 @@ public class Cluster {
 			return Integer.compare(cpu2.getCores(), cpu1.getCores());
 		}
 	}
+
+	public void addGPURuntime(int runtime) { this.gpuTime += runtime;}
+
+	public void addCPURuntime(int runtime) { this.cpuTime += runtime;}
 }

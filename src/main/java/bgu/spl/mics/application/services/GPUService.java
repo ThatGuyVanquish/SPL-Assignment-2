@@ -16,24 +16,21 @@ import bgu.spl.mics.application.objects.Model;
 public class GPUService extends MicroService {
 
     private GPU gpu;
-    private int ticksRunning;
     public GPUService(String name, GPU gpu) {
         super(name);
         this.gpu = gpu;
-        ticksRunning=0;
     }
 
     @Override
     protected void initialize() {
-        Callback<TickBroadcast> tickCallback = (TickBroadcast tickBroadcast)-> {gpu.processData();}; // Shouldn't add one as it would count ALL ticks as runtime
+        Callback<TickBroadcast> tickCallback = (TickBroadcast tickBroadcast)-> {gpu.processData();};
         subscribeBroadcast(TickBroadcast.class, tickCallback);
         Callback<TrainModelEvent> trainCallback = (TrainModelEvent e)-> {gpu.train(e);};
         subscribeEvent(TrainModelEvent.class, trainCallback);
         Callback<TestModelEvent> testCallback = (TestModelEvent e)-> gpu.test(e.getModel());
         subscribeEvent(TestModelEvent.class, testCallback);
-        Callback<TerminateBroadCast> TerminateCallBack = (TerminateBroadCast c) -> this.terminate();
+        Callback<TerminateBroadCast> TerminateCallBack = (TerminateBroadCast c) -> {this.gpu.addRuntime(); this.terminate();};
         subscribeBroadcast(TerminateBroadCast.class,TerminateCallBack);
 
     }
-    public int getTickUsed(){return ticksRunning;}
 }

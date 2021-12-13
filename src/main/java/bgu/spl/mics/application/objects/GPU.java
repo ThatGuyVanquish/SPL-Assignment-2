@@ -26,6 +26,7 @@ public class GPU {
     private DataBatch currentDB;
     private int tickCounter;
     private int processDuration;
+    private int runtime;
 
     public GPU(Type t) {
         this.type = t;
@@ -33,6 +34,7 @@ public class GPU {
         this.currentEvent = null;
         this.currentDB = null;
         this.tickCounter = 0;
+        this.runtime = 0;
         this.awaitingProcessing = new Vector<DataBatch>();
         switch (this.type) {
             case GTX1080: {
@@ -105,6 +107,7 @@ public class GPU {
         }
         if (currentModel.getStatus() == Model.status.Training){
             this.tickCounter++;
+            this.runtime++;
             if (this.tickCounter >= this.processDuration) {
                 this.currentModel.getData().processData();
                 setNextBatch();
@@ -137,4 +140,6 @@ public class GPU {
         model.setStatus(Model.status.Tested);
         return true;
     }
+
+    public void addRuntime() {CLUSTER.addGPURuntime(this.runtime); }
 }

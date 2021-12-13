@@ -22,7 +22,7 @@ public class CPUService extends MicroService {
     protected void initialize() {
         Callback<TickBroadcast> callback1 = (TickBroadcast c)-> cpu.process();
         subscribeBroadcast(TickBroadcast.class,callback1);
-        Callback<TerminateBroadCast> callback2 = (TerminateBroadCast c) -> this.terminate();
+        Callback<TerminateBroadCast> callback2 = (TerminateBroadCast c) -> {this.cpu.addRuntime(); this.terminate();};
         subscribeBroadcast(TerminateBroadCast.class,callback2);
     }
 }
