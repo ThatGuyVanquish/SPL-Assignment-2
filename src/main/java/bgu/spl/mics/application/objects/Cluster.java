@@ -3,6 +3,7 @@ package bgu.spl.mics.application.objects;
 
 import bgu.spl.mics.MessageBusImpl;
 
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.PriorityQueue;
 import java.util.Vector;
@@ -65,24 +66,18 @@ public class Cluster {
 	private static class CPUCoreComparator implements Comparator<CPU> {
 		@Override
 		public int compare(CPU cpu1, CPU cpu2) {
-			if (cpu1.getCores() >= cpu2.getCores()) return -1;
-			if (cpu1.getCores() < cpu2.getCores()) return 1;
+			if (cpu1.getCores() >= cpu2.getCores()) return 1;
+			if (cpu1.getCores() < cpu2.getCores()) return -1;
 			return 0;
 		}
 	}
 
 	private static class CPUWorkComparator implements Comparator<CPU> {
-
 		@Override
 		public int compare(CPU cpu1, CPU cpu2) {
-			long cpu1Time = cpu1.getTimeToProcessAll();
-			long cpu2Time = cpu2.getTimeToProcessAll();
-			if (cpu1Time > cpu2Time) return 1;
-			else if (cpu1Time < cpu2Time) return -1;
-			else {
-				if (cpu1.getCores() > cpu2.getCores()) return 1;
-			}
-			return -1;
+			int timeComp = Long.compare(cpu1.getTimeToProcessAll(), cpu2.getTimeToProcessAll());
+			if (timeComp != 0) return timeComp;
+			return Integer.compare(cpu2.getCores(), cpu1.getCores());
 		}
 	}
 }

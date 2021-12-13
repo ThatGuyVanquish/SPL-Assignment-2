@@ -35,8 +35,5 @@ public class StudentService extends MicroService {
         subscribeEvent(FinishedTrainingEvent.class, finishedTrainingEventCallback);
         sendEvent(new PublishResultsEvent(studentModel));
         subscribeBroadcast(PublishConfrenceBroadcast.class); // Needs callback
-
-
-
     }
 }
