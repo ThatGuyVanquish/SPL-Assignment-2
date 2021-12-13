@@ -9,7 +9,7 @@ public class Model {
     private String name;
     private Data data;
     private Student student;
-    public enum status {PreTrained, Training, Trained, Tested};
+    public enum status {PreTrained, Training, Trained, Tested,Publised};
     public enum results {None, Good, Bad};
     private status currentStatus;
     private results currentResult;

@@ -5,9 +5,11 @@ import com.sun.org.apache.xpath.internal.operations.Mod;
 
 import java.util.Vector;
 
-public class PublishResultsEvent implements Event<Future<Model>>{ // Not sure Event<Future<Model>> is the correct implementation
-     private Vector<Model> _studentModel;
-     public PublishResultsEvent(Vector<Model> studentModel){this._studentModel = studentModel;}
+public class PublishResultsEvent implements Event<Model>{ // Not sure Event<Future<Model>> is the correct implementation
+     private Model _studentModel;
+     public PublishResultsEvent(Model studentModel){this._studentModel = studentModel;}
 
-
+     public Model get_studentModel() {
+          return _studentModel;
+     }
 }

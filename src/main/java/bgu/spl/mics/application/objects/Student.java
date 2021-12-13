@@ -47,6 +47,14 @@ public class Student {
         return name;
     }
 
+
+    public void addPublications(int publications){
+        this.publications += publications;
+    }
+    public void addPaperRead(int papersRead){
+        this.papersRead += papersRead;
+    }
+
     public String getDepartment() {
         return department;
     }

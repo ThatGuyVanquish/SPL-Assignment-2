@@ -33,7 +33,21 @@ public class StudentService extends MicroService {
         subscribeBroadcast(TerminateBroadCast.class,TerminateCallBack);
         Callback<FinishedTrainingEvent> finishedTrainingEventCallback = (FinishedTrainingEvent c) -> {sendEvent(new TestModelEvent(c.getModel()));};
         subscribeEvent(FinishedTrainingEvent.class, finishedTrainingEventCallback);
-        sendEvent(new PublishResultsEvent(studentModel));
-        subscribeBroadcast(PublishConfrenceBroadcast.class); // Needs callback
+        Callback<FinishedTestedEvent> finishedTestedEventCallback = (FinishedTestedEvent c) ->
+        {
+            sendEvent(new PublishResultsEvent(c.getModel()));
+        };
+        subscribeEvent(FinishedTestedEvent.class,finishedTestedEventCallback);
+        Callback<PublishConfrenceBroadcast> PublishConfrenceBroadcastCallBack = (PublishConfrenceBroadcast e) ->
+        {
+            int published =0;
+            for (Model model:studentModel){
+                if (model.getStatus() == Model.status.Publised)
+                    published++;
+            }
+            student.addPublications(published);
+            student.addPaperRead(e.getPublictionNum());
+        };
+        subscribeBroadcast(PublishConfrenceBroadcast.class,PublishConfrenceBroadcastCallBack); // Needs callback
     }
 }

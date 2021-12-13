@@ -29,13 +29,13 @@ public class ConferenceService extends MicroService {
     protected void initialize() {
         Callback<TickBroadcast> tickCallback = (TickBroadcast tickBroadcast)-> {
             tickPassed++; if(tickPassed>=conf.getDate()){
-                sendBroadcast(new PublishConfrenceBroadcast());
+                sendBroadcast(new PublishConfrenceBroadcast(conf.getSuccsecfulModelNum())); terminate();
             }
         }
                 ; // Shouldn't add one as it would count ALL ticks as runtime
         subscribeBroadcast(TickBroadcast.class, tickCallback);
         Callback<PublishResultsEvent> publishCallBack =  (PublishResultsEvent c) -> {
-
+              conf.addSuccefullModelName(c.get_studentModel());
         };
         subscribeEvent(PublishResultsEvent.class,publishCallBack);
 

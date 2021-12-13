@@ -1,5 +1,6 @@
 package bgu.spl.mics.application.objects;
 
+import java.util.List;
 import java.util.Vector;
 
 /**
@@ -12,6 +13,7 @@ public class ConfrenceInformation {
     private String name;
     private int date;
     private Vector<Model> publications;
+    private Vector<String> successfulModelsNames;
 
     /**
      * Class to hold all the given in formation about a conference: It's name, date, and publications
@@ -22,6 +24,8 @@ public class ConfrenceInformation {
     public ConfrenceInformation(String name, int date) {
         this.name = name;
         this.date = date;
+        this.successfulModelsNames = new Vector<String>();
+
     }
 
     public void addModel(Model m) {
@@ -38,4 +42,13 @@ public class ConfrenceInformation {
     public int getDate() {
         return date;
     }
+
+    public void addSuccefullModelName(Model m) {
+        if (m.getResult() == Model.results.Good){
+            successfulModelsNames.add(m.toString());
+            m.setStatus(Model.status.Publised);
+        }
+    }
+    public  int getSuccsecfulModelNum(){return  successfulModelsNames.size();}
+
 }

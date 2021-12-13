@@ -7,4 +7,11 @@ package bgu.spl.mics;
  */
 
 public class PublishConfrenceBroadcast implements Broadcast{
+    private int publictionNum;
+    public PublishConfrenceBroadcast(int publictionNum){
+        this.publictionNum = publictionNum;
+    }
+    public int getPublictionNum() {
+        return publictionNum;
+    }
 }
