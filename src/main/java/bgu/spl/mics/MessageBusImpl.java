@@ -20,7 +20,6 @@ public class MessageBusImpl implements MessageBus {
 	private ConcurrentHashMap<Class<? extends Message>, Vector<MicroService>> MsgToMicro;
 	private Vector<ConfrenceInformation> conferences;
 	private int nextConference;
-	private long ticksPassed;
 
 	private  Object lockRoundRobin;
 
@@ -30,7 +29,6 @@ public class MessageBusImpl implements MessageBus {
 	 this.MsgToMicro = new ConcurrentHashMap<Class<? extends Message>, Vector<MicroService>>();
 	 this.conferences = new Vector<>();
 	 this.nextConference = 0;
-	 this.ticksPassed = 0;
 	}
 
 	 public static MessageBusImpl getInstance() {
@@ -38,12 +36,12 @@ public class MessageBusImpl implements MessageBus {
 	}
 
 	@Override
-	public synchronized <T>   void subscribeEvent(Class<? extends Event<T>> type, MicroService m) {
-		//synchronized (MsgToMicro) {
+	public <T> void subscribeEvent(Class<? extends Event<T>> type, MicroService m) {
+		synchronized (MsgToMicro) {
 			if (!MsgToMicro.containsKey(type))
 				MsgToMicro.put(type, new Vector<MicroService>());
 			MsgToMicro.get(type).add(m);
-	//	}
+		}
 	}
 
 	/**
@@ -73,7 +71,7 @@ public class MessageBusImpl implements MessageBus {
 	}
 
 	@Override
-	public  synchronized void sendBroadcast(Broadcast b) {
+	public void sendBroadcast(Broadcast b) {
 		Vector<MicroService> broad = MsgToMicro.get(b);
 		for(MicroService microService : broad){
 			MicroDict.get(broad).add(b);
@@ -81,26 +79,26 @@ public class MessageBusImpl implements MessageBus {
 	}
 
 	@Override
-	public  synchronized <T> Future<T> sendEvent(Event<T> e) {
+	public <T> Future<T> sendEvent(Event<T> e) {
 		Future<T>  result = new Future<T>();
 		if (!MsgToMicro.containsKey(e))
 			return null;
-	//	synchronized (lockRoundRobin) {
+		synchronized (lockRoundRobin) {
 			MicroService s = MsgToMicro.get(e).remove(0); //round robin implement
 			MicroDict.get(s).add(e);
 			MsgToFutr.put(e, result);
 			MsgToMicro.get(e).add(s);
-			notifyAll(); //MicroDict.get(s).notifyAll();
-		//}
+			MicroDict.get(s).notifyAll();
+		}
 		return result;
 	}
 
-	public synchronized void register(MicroService m) {
+	public void register(MicroService m) {
 		MicroDict.put(m,new Vector<Message>());
 	}
 
 	@Override
-	public synchronized void unregister(MicroService m) {
+	public void unregister(MicroService m) {
 		Vector<Message> Subsricedto = MicroDict.remove(m);
 		for(Message messege : Subsricedto){
 			MsgToMicro.get(messege).remove(m);
@@ -108,11 +106,11 @@ public class MessageBusImpl implements MessageBus {
 	}
 
 	@Override
-	public  synchronized Message awaitMessage(MicroService m) throws InterruptedException {
-	//	synchronized (lockRoundRobin) {
+	public Message awaitMessage(MicroService m) throws InterruptedException {
+		synchronized (lockRoundRobin) {
 			while (MicroDict.get(m).isEmpty()) {
-				wait();//MicroDict.get(m).wait();
-		//	}
+				MicroDict.get(m).wait();
+			}
 		}
 		Message msg = MicroDict.get(m).remove(0);
 		return msg;
@@ -143,8 +141,4 @@ public class MessageBusImpl implements MessageBus {
 	public void nextConference() { this.nextConference++; }
 
 	public ConfrenceInformation getNextConference() { return this.conferences.get(nextConference);}
-
-	public long getTicksPassed() { return this.ticksPassed;}
-
-	public void addTick() { this.ticksPassed++;}
 }
