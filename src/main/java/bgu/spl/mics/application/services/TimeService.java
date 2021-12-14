@@ -6,6 +6,7 @@ import bgu.spl.mics.TerminateBroadCast;
 import bgu.spl.mics.TickBroadcast;
 
 import javax.security.auth.callback.Callback;
+import java.sql.Time;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -24,7 +25,7 @@ public class TimeService extends MicroService{
 	private int _duration;
 	private boolean endApp;
 	private int ticksPassed;
-    private static final Timer TIMER = new Timer();
+    private  Timer TIMER;
 
 	public TimeService(int tickTime, int duration) {
 		super("Time Service");
@@ -32,14 +33,23 @@ public class TimeService extends MicroService{
 		this._duration = duration;
 		this.endApp = false;
 		this.ticksPassed=0;
+		TIMER = new Timer();
 	}
 
 	@Override
 	protected void initialize() {
-		while (ticksPassed<=_duration){
-			TIMER.schedule(new  TimerTask(){ public void run(){ sendBroadcast(new TickBroadcast());ticksPassed++;}},_tickTime);
+		while (ticksPassed<=_duration) {
+
+			TIMER.schedule(new TimerTask() {
+				public void run() {
+					sendBroadcast(new TickBroadcast());
+					ticksPassed++;
+				}
+			}, _tickTime);
 		}
 		TIMER.cancel();
+		System.out.println(ticksPassed);
+		
 		sendBroadcast(new TerminateBroadCast());
 		terminate();
 	}

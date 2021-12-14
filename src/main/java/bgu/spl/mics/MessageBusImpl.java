@@ -36,12 +36,12 @@ public class MessageBusImpl implements MessageBus {
 	}
 
 	@Override
-	public <T> void subscribeEvent(Class<? extends Event<T>> type, MicroService m) {
-		synchronized (MsgToMicro) {
+	public synchronized  <T> void subscribeEvent(Class<? extends Event<T>> type, MicroService m) {
+		//synchronized (MsgToMicro) {
 			if (!MsgToMicro.containsKey(type))
 				MsgToMicro.put(type, new Vector<MicroService>());
 			MsgToMicro.get(type).add(m);
-		}
+		//}
 	}
 
 	/**
@@ -73,23 +73,26 @@ public class MessageBusImpl implements MessageBus {
 	@Override
 	public void sendBroadcast(Broadcast b) {
 		Vector<MicroService> broad = MsgToMicro.get(b);
-		for(MicroService microService : broad){
-			MicroDict.get(broad).add(b);
+		if(broad!=null) {
+			for (MicroService microService : broad) {
+				MicroDict.get(broad).add(b);
+			}
 		}
+		System.out.println("hell");
 	}
 
 	@Override
-	public <T> Future<T> sendEvent(Event<T> e) {
+	public  synchronized <T> Future<T> sendEvent(Event<T> e) {
 		Future<T>  result = new Future<T>();
 		if (!MsgToMicro.containsKey(e))
 			return null;
-		synchronized (lockRoundRobin) {
+	//	synchronized (lockRoundRobin) {
 			MicroService s = MsgToMicro.get(e).remove(0); //round robin implement
 			MicroDict.get(s).add(e);
 			MsgToFutr.put(e, result);
 			MsgToMicro.get(e).add(s);
-			MicroDict.get(s).notifyAll();
-		}
+			notifyAll();//MicroDict.get(s).notifyAll();
+	//	}
 		return result;
 	}
 
@@ -106,12 +109,12 @@ public class MessageBusImpl implements MessageBus {
 	}
 
 	@Override
-	public Message awaitMessage(MicroService m) throws InterruptedException {
-		synchronized (lockRoundRobin) {
+	public  synchronized Message awaitMessage(MicroService m) throws InterruptedException {
+	//	synchronized (lockRoundRobin) {
 			while (MicroDict.get(m).isEmpty()) {
-				MicroDict.get(m).wait();
+				wait();//MicroDict.get(m).wait();
 			}
-		}
+	//	}
 		Message msg = MicroDict.get(m).remove(0);
 		return msg;
 	}
