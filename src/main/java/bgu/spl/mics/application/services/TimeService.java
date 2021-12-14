@@ -1,11 +1,10 @@
 package bgu.spl.mics.application.services;
 
-import bgu.spl.mics.Broadcast;
+import bgu.spl.mics.MessageBusImpl;
 import bgu.spl.mics.MicroService;
 import bgu.spl.mics.TerminateBroadCast;
 import bgu.spl.mics.TickBroadcast;
 
-import javax.security.auth.callback.Callback;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -23,25 +22,35 @@ public class TimeService extends MicroService{
 	private int _tickTime;
 	private int _duration;
 	private boolean endApp;
-	private int ticksPassed;
-    private static final Timer TIMER = new Timer();
+	//private int ticksPassed;
+    private Timer timer;
+	private static final MessageBusImpl MESSAGE_BUS = MessageBusImpl.getInstance();
 
 	public TimeService(int tickTime, int duration) {
 		super("Time Service");
 		this._tickTime = tickTime;
 		this._duration = duration;
 		this.endApp = false;
-		this.ticksPassed=0;
+		//this.ticksPassed = 0 ;
+		this.timer = new Timer();
 	}
 
 	@Override
 	protected void initialize() {
-		while (ticksPassed<=_duration){
-			TIMER.schedule(new  TimerTask(){ public void run(){ sendBroadcast(new TickBroadcast());ticksPassed++;}},_tickTime);
+		TimerTask tt = new TimerTask() {
+			@Override
+			public void run() {
+				sendBroadcast(new TickBroadcast());
+				MESSAGE_BUS.addTick();
+				System.out.println("tick");
+			}
+		};
+		while (MESSAGE_BUS.getTicksPassed() <= _duration){
+				timer.schedule(tt,_tickTime);
 		}
-		TIMER.cancel();
 		sendBroadcast(new TerminateBroadCast());
 		terminate();
-	}
+		}
 
+	//public void addTick() {this.ticksPassed++;}
 }

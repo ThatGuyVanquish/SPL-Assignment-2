@@ -27,6 +27,13 @@ public class CRMSRunner {
         JsonElement rootElement = PARSER.parse(reader);
         JsonObject rootObject = rootElement.getAsJsonObject();
 
+        // Creating the TimeService MicroService
+        int tickTime = rootObject.get("TickTime").getAsInt();
+        int tickDur = rootObject.get("Duration").getAsInt();
+        TimeService _globalTimer = new TimeService(tickTime, tickDur);
+        Thread thread1 = new Thread(_globalTimer);
+        thread1.start();
+
         // Creating all of the Student Services
         Vector<StudentService> studentServiceVector = new Vector<>(); // Vector to store StudentService objects, need to move to msgBus?
         Vector<Student> studentVector = new Vector<>();
@@ -126,19 +133,11 @@ public class CRMSRunner {
         }
         MESSAGE_BUS.addConferences(confVector);
 
-        // Creating the TimeService MicroService
-        int tickTime = rootObject.get("TickTime").getAsInt();
-        int tickDur = rootObject.get("Duration").getAsInt();
         try {
             reader.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-        TimeService _globalTimer = new TimeService(tickTime, tickDur);
-        Thread thread = new Thread(_globalTimer);
-        thread.start();
-        //Probably need to initialize _globalTimer here so that it would run ticks
 
         FileWriter fileWriter = null;
         try {
