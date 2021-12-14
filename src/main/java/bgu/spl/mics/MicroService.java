@@ -24,7 +24,7 @@ public abstract class MicroService implements Runnable {
 
     private boolean terminated = false;
     private final String name;
-    private  MessageBusImpl MsgBus;
+    private static final MessageBusImpl MESSAGE_BUS = MessageBusImpl.getInstance();
     private HashMap <Class<? extends Message>,Callback> MsgToCallBack;
 
     /**
@@ -32,7 +32,6 @@ public abstract class MicroService implements Runnable {
      *             does not have to be unique)
      */
     public MicroService(String name) {
-        MsgBus = MessageBusImpl.getInstance();
         MsgToCallBack = new HashMap<>();
         this.name = name;
     }
@@ -59,7 +58,7 @@ public abstract class MicroService implements Runnable {
      *                 queue.
      */
     protected final <T, E extends Event<T>> void subscribeEvent(Class<E> type, Callback<E> callback) {
-        MsgBus.subscribeEvent(type,this);
+        MESSAGE_BUS.subscribeEvent(type,this);
         MsgToCallBack.put(type,callback);
     }
 
@@ -84,7 +83,7 @@ public abstract class MicroService implements Runnable {
      *                 queue.
      */
     protected final <B extends Broadcast> void subscribeBroadcast(Class<B> type, Callback<B> callback) {
-        MsgBus.subscribeBroadcast(type,this);
+        MESSAGE_BUS.subscribeBroadcast(type,this);
         MsgToCallBack.put(type,callback);
     }
 
@@ -101,7 +100,7 @@ public abstract class MicroService implements Runnable {
      * 	       			null in case no micro-service has subscribed to {@code e.getClass()}.
      */
     protected final <T> Future<T> sendEvent(Event<T> e) {
-       return MsgBus.sendEvent(e);
+       return MESSAGE_BUS.sendEvent(e);
     }
 
     /**
@@ -111,7 +110,7 @@ public abstract class MicroService implements Runnable {
      * @param b The broadcast message to send
      */
     protected final void sendBroadcast(Broadcast b) {
-        MsgBus.sendBroadcast(b);
+        MESSAGE_BUS.sendBroadcast(b);
     }
 
     /**
@@ -125,7 +124,7 @@ public abstract class MicroService implements Runnable {
      *               {@code e}.
      */
     protected final <T> void complete(Event<T> e, T result) {
-        MsgBus.complete(e,result);
+        MESSAGE_BUS.complete(e,result);
     }
 
     /**
@@ -155,20 +154,19 @@ public abstract class MicroService implements Runnable {
      */
     @Override
     public final void run() {
-        MsgBus.register(this);
+        MESSAGE_BUS.register(this);
         initialize();
         Message msg = null;
         while (!terminated) {
           try {
-              msg = MsgBus.awaitMessage(this);
-
+              msg = MESSAGE_BUS.awaitMessage(this);
               Callback callback = MsgToCallBack.get(msg);
               callback.call(msg);
           }
           catch (InterruptedException e) {
             }
         }
-        MsgBus.unregister(this);
+        MESSAGE_BUS.unregister(this);
     }
 
 }
