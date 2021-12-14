@@ -5,6 +5,7 @@ import bgu.spl.mics.MessageBusImpl;
 
 import java.util.*;
 import java.util.concurrent.PriorityBlockingQueue;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Passive object representing the cluster.
@@ -21,9 +22,11 @@ public class Cluster {
 	private static final MessageBusImpl MESSAGE_BUS = MessageBusImpl.getInstance();
 	private Vector<GPU> gpuVector;
 	private PriorityBlockingQueue<CPU> cpuQueue;
-	private int cpuTime = 0;
-	private int gpuTime = 0;
-	private int batchesProcessed = 0;
+	private AtomicInteger cpuTimeUsed = new AtomicInteger(0);
+	private AtomicInteger gpuTimeUsed = new AtomicInteger(0);
+	private AtomicInteger batchesProcessed = new AtomicInteger(0);
+	private Object cpuLock;
+	private Object gpuLock;
 
 	/**
      * Retrieves the single instance of this class.
@@ -42,34 +45,40 @@ public class Cluster {
 	}
 
 	public void processData(Vector<DataBatch> dataBatchVector) {
-		CPU currentCPU = null;
-		if (!cpuQueue.isEmpty()) currentCPU = cpuQueue.poll();
-		while (!dataBatchVector.isEmpty()) {
-			if (currentCPU != null) {
-				if (cpuQueue.peek() != null) {
-					if (Long.compare(currentCPU.getTimeToProcessAll(), cpuQueue.peek().getTimeToProcessAll()) >= 0) {
-						cpuQueue.add(currentCPU);
-						currentCPU = cpuQueue.poll();
+		synchronized (cpuLock) {
+			CPU currentCPU = null;
+			if (!cpuQueue.isEmpty()) currentCPU = cpuQueue.poll();
+			while (!dataBatchVector.isEmpty()) {
+				if (currentCPU != null) {
+					if (cpuQueue.peek() != null) {
+						if (Long.compare(currentCPU.getTimeToProcessAll(), cpuQueue.peek().getTimeToProcessAll()) >= 0) {
+							cpuQueue.add(currentCPU);
+							currentCPU = cpuQueue.poll();
+						}
 					}
+					currentCPU.addDataBatch(dataBatchVector.remove(0));
 				}
-				currentCPU.addDataBatch(dataBatchVector.remove(0));
 			}
+			if (currentCPU != null) cpuQueue.add(currentCPU);
 		}
-		if (currentCPU != null) cpuQueue.add(currentCPU);
 	}
 
 	public void processData(DataBatch dataBatch) {
-		if (!cpuQueue.isEmpty()) {
-			CPU currentCPU = cpuQueue.poll();
-			currentCPU.addDataBatch(dataBatch);
-			cpuQueue.add(currentCPU);
+		synchronized (cpuLock) {
+			if (!cpuQueue.isEmpty()) {
+				CPU currentCPU = cpuQueue.poll();
+				currentCPU.addDataBatch(dataBatch);
+				cpuQueue.add(currentCPU);
+			}
 		}
 	}
 
 	public void sendProcessedData(DataBatch dataBatch) {
-		this.batchesProcessed++;
-		dataBatch.getData().processData();
-		dataBatch.getGPU().addBatch(dataBatch);
+		this.batchesProcessed.addAndGet( 1);
+		synchronized (gpuLock) {
+			dataBatch.getData().processData();
+			dataBatch.getGPU().addBatch(dataBatch);
+		}
 	}
 
 	private static class CPUWorkComparator implements Comparator<CPU> {
@@ -81,7 +90,13 @@ public class Cluster {
 		}
 	}
 
-	public void addGPURuntime(int runtime) { this.gpuTime += runtime;}
+	public void addGPURuntime(int runtime) { this.gpuTimeUsed.addAndGet(runtime);}
 
-	public void addCPURuntime(int runtime) { this.cpuTime += runtime;}
+	public void addCPURuntime(int runtime) { this.cpuTimeUsed.addAndGet(runtime);}
+
+	public long getTotalCPURuntime() { return this.cpuTimeUsed.get();}
+
+	public long getTotalGPURuntime() { return this.gpuTimeUsed.get();}
+
+	public long getBatchesProcessed() { return this.batchesProcessed.get(); }
 }

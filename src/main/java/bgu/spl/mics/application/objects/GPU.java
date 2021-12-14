@@ -4,6 +4,8 @@ import bgu.spl.mics.Event;
 import bgu.spl.mics.FinishedTrainingEvent;
 import bgu.spl.mics.MessageBusImpl;
 import bgu.spl.mics.TrainModelEvent;
+
+import java.util.Queue;
 import java.util.Vector;
 
 /**
@@ -21,21 +23,23 @@ public class GPU {
     private static final Cluster CLUSTER = Cluster.getInstance();
     private static final MessageBusImpl MESSAGE_BUS = MessageBusImpl.getInstance();
     private Type type;
-    private Event<Model> currentEvent;
     private Vector<DataBatch> awaitingProcessing;
     private DataBatch currentDB;
     private int tickCounter;
     private int processDuration;
     private int runtime;
+    private Vector<Model> trainingVector;
+    private Vector<Model> testingVector;
 
     public GPU(Type t) {
         this.type = t;
         this.currentModel = null;
-        this.currentEvent = null;
         this.currentDB = null;
         this.tickCounter = 0;
         this.runtime = 0;
         this.awaitingProcessing = new Vector<DataBatch>();
+        this.trainingVector = new Vector<>();
+        this.testingVector = new Vector<>();
         switch (this.type) {
             case GTX1080: {
                 this.awaitingProcessing.setSize(8);
@@ -76,10 +80,15 @@ public class GPU {
      * @post model.isDone()
      */
     public  void train(TrainModelEvent trainEvent){
-        this.currentModel = trainEvent.getModel();
-        this.currentEvent = trainEvent;
-        this.currentModel.setStatus(Model.status.Training);
-        CLUSTER.processData(this.currentModel.getData().batch(this.awaitingProcessing.size(), this));
+        if (this.currentModel == null) {
+            this.currentModel = trainEvent.getModel();
+            this.currentModel.setStatus(Model.status.Training);
+            CLUSTER.processData(this.currentModel.getData().batch(this.awaitingProcessing.size(), this));
+        }
+        else {
+            trainEvent.getModel().setStatus(Model.status.Training);
+            this.trainingVector.add(trainEvent.getModel());
+        }
     }
 
     public synchronized void addBatch(DataBatch dataBatch) {
@@ -103,6 +112,8 @@ public class GPU {
             MESSAGE_BUS.sendEvent(new FinishedTrainingEvent(this.currentModel));
             this.currentModel = null;
             this.tickCounter = 0;
+            if (!this.testingVector.isEmpty()) test(testingVector.remove(0));
+            if (!this.trainingVector.isEmpty()) this.currentModel = this.trainingVector.remove(0);
             return;
         }
         if (currentModel.getStatus() == Model.status.Training){
@@ -122,23 +133,31 @@ public class GPU {
      * @pre Model.getStatus == Trained
      * @post Model.getStatus == Tested
      */
-    public boolean test(Model model) {
-        switch (model.getStudent().getStatus()){
-            case PhD: {
-                if (Math.random() >= 0.2)
-                   model.setResult(Model.results.Good);
-                else model.setResult((Model.results.Bad));
-                break;
+    public void test(Model model) {
+        if (currentModel == null) {
+            switch (model.getStudent().getStatus()) {
+                case PhD: {
+                    if (Math.random() >= 0.2)
+                        model.setResult(Model.results.Good);
+                    else model.setResult((Model.results.Bad));
+                    break;
+                }
+                case MSc: {
+                    if (Math.random() >= 0.4)
+                        model.setResult(Model.results.Good);
+                    else model.setResult((Model.results.Bad));
+                    break;
+                }
             }
-            case MSc: {
-                if (Math.random() >= 0.4)
-                    model.setResult(Model.results.Good);
-                else model.setResult((Model.results.Bad));
-                break;
+            model.setStatus(Model.status.Tested);
+            // Add sending of finishedTestingEvent
+            if (!this.testingVector.isEmpty()) {
+                test(testingVector.remove(0));
             }
         }
-        model.setStatus(Model.status.Tested);
-        return true;
+        else {
+            this.testingVector.add(model);
+        }
     }
 
     public void addRuntime() {CLUSTER.addGPURuntime(this.runtime); }

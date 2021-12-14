@@ -6,9 +6,7 @@ import bgu.spl.mics.application.services.*;
 import bgu.spl.mics.application.objects.Cluster;
 import com.google.gson.*;
 
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
+import java.io.*;
 import java.util.Locale;
 import java.util.Vector;
 
@@ -30,7 +28,8 @@ public class CRMSRunner {
         JsonObject rootObject = rootElement.getAsJsonObject();
 
         // Creating all of the Student Services
-        Vector<StudentService> studentVector = new Vector<>(); // Vector to store StudentService objects, need to move to msgBus?
+        Vector<StudentService> studentServiceVector = new Vector<>(); // Vector to store StudentService objects, need to move to msgBus?
+        Vector<Student> studentVector = new Vector<>();
         JsonArray students = rootObject.getAsJsonArray("Students");
         for (JsonElement student : students) {
             JsonObject currentStudent = student.getAsJsonObject();
@@ -48,7 +47,7 @@ public class CRMSRunner {
             }
             Student newStudent = new Student(name, department, deg);
             StudentService currentStudentService = new StudentService(name, newStudent);
-            studentVector.add(currentStudentService);
+            studentVector.add(newStudent);
             Thread thread = new Thread(currentStudentService);
             // Creating the models which are connected to the current Student object
             Vector<Model> modelVector = new Vector<>();
@@ -130,9 +129,36 @@ public class CRMSRunner {
         // Creating the TimeService MicroService
         int tickTime = rootObject.get("TickTime").getAsInt();
         int tickDur = rootObject.get("Duration").getAsInt();
+        try {
+            reader.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         TimeService _globalTimer = new TimeService(tickTime, tickDur);
         Thread thread = new Thread(_globalTimer);
         thread.start();
         //Probably need to initialize _globalTimer here so that it would run ticks
+
+        FileWriter fileWriter = null;
+        try {
+            fileWriter = new FileWriter("Output.json");
+            fileWriter.write(studentVector.toString() + "\n");
+            fileWriter.write(confVector.toString() + "\n");
+            fileWriter.write("cpuTimeUsed: " + CLUSTER.getTotalCPURuntime() + "\n");
+            fileWriter.write("gpuTimeUsed: " + CLUSTER.getTotalGPURuntime() + "\n");
+            fileWriter.write("batchesProcessed: " + CLUSTER.getBatchesProcessed() + "\n");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        finally {
+            if (fileWriter != null)
+                try {
+                    fileWriter.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+        }
+        return;
     }
 }
