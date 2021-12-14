@@ -159,9 +159,11 @@ public abstract class MicroService implements Runnable {
         ///Message msg = null;
         while (!terminated) {
           try {
+
               Message msg = MESSAGE_BUS.awaitMessage(this);
-              Callback callback = MsgToCallBack.get(msg);
+              Callback callback = MsgToCallBack.get(msg.getClass());
               callback.call(msg);
+              System.out.println("sdfs");
           }
           catch (InterruptedException e) {
             }

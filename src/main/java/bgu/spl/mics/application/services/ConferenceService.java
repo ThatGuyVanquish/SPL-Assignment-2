@@ -39,5 +39,7 @@ public class ConferenceService extends MicroService {
               conf.addModel(c.getModel());
         };
         subscribeEvent(PublishResultsEvent.class,publishCallBack);
+        Callback<TerminateBroadCast> TerminateCallBack = (TerminateBroadCast c) -> {this.terminate();};
+        subscribeBroadcast(TerminateBroadCast.class,TerminateCallBack);
     }
 }

@@ -71,14 +71,16 @@ public class MessageBusImpl implements MessageBus {
 	}
 
 	@Override
-	public void sendBroadcast(Broadcast b) {
+	public synchronized void sendBroadcast(Broadcast b) {
 		Vector<MicroService> broad = MsgToMicro.get(b);
 		if(broad!=null) {
 			for (MicroService microService : broad) {
 				MicroDict.get(broad).add(b);
+				System.out.println("sdfsdf");
 			}
 		}
-		System.out.println("hell");
+		notifyAll();
+
 	}
 
 	@Override

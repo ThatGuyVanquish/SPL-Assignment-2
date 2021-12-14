@@ -38,7 +38,7 @@ public class TimeService extends MicroService{
 
 	@Override
 	protected void initialize() {
-		while (ticksPassed<=_duration) {
+		while (ticksPassed<=_duration-1) {
 
 			TIMER.schedule(new TimerTask() {
 				public void run() {
@@ -49,7 +49,7 @@ public class TimeService extends MicroService{
 		}
 		TIMER.cancel();
 		System.out.println(ticksPassed);
-		
+
 		sendBroadcast(new TerminateBroadCast());
 		terminate();
 	}
