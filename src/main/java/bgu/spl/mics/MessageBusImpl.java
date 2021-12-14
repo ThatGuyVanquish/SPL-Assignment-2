@@ -1,4 +1,6 @@
 package bgu.spl.mics;
+import bgu.spl.mics.application.objects.ConfrenceInformation;
+
 import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -15,6 +17,7 @@ public class MessageBusImpl implements MessageBus {
 	private ConcurrentHashMap<MicroService, Vector<Message>> MicroDict;
 	private ConcurrentHashMap<Message, Future> MsgToFutr;
 	private ConcurrentHashMap<Class<? extends Message>, Vector<MicroService>> MsgToMicro;
+	private Vector<ConfrenceInformation> conferences;
 
 	private  Object lockRoundRobin;
 
@@ -22,6 +25,7 @@ public class MessageBusImpl implements MessageBus {
      MicroDict = new ConcurrentHashMap<MicroService, Vector<Message>>();
 	 MsgToFutr = new ConcurrentHashMap<Message, Future>();
 	 MsgToMicro = new ConcurrentHashMap<Class<? extends Message>, Vector<MicroService>>();
+	 conferences = new Vector<>();
 	}
 
 	 public static MessageBusImpl getInstance() {
@@ -48,7 +52,6 @@ public class MessageBusImpl implements MessageBus {
 				MsgToMicro.put(type, new Vector<MicroService>());
 			MsgToMicro.get(type).add(m);
 		}
-
 	}
 
 	/**
@@ -72,7 +75,6 @@ public class MessageBusImpl implements MessageBus {
 		}
 	}
 
-
 	@Override
 	public <T> Future<T> sendEvent(Event<T> e) {
 		Future<T>  result = new Future<T>();
@@ -88,7 +90,6 @@ public class MessageBusImpl implements MessageBus {
 		return result;
 	}
 
-
 	public void register(MicroService m) {
 		MicroDict.put(m,new Vector<Message>());
 	}
@@ -99,7 +100,6 @@ public class MessageBusImpl implements MessageBus {
 		for(Message messege : Subsricedto){
 			MsgToMicro.get(messege).remove(m);
 		}
-
 	}
 
 	@Override
@@ -133,4 +133,5 @@ public class MessageBusImpl implements MessageBus {
 		return MsgToFutr.get(e);
 	}
 
+	public void addConferences(Vector<ConfrenceInformation> vc) { this.conferences = vc; }
 }

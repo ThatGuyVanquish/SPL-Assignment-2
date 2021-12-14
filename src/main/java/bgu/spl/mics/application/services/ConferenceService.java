@@ -21,8 +21,6 @@ public class ConferenceService extends MicroService {
         super(name);
         this.conf = conf;
         tickPassed =0;
-
-
     }
 
     @Override
@@ -31,11 +29,10 @@ public class ConferenceService extends MicroService {
             tickPassed++; if(tickPassed>=conf.getDate()){
                 sendBroadcast(new PublishConfrenceBroadcast(conf.getSuccsecfulModelNum())); terminate();
             }
-        }
-                ; // Shouldn't add one as it would count ALL ticks as runtime
+        };
         subscribeBroadcast(TickBroadcast.class, tickCallback);
         Callback<PublishResultsEvent> publishCallBack =  (PublishResultsEvent c) -> {
-              conf.addSuccefullModelName(c.get_studentModel());
+              conf.addModel(c.get_studentModel());
         };
         subscribeEvent(PublishResultsEvent.class,publishCallBack);
 

@@ -18,9 +18,13 @@ import java.util.Vector;
 public class StudentService extends MicroService {
     private String name;
     private Student student;
+    private int published;
+    private static final MessageBusImpl MESSAGE_BUS = MessageBusImpl.getInstance();
+
     public StudentService(String name, Student student) {
         super(name);
         this.student = student;
+        this.published = 0;
     }
 
     @Override
@@ -40,14 +44,14 @@ public class StudentService extends MicroService {
         subscribeEvent(FinishedTestedEvent.class,finishedTestedEventCallback);
         Callback<PublishConfrenceBroadcast> PublishConfrenceBroadcastCallBack = (PublishConfrenceBroadcast e) ->
         {
-            int published =0;
-            for (Model model:studentModel){
-                if (model.getStatus() == Model.status.Publised)
+            int published = 0;
+            for (Model model : studentModel){
+                if (model.getStatus() == Model.status.Published)
                     published++;
             }
             student.addPublications(published);
-            student.addPaperRead(e.getPublictionNum());
+            student.addPaperRead(e.getPublicationsNum());
         };
-        subscribeBroadcast(PublishConfrenceBroadcast.class,PublishConfrenceBroadcastCallBack); // Needs callback
+        subscribeBroadcast(PublishConfrenceBroadcast.class,PublishConfrenceBroadcastCallBack);
     }
 }

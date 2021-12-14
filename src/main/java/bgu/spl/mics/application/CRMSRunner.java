@@ -48,9 +48,6 @@ public class CRMSRunner {
             }
             Student newStudent = new Student(name, department, deg);
             StudentService currentStudentService = new StudentService(name, newStudent);
-            /*
-            Might need to subscribe to TickBroadcast and so on
-             */
             studentVector.add(currentStudentService);
             Thread thread = new Thread(currentStudentService);
             // Creating the models which are connected to the current Student object
@@ -100,10 +97,6 @@ public class CRMSRunner {
             GPU newGPU = new GPU(gpuType);
             gpus.add(newGPU);
             GPUService currentGPU = new GPUService(gpuTypeStr, newGPU);
-            MESSAGE_BUS.register(currentGPU);
-            /*
-            Might need to register to receive broadcasts and events
-             */
             Thread thread = new Thread(currentGPU);
             thread.start();
         }
@@ -117,31 +110,29 @@ public class CRMSRunner {
             CPU newCPU = new CPU(cpuCoreCount);
             cpus.add(newCPU);
             CPUService currentCPU = new CPUService(e.getAsString(), newCPU);
-            MESSAGE_BUS.register(currentCPU);
-            /*
-            Might need to register to receive broadcasts and events
-             */
             Thread thread = new Thread(currentCPU);
             thread.start();
         }
         CLUSTER.addCPUS(cpus);
-        Vector<ConferenceService> confVector = new Vector<>();
+        Vector<ConfrenceInformation> confVector = new Vector<>();
         JsonArray confArr = rootObject.getAsJsonArray("Conferences");
         for (JsonElement e : confArr) {
             String confName = e.getAsJsonObject().get("name").getAsString();
             int confDate = e.getAsJsonObject().get("date").getAsInt();
-            ConferenceService currentConf = new ConferenceService(confName, new ConfrenceInformation(confName, confDate));
-            confVector.add(currentConf);
-            MESSAGE_BUS.register(currentConf); // Is this necessary?
-            /*
-            Might need to register to receive broadcasts and events
-             */
+            ConfrenceInformation newConf = new ConfrenceInformation(confName, confDate);
+            ConferenceService currentConf = new ConferenceService(confName, newConf);
+            Thread thread = new Thread(currentConf);
+            thread.start();
+            confVector.add(newConf);
         }
+        MESSAGE_BUS.addConferences(confVector);
 
         // Creating the TimeService MicroService
         int tickTime = rootObject.get("TickTime").getAsInt();
         int tickDur = rootObject.get("Duration").getAsInt();
         TimeService _globalTimer = new TimeService(tickTime, tickDur);
+        Thread thread = new Thread(_globalTimer);
+        thread.start();
         //Probably need to initialize _globalTimer here so that it would run ticks
     }
 }

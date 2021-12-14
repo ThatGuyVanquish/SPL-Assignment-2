@@ -25,11 +25,11 @@ public class ConfrenceInformation {
         this.name = name;
         this.date = date;
         this.successfulModelsNames = new Vector<String>();
-
+        this.publications = new Vector<>();
     }
 
     public void addModel(Model m) {
-        if (m.getResult() == Model.results.Good) // Only allow publishing if model was good. Might be an "if tested" case though
+        if (m.getResult() == Model.results.Good)
             this.publications.add(m);
     }
 
@@ -46,7 +46,7 @@ public class ConfrenceInformation {
     public void addSuccefullModelName(Model m) {
         if (m.getResult() == Model.results.Good){
             successfulModelsNames.add(m.toString());
-            m.setStatus(Model.status.Publised);
+            m.setStatus(Model.status.Published);
         }
     }
     public  int getSuccsecfulModelNum(){return  successfulModelsNames.size();}
