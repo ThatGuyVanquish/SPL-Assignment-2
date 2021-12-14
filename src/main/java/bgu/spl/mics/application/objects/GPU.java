@@ -1,9 +1,6 @@
 package bgu.spl.mics.application.objects;
 
-import bgu.spl.mics.Event;
-import bgu.spl.mics.FinishedTrainingEvent;
-import bgu.spl.mics.MessageBusImpl;
-import bgu.spl.mics.TrainModelEvent;
+import bgu.spl.mics.*;
 
 import java.util.Queue;
 import java.util.Vector;
@@ -150,7 +147,7 @@ public class GPU {
                 }
             }
             model.setStatus(Model.status.Tested);
-            // Add sending of finishedTestingEvent
+            MESSAGE_BUS.sendEvent(new FinishedTestedEvent(model));
             if (!this.testingVector.isEmpty()) {
                 test(testingVector.remove(0));
             }
