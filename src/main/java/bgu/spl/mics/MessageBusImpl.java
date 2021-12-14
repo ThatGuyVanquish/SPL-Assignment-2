@@ -1,5 +1,6 @@
 package bgu.spl.mics;
 import bgu.spl.mics.application.objects.ConfrenceInformation;
+import bgu.spl.mics.application.services.ConferenceService;
 
 import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
@@ -18,14 +19,16 @@ public class MessageBusImpl implements MessageBus {
 	private ConcurrentHashMap<Message, Future> MsgToFutr;
 	private ConcurrentHashMap<Class<? extends Message>, Vector<MicroService>> MsgToMicro;
 	private Vector<ConfrenceInformation> conferences;
+	private int nextConference;
 
 	private  Object lockRoundRobin;
 
 	private MessageBusImpl(){
-     MicroDict = new ConcurrentHashMap<MicroService, Vector<Message>>();
-	 MsgToFutr = new ConcurrentHashMap<Message, Future>();
-	 MsgToMicro = new ConcurrentHashMap<Class<? extends Message>, Vector<MicroService>>();
-	 conferences = new Vector<>();
+     this.MicroDict = new ConcurrentHashMap<MicroService, Vector<Message>>();
+	 this.MsgToFutr = new ConcurrentHashMap<Message, Future>();
+	 this.MsgToMicro = new ConcurrentHashMap<Class<? extends Message>, Vector<MicroService>>();
+	 this.conferences = new Vector<>();
+	 this.nextConference = 0;
 	}
 
 	 public static MessageBusImpl getInstance() {
@@ -134,4 +137,8 @@ public class MessageBusImpl implements MessageBus {
 	}
 
 	public void addConferences(Vector<ConfrenceInformation> vc) { this.conferences = vc; }
+
+	public void nextConference() { this.nextConference++; }
+
+	public ConfrenceInformation getNextConference() { return this.conferences.get(nextConference);}
 }

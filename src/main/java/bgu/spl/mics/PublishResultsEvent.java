@@ -1,15 +1,13 @@
 package bgu.spl.mics;
 
 import bgu.spl.mics.application.objects.Model;
-import com.sun.org.apache.xpath.internal.operations.Mod;
-
-import java.util.Vector;
 
 public class PublishResultsEvent implements Event<Model>{ // Not sure Event<Future<Model>> is the correct implementation
-     private Model studentModel;
-     public PublishResultsEvent(Model studentModel){ this.studentModel = studentModel; }
+     private Model model;
 
-     public Model get_studentModel() {
-          return studentModel;
+     public PublishResultsEvent(Model model){ this.model = model; }
+
+     public Model getModel() {
+          return this.model;
      }
 }

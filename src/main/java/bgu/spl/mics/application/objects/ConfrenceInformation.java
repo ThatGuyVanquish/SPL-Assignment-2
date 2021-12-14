@@ -51,4 +51,12 @@ public class ConfrenceInformation {
     }
     public  int getSuccsecfulModelNum(){return  successfulModelsNames.size();}
 
+    public int papersRead(Student student) {
+        int ret = 0;
+        for (Model model : this.publications) {
+            if (model.getStudent() != student) ret++;
+        }
+        return ret;
+    }
+
 }

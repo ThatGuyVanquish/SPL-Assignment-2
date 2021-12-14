@@ -47,7 +47,6 @@ public class Student {
         return name;
     }
 
-
     public void addPublications(int publications){
         this.publications += publications;
     }

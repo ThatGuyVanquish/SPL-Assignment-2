@@ -31,6 +31,5 @@ public class GPUService extends MicroService {
         subscribeEvent(TestModelEvent.class, testCallback);
         Callback<TerminateBroadCast> TerminateCallBack = (TerminateBroadCast c) -> {this.gpu.addRuntime(); this.terminate();};
         subscribeBroadcast(TerminateBroadCast.class,TerminateCallBack);
-
     }
 }

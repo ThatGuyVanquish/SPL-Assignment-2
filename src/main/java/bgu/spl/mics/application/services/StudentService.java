@@ -29,8 +29,8 @@ public class StudentService extends MicroService {
 
     @Override
     protected void initialize() {
-        Vector<Model> studentModel= student.getModels();
-        for (Model model:studentModel){
+        Vector<Model> studentModels = student.getModels();
+        for (Model model : studentModels){
             sendEvent(new TrainModelEvent(model));
         }
         Callback<TerminateBroadCast> TerminateCallBack = (TerminateBroadCast c) -> this.terminate();
@@ -44,13 +44,14 @@ public class StudentService extends MicroService {
         subscribeEvent(FinishedTestedEvent.class,finishedTestedEventCallback);
         Callback<PublishConfrenceBroadcast> PublishConfrenceBroadcastCallBack = (PublishConfrenceBroadcast e) ->
         {
-            int published = 0;
-            for (Model model : studentModel){
-                if (model.getStatus() == Model.status.Published)
+            for (Model model : studentModels){
+                if (model.getStatus() == Model.status.Tested && model.getResult() == Model.results.Good) {
                     published++;
+                    MESSAGE_BUS.getNextConference().addModel(model);
+                    model.setStatus(Model.status.Published);
+                }
             }
-            student.addPublications(published);
-            student.addPaperRead(e.getPublicationsNum());
+            student.addPaperRead(MESSAGE_BUS.getNextConference().papersRead(this.student));
         };
         subscribeBroadcast(PublishConfrenceBroadcast.class,PublishConfrenceBroadcastCallBack);
     }

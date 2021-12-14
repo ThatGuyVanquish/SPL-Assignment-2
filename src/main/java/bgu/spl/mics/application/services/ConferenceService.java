@@ -16,6 +16,8 @@ public class ConferenceService extends MicroService {
 
     private ConfrenceInformation conf;
     private  int tickPassed;
+    private static final MessageBusImpl MESSAGE_BUS = MessageBusImpl.getInstance();
+
     //after the time of the conf, the service need to PublicConferenceBroadcast, and then register
     public ConferenceService(String name, ConfrenceInformation conf) {
         super(name);
@@ -27,14 +29,15 @@ public class ConferenceService extends MicroService {
     protected void initialize() {
         Callback<TickBroadcast> tickCallback = (TickBroadcast tickBroadcast)-> {
             tickPassed++; if(tickPassed>=conf.getDate()){
-                sendBroadcast(new PublishConfrenceBroadcast(conf.getSuccsecfulModelNum())); terminate();
+                sendBroadcast(new PublishConfrenceBroadcast());
+                MESSAGE_BUS.nextConference();
+                terminate();
             }
         };
         subscribeBroadcast(TickBroadcast.class, tickCallback);
         Callback<PublishResultsEvent> publishCallBack =  (PublishResultsEvent c) -> {
-              conf.addModel(c.get_studentModel());
+              conf.addModel(c.getModel());
         };
         subscribeEvent(PublishResultsEvent.class,publishCallBack);
-
     }
 }
