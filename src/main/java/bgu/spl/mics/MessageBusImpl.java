@@ -40,6 +40,7 @@ public class MessageBusImpl implements MessageBus {
 		//synchronized (MsgToMicro) {
 			if (!MsgToMicro.containsKey(type))
 				MsgToMicro.put(type, new Vector<MicroService>());
+
 			MsgToMicro.get(type).add(m);
 		//}
 	}
@@ -51,11 +52,14 @@ public class MessageBusImpl implements MessageBus {
 	@Override
 	public void subscribeBroadcast(Class<? extends Broadcast> type, MicroService m) {
 		synchronized (MsgToMicro) {
-			if (!MsgToMicro.containsKey(type))
+			if (!MsgToMicro.containsKey(type)) {
 				MsgToMicro.put(type, new Vector<MicroService>());
+			}
 			MsgToMicro.get(type).add(m);
 		}
 	}
+
+	public String print() { return this.MicroDict.toString();}
 
 	/**
 	 * @param e      The completed event.
@@ -72,15 +76,14 @@ public class MessageBusImpl implements MessageBus {
 
 	@Override
 	public synchronized void sendBroadcast(Broadcast b) {
-		Vector<MicroService> broad = MsgToMicro.get(b);
+		Vector<MicroService> broad = MsgToMicro.get(b.getClass());
 		if(broad!=null) {
 			for (MicroService microService : broad) {
-				MicroDict.get(broad).add(b);
-				System.out.println("sdfsdf");
+				MicroDict.get(microService).add(b);
+				//System.out.println("sdfsdf");
 			}
 		}
 		notifyAll();
-
 	}
 
 	@Override

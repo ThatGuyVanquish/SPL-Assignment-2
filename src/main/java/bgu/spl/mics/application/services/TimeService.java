@@ -1,9 +1,6 @@
 package bgu.spl.mics.application.services;
 
-import bgu.spl.mics.Broadcast;
-import bgu.spl.mics.MicroService;
-import bgu.spl.mics.TerminateBroadCast;
-import bgu.spl.mics.TickBroadcast;
+import bgu.spl.mics.*;
 
 import javax.security.auth.callback.Callback;
 import java.sql.Time;
@@ -49,7 +46,8 @@ public class TimeService extends MicroService{
 		}
 		TIMER.cancel();
 		System.out.println(ticksPassed);
-
+		System.out.println(Thread.activeCount());
+		System.out.println(MessageBusImpl.getInstance().print());
 		sendBroadcast(new TerminateBroadCast());
 		terminate();
 	}
