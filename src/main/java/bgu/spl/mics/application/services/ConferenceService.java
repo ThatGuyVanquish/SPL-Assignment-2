@@ -3,6 +3,8 @@ package bgu.spl.mics.application.services;
 import bgu.spl.mics.*;
 import bgu.spl.mics.application.objects.ConfrenceInformation;
 
+import java.util.concurrent.CountDownLatch;
+
 /**
  * Conference service is in charge of
  * aggregating good results and publishing them via the {@link PublishConfrenceBroadcast},
@@ -19,8 +21,8 @@ public class ConferenceService extends MicroService {
     private static final MessageBusImpl MESSAGE_BUS = MessageBusImpl.getInstance();
 
     //after the time of the conf, the service need to PublicConferenceBroadcast, and then register
-    public ConferenceService(String name, ConfrenceInformation conf) {
-        super(name);
+    public ConferenceService(String name, ConfrenceInformation conf, CountDownLatch countDownTimer,CountDownLatch countDownStudent) {
+        super(name, countDownTimer,countDownStudent);
         this.conf = conf;
         tickPassed =0;
     }

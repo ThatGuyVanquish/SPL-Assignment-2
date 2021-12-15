@@ -25,7 +25,7 @@ public class TimeService extends MicroService{
     private  Timer TIMER;
 
 	public TimeService(int tickTime, int duration) {
-		super("Time Service");
+		super("Time Service",null,null);
 		this._tickTime = tickTime;
 		this._duration = duration;
 		this.endApp = false;

@@ -9,6 +9,7 @@ import com.google.gson.*;
 import java.io.*;
 import java.util.Locale;
 import java.util.Vector;
+import java.util.concurrent.CountDownLatch;
 
 /** This is the Main class of Compute Resources Management System application. You should parse the input file,
  * create the different instances of the objects, and run the system.
@@ -20,13 +21,16 @@ public class CRMSRunner {
     private static final Cluster CLUSTER = Cluster.getInstance();
     private static final MessageBusImpl MESSAGE_BUS = MessageBusImpl.getInstance();
 
+
     public static void main(String[] args) {
         //InputStream inputStream = CRMSRunner.class.getClassLoader().getResourceAsStream(args[0]); The line we'd probably use to compile
         InputStream inputStream = CRMSRunner.class.getClassLoader().getResourceAsStream("test.json");
         Reader reader = new InputStreamReader(inputStream);
         JsonElement rootElement = PARSER.parse(reader);
         JsonObject rootObject = rootElement.getAsJsonObject();
-
+        Vector<Thread> threadHolder = new Vector<Thread>();
+        CountDownLatch countDownTimer;
+        CountDownLatch countDownStudent;
         // Creating all of the Student Services
         Vector<StudentService> studentServiceVector = new Vector<>(); // Vector to store StudentService objects, need to move to msgBus?
         Vector<Student> studentVector = new Vector<>();
@@ -46,9 +50,10 @@ public class CRMSRunner {
                     break;
             }
             Student newStudent = new Student(name, department, deg);
-            StudentService currentStudentService = new StudentService(name, newStudent);
+          //  StudentService currentStudentService = new StudentService(name, newStudent,countDown);
             studentVector.add(newStudent);
-            Thread thread = new Thread(currentStudentService);
+          //  Thread thread = new Thread(currentStudentService);
+          //  threadHolder.add(thread);
             // Creating the models which are connected to the current Student object
             Vector<Model> modelVector = new Vector<>();
             JsonArray models = currentStudent.getAsJsonArray("models");
@@ -73,7 +78,7 @@ public class CRMSRunner {
                 modelVector.add(new Model(modelName, currentModelData, newStudent));
             }
             newStudent.addModels(modelVector);
-            thread.start();
+            //thread.start();
         }
 
         // Creating the GPU Services
@@ -95,9 +100,10 @@ public class CRMSRunner {
             }
             GPU newGPU = new GPU(gpuType);
             gpus.add(newGPU);
-            GPUService currentGPU = new GPUService(gpuTypeStr, newGPU);
-            Thread thread = new Thread(currentGPU);
-            thread.start();
+           // GPUService currentGPU = new GPUService(gpuTypeStr, newGPU);
+           // Thread thread = new Thread(currentGPU);
+          //  threadHolder.add(thread);
+            //thread.start();
         }
         CLUSTER.addGPUS(gpus);
 
@@ -108,9 +114,10 @@ public class CRMSRunner {
             int cpuCoreCount = e.getAsInt();
             CPU newCPU = new CPU(cpuCoreCount);
             cpus.add(newCPU);
-            CPUService currentCPU = new CPUService(e.getAsString(), newCPU);
-            Thread thread = new Thread(currentCPU);
-            thread.start();
+           // CPUService currentCPU = new CPUService(e.getAsString(), newCPU);
+           // Thread thread = new Thread(currentCPU);
+           // threadHolder.add(thread);
+           // thread.start();
         }
         CLUSTER.addCPUS(cpus);
         Vector<ConfrenceInformation> confVector = new Vector<>();
@@ -119,12 +126,41 @@ public class CRMSRunner {
             String confName = e.getAsJsonObject().get("name").getAsString();
             int confDate = e.getAsJsonObject().get("date").getAsInt();
             ConfrenceInformation newConf = new ConfrenceInformation(confName, confDate);
-            ConferenceService currentConf = new ConferenceService(confName, newConf);
-            Thread thread = new Thread(currentConf);
-            thread.start();
+          //  ConferenceService currentConf = new ConferenceService(confName, newConf);
+          //  Thread thread = new Thread(currentConf);
+            //thread.start();
+          //  threadHolder.add(thread);
             confVector.add(newConf);
         }
         MESSAGE_BUS.addConferences(confVector);
+        int countDownSizeTimer = confVector.size()+ gpus.size()+studentVector.size()+ cpus.size();//making sure all mircoservices register before time service
+        int countDownSizeStudent = confVector.size() + gpus.size() + cpus.size();
+        countDownTimer = new CountDownLatch(countDownSizeTimer);
+        countDownStudent = new CountDownLatch(countDownSizeStudent);
+
+        for(GPU gpu:gpus){
+            GPUService gpuService = new GPUService(gpu.toString(),gpu,countDownTimer,countDownStudent);
+            Thread thread = new Thread(gpuService);
+            thread.start();
+        }
+        for(CPU cpu:cpus){
+            CPUService cpuService = new CPUService(cpu.toString(),cpu,countDownTimer,countDownStudent);
+            Thread thread = new Thread(cpuService);
+            thread.start();
+        }
+        for(ConfrenceInformation confInformation:confVector){
+            ConferenceService confService = new ConferenceService(confInformation.toString(),confInformation,countDownTimer,countDownStudent);
+            Thread thread = new Thread(confService);
+            thread.start();
+        }
+        try{
+            countDownStudent.await(); // student threads wait for cpu,gpu and conference to register
+        }catch (InterruptedException e){};
+        for(Student student:studentVector){
+            StudentService studentService = new StudentService(student.getName(),student,countDownTimer);
+            Thread thread = new Thread(studentService);
+            thread.start();
+        }
 
         // Creating the TimeService MicroService
         int tickTime = rootObject.get("TickTime").getAsInt();
@@ -134,8 +170,12 @@ public class CRMSRunner {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        try{
+            countDownTimer.await();
+        }catch (InterruptedException e){};
 
         TimeService _globalTimer = new TimeService(tickTime, tickDur);
+
         Thread thread = new Thread(_globalTimer);
         thread.start();
         //Probably need to initialize _globalTimer here so that it would run ticks

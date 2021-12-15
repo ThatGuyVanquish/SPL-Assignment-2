@@ -1,6 +1,7 @@
 package bgu.spl.mics;
 
 import java.util.HashMap;
+import java.util.concurrent.CountDownLatch;
 
 /**
  * The MicroService is an abstract class that any micro-service in the system
@@ -26,14 +27,18 @@ public abstract class MicroService implements Runnable {
     private final String name;
     private static final MessageBusImpl MESSAGE_BUS = MessageBusImpl.getInstance();
     private HashMap <Class<? extends Message>,Callback> MsgToCallBack;
+    private CountDownLatch countDownTimer;
+    private CountDownLatch countDownStudent;
 
     /**
      * @param name the micro-service name (used mainly for debugging purposes -
      *             does not have to be unique)
      */
-    public MicroService(String name) {
+    public MicroService(String name,CountDownLatch countDownTimer,CountDownLatch countDownStudent) {
         MsgToCallBack = new HashMap<>();
         this.name = name;
+        this.countDownTimer = countDownTimer;
+        this.countDownStudent = countDownStudent;
     }
 
     /**
@@ -155,6 +160,11 @@ public abstract class MicroService implements Runnable {
     @Override
     public final void run() {
         MESSAGE_BUS.register(this);
+        System.out.println(this.name + "registered");
+        if (countDownTimer!=null)
+            countDownTimer.countDown();
+        if(countDownStudent!=null)
+            countDownStudent.countDown();
         initialize();
         ///Message msg = null;
         while (!terminated) {
@@ -163,6 +173,7 @@ public abstract class MicroService implements Runnable {
               Message msg = MESSAGE_BUS.awaitMessage(this);
               Callback callback = MsgToCallBack.get(msg.getClass());
               callback.call(msg);
+
           }
           catch (InterruptedException e) {
             }

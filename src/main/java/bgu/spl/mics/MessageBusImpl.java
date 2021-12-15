@@ -4,6 +4,7 @@ import bgu.spl.mics.application.services.ConferenceService;
 
 import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.LinkedBlockingDeque;
 
 
 /**
@@ -15,18 +16,21 @@ public class MessageBusImpl implements MessageBus {
 	private static class SingletonHolder{
 		private static MessageBusImpl instance = new MessageBusImpl();
 	}
-	private ConcurrentHashMap<MicroService, Vector<Message>> MicroDict;
+	private ConcurrentHashMap<MicroService, LinkedBlockingDeque<Message>> MicroDict;
 	private ConcurrentHashMap<Message, Future> MsgToFutr;
-	private ConcurrentHashMap<Class<? extends Message>, Vector<MicroService>> MsgToMicro;
+	private ConcurrentHashMap<Class<? extends Event<?>>, Vector<MicroService>> eventToMicro;
+	private ConcurrentHashMap<Class<? extends  Broadcast>,Vector<MicroService>> broadToMicro;
 	private Vector<ConfrenceInformation> conferences;
 	private int nextConference;
 
-	private  Object lockRoundRobin;
+	private  final Object lockRoundRobin = new Object();
+	private final Object broadCastLock = new Object();
 
 	private MessageBusImpl(){
-     this.MicroDict = new ConcurrentHashMap<MicroService, Vector<Message>>();
+     this.MicroDict = new ConcurrentHashMap<MicroService, LinkedBlockingDeque<Message>>();
 	 this.MsgToFutr = new ConcurrentHashMap<Message, Future>();
-	 this.MsgToMicro = new ConcurrentHashMap<Class<? extends Message>, Vector<MicroService>>();
+	 this.eventToMicro = new ConcurrentHashMap<Class<? extends Event<?>>, Vector<MicroService>>();
+	 this.broadToMicro = new ConcurrentHashMap<Class<? extends Broadcast>, Vector<MicroService>>();
 	 this.conferences = new Vector<>();
 	 this.nextConference = 0;
 	}
@@ -36,13 +40,12 @@ public class MessageBusImpl implements MessageBus {
 	}
 
 	@Override
-	public synchronized  <T> void subscribeEvent(Class<? extends Event<T>> type, MicroService m) {
-		//synchronized (MsgToMicro) {
-			if (!MsgToMicro.containsKey(type))
-				MsgToMicro.put(type, new Vector<MicroService>());
-
-			MsgToMicro.get(type).add(m);
-		//}
+	public   <T> void subscribeEvent(Class<? extends Event<T>> type, MicroService m) {
+		synchronized (eventToMicro) {
+			if (!eventToMicro.containsKey(type))
+				eventToMicro.put(type, new Vector<MicroService>());
+		 }
+			eventToMicro.get(type).add(m);
 	}
 
 	/**
@@ -51,11 +54,11 @@ public class MessageBusImpl implements MessageBus {
 	 */
 	@Override
 	public void subscribeBroadcast(Class<? extends Broadcast> type, MicroService m) {
-		synchronized (MsgToMicro) {
-			if (!MsgToMicro.containsKey(type)) {
-				MsgToMicro.put(type, new Vector<MicroService>());
+		synchronized (broadCastLock) {
+			if (!broadToMicro.containsKey(type)) {
+				broadToMicro.put(type, new Vector<MicroService>());
 			}
-			MsgToMicro.get(type).add(m);
+			broadToMicro.get(type).add(m);
 		}
 	}
 
@@ -75,53 +78,59 @@ public class MessageBusImpl implements MessageBus {
 	}
 
 	@Override
-	public synchronized void sendBroadcast(Broadcast b) {
-		Vector<MicroService> broad = MsgToMicro.get(b.getClass());
-		if(broad!=null) {
+	public  void sendBroadcast(Broadcast b) {
+		synchronized (broadCastLock){
+		Vector<MicroService> broad = broadToMicro.get(b.getClass());
+		 if(broad!=null) {
 			for (MicroService microService : broad) {
 				MicroDict.get(microService).add(b);
-				//System.out.println("sdfsdf");
+
 			}
+		 }
 		}
-		notifyAll();
+
 	}
 
 	@Override
-	public  synchronized <T> Future<T> sendEvent(Event<T> e) {
+	public  <T> Future<T> sendEvent(Event<T> e) {
 		Future<T>  result = new Future<T>();
-		if (!MsgToMicro.containsKey(e))
+		if (!eventToMicro.containsKey(e)){
+			System.out.println("nullisthrown");
 			return null;
-	//	synchronized (lockRoundRobin) {
-			MicroService s = MsgToMicro.get(e).remove(0); //round robin implement
+		}
+
+		synchronized (lockRoundRobin) {
+			MicroService s = eventToMicro.get(e).remove(0); //round robin implement
 			MicroDict.get(s).add(e);
 			MsgToFutr.put(e, result);
-			MsgToMicro.get(e).add(s);
-			notifyAll();//MicroDict.get(s).notifyAll();
-	//	}
+			eventToMicro.get(e).add(s);
+	  }
 		return result;
 	}
 
 	public void register(MicroService m) {
-		MicroDict.put(m,new Vector<Message>());
+		MicroDict.put(m,new LinkedBlockingDeque<Message>());
 	}
 
 	@Override
 	public void unregister(MicroService m) {
-		Vector<Message> Subsricedto = MicroDict.remove(m);
+		LinkedBlockingDeque<Message> Subsricedto = MicroDict.remove(m);
 		for(Message messege : Subsricedto){
-			MsgToMicro.get(messege).remove(m);
+			if(messege instanceof Broadcast)
+				broadToMicro.get(messege.getClass()).remove(m);
+			else
+			   eventToMicro.get(messege.getClass()).remove(m);
 		}
 	}
 
 	@Override
-	public  synchronized Message awaitMessage(MicroService m) throws InterruptedException {
-	//	synchronized (lockRoundRobin) {
-			while (MicroDict.get(m).isEmpty()) {
-				wait();//MicroDict.get(m).wait();
-			}
-	//	}
-		Message msg = MicroDict.get(m).remove(0);
-		return msg;
+	public   Message awaitMessage(MicroService m) throws InterruptedException {
+		try {
+			return MicroDict.get(m).take();
+		} catch (InterruptedException e) {
+			System.out.println("interrupted");
+			throw e;
+		}
 	}
 
 	@Override
@@ -131,12 +140,12 @@ public class MessageBusImpl implements MessageBus {
 
 	@Override
 	public <T> boolean isSubscribedToEvent(Class<? extends Event<T>> event, MicroService m) {
-		return MsgToMicro.get(event).contains(m);
+		return eventToMicro.get(event).contains(m);
 	}
 
 	@Override
 	public boolean isSubscribedToBroadcast(Class<? extends Broadcast> broadcast, MicroService m) {
-		return MsgToMicro.get(broadcast).contains(m);
+		return broadToMicro.get(broadcast).contains(m);
 	}
 
 	@Override

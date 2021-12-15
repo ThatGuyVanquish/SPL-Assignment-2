@@ -12,7 +12,7 @@ public class ExampleMessageSenderService extends MicroService {
     private boolean broadcast;
 
     public ExampleMessageSenderService(String name, String[] args) {
-        super(name);
+        super(name,null,null);
 
         if (args.length != 1 || !args[0].matches("broadcast|event")) {
             throw new IllegalArgumentException("expecting a single argument: broadcast/event");

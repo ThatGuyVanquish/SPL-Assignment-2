@@ -5,6 +5,7 @@ import bgu.spl.mics.application.objects.Model;
 import bgu.spl.mics.application.objects.Student;
 
 import java.util.Vector;
+import java.util.concurrent.CountDownLatch;
 
 /**
  * Student is responsible for sending the {@link TrainModelEvent},
@@ -21,14 +22,17 @@ public class StudentService extends MicroService {
     private int published;
     private static final MessageBusImpl MESSAGE_BUS = MessageBusImpl.getInstance();
 
-    public StudentService(String name, Student student) {
-        super(name);
+
+    public StudentService(String name, Student student, CountDownLatch countDownTimer) {
+        super(name,countDownTimer,null);
         this.student = student;
         this.published = 0;
+
     }
 
     @Override
     protected void initialize() {
+
         Vector<Model> studentModels = student.getModels();
         for (Model model : studentModels){
             sendEvent(new TrainModelEvent(model));
