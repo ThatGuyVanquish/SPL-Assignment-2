@@ -16,23 +16,26 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class Cluster {
 
+	private static class SingletonHolder{
+		private static final Cluster instance = new Cluster();
+	}
 	private Cluster(){}
 
-	private static final Cluster CLUSTER = new Cluster();
+
 	private static final MessageBusImpl MESSAGE_BUS = MessageBusImpl.getInstance();
 	private Vector<GPU> gpuVector;
 	private PriorityBlockingQueue<CPU> cpuQueue;
 	private AtomicInteger cpuTimeUsed = new AtomicInteger(0);
 	private AtomicInteger gpuTimeUsed = new AtomicInteger(0);
 	private AtomicInteger batchesProcessed = new AtomicInteger(0);
-	private Object cpuLock;
-	private Object gpuLock;
+	private  final Object cpuLock = new Object();
+	private final Object gpuLock = new Object();
 
 	/**
      * Retrieves the single instance of this class.
      */
 	public static Cluster getInstance() {
-		return CLUSTER;
+		return SingletonHolder.instance;
 	}
 
 	public void addGPUS(Vector<GPU> gpus) {

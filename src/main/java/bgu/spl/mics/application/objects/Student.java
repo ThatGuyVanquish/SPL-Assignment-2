@@ -19,6 +19,7 @@ public class Student {
     private Degree status;
     private int publications;
     private int papersRead;
+    private int modelIndex;
     private Vector<Model> modelVector;
 
     public Student(String name, String dpt, Degree deg)
@@ -28,6 +29,7 @@ public class Student {
         this.status = deg;
         this.publications = 0;
         this.papersRead = 0;
+        modelIndex =0;
     }
 
     public void addModels(Vector<Model> modelVector) {
@@ -71,4 +73,18 @@ public class Student {
     }
 
     public Vector<Model> getModels(){return modelVector; }
-}
+    public  Model getNextModel(){
+        Model currModel;
+        if(modelVector.size()>modelIndex) {
+            currModel= modelVector.get(modelIndex);
+
+        }
+        else
+            currModel = null;
+        modelIndex++;
+        return currModel;
+
+    }
+
+    }
+

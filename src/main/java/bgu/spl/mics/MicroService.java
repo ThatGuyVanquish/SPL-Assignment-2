@@ -39,6 +39,7 @@ public abstract class MicroService implements Runnable {
         this.name = name;
         this.countDownTimer = countDownTimer;
         this.countDownStudent = countDownStudent;
+
     }
 
     /**
@@ -160,7 +161,7 @@ public abstract class MicroService implements Runnable {
     @Override
     public final void run() {
         MESSAGE_BUS.register(this);
-        System.out.println(this.name + "registered");
+        System.out.println(name);
         if (countDownTimer!=null)
             countDownTimer.countDown();
         if(countDownStudent!=null)

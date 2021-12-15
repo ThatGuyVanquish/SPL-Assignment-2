@@ -32,7 +32,8 @@ public class ConferenceService extends MicroService {
         Callback<TickBroadcast> tickCallback = (TickBroadcast tickBroadcast)-> {
             tickPassed++; if(tickPassed>=conf.getDate()){
                 sendBroadcast(new PublishConfrenceBroadcast());
-                MESSAGE_BUS.nextConference();
+
+                System.out.println(tickPassed);
                 terminate();
             }
         };
@@ -41,7 +42,7 @@ public class ConferenceService extends MicroService {
               conf.addModel(c.getModel());
         };
         subscribeEvent(PublishResultsEvent.class,publishCallBack);
-        Callback<TerminateBroadCast> TerminateCallBack = (TerminateBroadCast c) -> {this.terminate();};
+        Callback<TerminateBroadCast> TerminateCallBack = (TerminateBroadCast c) -> {this.terminate();System.out.println("terminate called");};
         subscribeBroadcast(TerminateBroadCast.class,TerminateCallBack);
     }
 }

@@ -26,7 +26,7 @@ public class GPUService extends MicroService {
     protected void initialize() {
         Callback<TickBroadcast> tickCallback = (TickBroadcast tickBroadcast)-> {gpu.processData();};
         subscribeBroadcast(TickBroadcast.class, tickCallback);
-        Callback<TrainModelEvent> trainCallback = (TrainModelEvent e)-> {gpu.train(e); System.out.println("train");};
+        Callback<TrainModelEvent> trainCallback = (TrainModelEvent e)-> {gpu.train(e);};
         subscribeEvent(TrainModelEvent.class, trainCallback);
         Callback<TestModelEvent> testCallback = (TestModelEvent e)-> gpu.test(e.getModel());
         subscribeEvent(TestModelEvent.class, testCallback);

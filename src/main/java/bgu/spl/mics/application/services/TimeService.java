@@ -35,6 +35,7 @@ public class TimeService extends MicroService{
 
 	@Override
 	protected void initialize() {
+		System.out.println("time starting");
 		while (ticksPassed<=_duration-1) {
 
 			TIMER.schedule(new TimerTask() {
@@ -43,11 +44,10 @@ public class TimeService extends MicroService{
 					ticksPassed++;
 				}
 			}, _tickTime);
+		//	System.out.println("check");
 		}
 		TIMER.cancel();
 		System.out.println(ticksPassed);
-		System.out.println(Thread.activeCount());
-		System.out.println(MessageBusImpl.getInstance().print());
 		sendBroadcast(new TerminateBroadCast());
 		terminate();
 	}

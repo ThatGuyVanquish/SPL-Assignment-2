@@ -42,7 +42,7 @@ public class ConfrenceInformation {
         return date;
     }
 
-    public int papersRead(Student student) {
+    public  synchronized int papersRead(Student student) {
         int ret = 0;
         for (Model model : this.publications) {
             if (model.getStudent() != student) ret++;

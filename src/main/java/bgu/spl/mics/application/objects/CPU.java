@@ -31,24 +31,26 @@ public class CPU {
      * @param batch
      * @post currentDB != null
      */
-    public synchronized void addDataBatch(DataBatch batch){
-        dbVector.add(batch);
-        switch (batch.getData().getType()) { // Calculate how much time would it take to process current Data Batch
-            case Images: {
-                this.timeToProcessAll += 4 * (32/this.cores);
-                break;
+    public synchronized void addDataBatch(DataBatch batch) {
+        if (batch != null) {
+            dbVector.add(batch);
+            switch (batch.getData().getType()) { // Calculate how much time would it take to process current Data Batch
+                case Images: {
+                    this.timeToProcessAll += 4 * (32 / this.cores);
+                    break;
+                }
+                case Text: {
+                    this.timeToProcessAll += 2 * (32 / this.cores);
+                    break;
+                }
+                case Tabular: {
+                    this.timeToProcessAll += 32 / this.cores;
+                    break;
+                }
             }
-            case Text: {
-                this.timeToProcessAll += 2 * (32/this.cores);
-                break;
+            if (currentDB == null) {
+                currentDB = dbVector.remove(0);
             }
-            case Tabular: {
-                this.timeToProcessAll += 32/this.cores;
-                break;
-            }
-        }
-        if (currentDB==null){
-            currentDB = dbVector.remove(0);
         }
     }
 

@@ -5,6 +5,7 @@ import bgu.spl.mics.application.services.ConferenceService;
 import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.atomic.AtomicInteger;
 
 
 /**
@@ -21,7 +22,7 @@ public class MessageBusImpl implements MessageBus {
 	private ConcurrentHashMap<Class<? extends Event<?>>, Vector<MicroService>> eventToMicro;
 	private ConcurrentHashMap<Class<? extends  Broadcast>,Vector<MicroService>> broadToMicro;
 	private Vector<ConfrenceInformation> conferences;
-	private int nextConference;
+	private AtomicInteger nextConference;
 
 	private  final Object lockRoundRobin = new Object();
 	private final Object broadCastLock = new Object();
@@ -32,7 +33,7 @@ public class MessageBusImpl implements MessageBus {
 	 this.eventToMicro = new ConcurrentHashMap<Class<? extends Event<?>>, Vector<MicroService>>();
 	 this.broadToMicro = new ConcurrentHashMap<Class<? extends Broadcast>, Vector<MicroService>>();
 	 this.conferences = new Vector<>();
-	 this.nextConference = 0;
+	 this.nextConference = new AtomicInteger(-1);
 	}
 
 	 public static MessageBusImpl getInstance() {
@@ -79,14 +80,16 @@ public class MessageBusImpl implements MessageBus {
 
 	@Override
 	public  void sendBroadcast(Broadcast b) {
-		synchronized (broadCastLock){
-		Vector<MicroService> broad = broadToMicro.get(b.getClass());
-		 if(broad!=null) {
-			for (MicroService microService : broad) {
-				MicroDict.get(microService).add(b);
+		synchronized (broadCastLock) {
+				Vector<MicroService> broad = broadToMicro.get(b.getClass());
+				if (broad != null) {
+					for (MicroService microService : broad) {
+						if (MicroDict.containsKey(microService))
+						MicroDict.get(microService).add(b);
 
+
+				}
 			}
-		 }
 		}
 
 	}
@@ -94,16 +97,16 @@ public class MessageBusImpl implements MessageBus {
 	@Override
 	public  <T> Future<T> sendEvent(Event<T> e) {
 		Future<T>  result = new Future<T>();
-		if (!eventToMicro.containsKey(e)){
-			System.out.println("nullisthrown");
+		if (!eventToMicro.containsKey(e.getClass())){
+			System.out.println(e.getClass());
 			return null;
 		}
 
 		synchronized (lockRoundRobin) {
-			MicroService s = eventToMicro.get(e).remove(0); //round robin implement
+			MicroService s = eventToMicro.get(e.getClass()).remove(0); //round robin implement
 			MicroDict.get(s).add(e);
 			MsgToFutr.put(e, result);
-			eventToMicro.get(e).add(s);
+			eventToMicro.get(e.getClass()).add(s);
 	  }
 		return result;
 	}
@@ -114,12 +117,19 @@ public class MessageBusImpl implements MessageBus {
 
 	@Override
 	public void unregister(MicroService m) {
-		LinkedBlockingDeque<Message> Subsricedto = MicroDict.remove(m);
-		for(Message messege : Subsricedto){
-			if(messege instanceof Broadcast)
-				broadToMicro.get(messege.getClass()).remove(m);
-			else
-			   eventToMicro.get(messege.getClass()).remove(m);
+		synchronized (broadCastLock) {
+			LinkedBlockingDeque<Message> Subsricedto = MicroDict.remove(m);
+			for (Message messege : Subsricedto) {
+				if (messege instanceof Broadcast){
+					broadToMicro.get(messege.getClass()).remove(m);
+
+				}
+				else{
+					eventToMicro.get(messege.getClass()).remove(m);
+					System.out.println("removed2");
+				 }
+
+			}
 		}
 	}
 
@@ -155,7 +165,15 @@ public class MessageBusImpl implements MessageBus {
 
 	public void addConferences(Vector<ConfrenceInformation> vc) { this.conferences = vc; }
 
-	public void nextConference() { this.nextConference++; }
+	public void nextConference() { nextConference.addAndGet(1); }
 
-	public ConfrenceInformation getNextConference() { return this.conferences.get(nextConference);}
+	public ConfrenceInformation getNextConference() {
+		if (nextConference.get()<conferences.size())
+			return this.conferences.get(nextConference.get());
+		else {
+			System.out.println(nextConference);
+			return null;
+		}
+
+	}
 }

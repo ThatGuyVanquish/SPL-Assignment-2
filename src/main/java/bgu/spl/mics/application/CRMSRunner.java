@@ -146,11 +146,13 @@ public class CRMSRunner {
         for(CPU cpu:cpus){
             CPUService cpuService = new CPUService(cpu.toString(),cpu,countDownTimer,countDownStudent);
             Thread thread = new Thread(cpuService);
+            threadHolder.add(thread);
             thread.start();
         }
         for(ConfrenceInformation confInformation:confVector){
             ConferenceService confService = new ConferenceService(confInformation.toString(),confInformation,countDownTimer,countDownStudent);
             Thread thread = new Thread(confService);
+            threadHolder.add(thread);
             thread.start();
         }
         try{
@@ -159,6 +161,7 @@ public class CRMSRunner {
         for(Student student:studentVector){
             StudentService studentService = new StudentService(student.getName(),student,countDownTimer);
             Thread thread = new Thread(studentService);
+            threadHolder.add(thread);
             thread.start();
         }
 
@@ -177,9 +180,17 @@ public class CRMSRunner {
         TimeService _globalTimer = new TimeService(tickTime, tickDur);
 
         Thread thread = new Thread(_globalTimer);
+        threadHolder.add(thread);
         thread.start();
         //Probably need to initialize _globalTimer here so that it would run ticks
+        for (Thread thread1 : threadHolder) // fininsh all threads before outpot
+        try{
+            thread1.join();
+        }catch (InterruptedException e){};
 
+        for (Student student : studentVector){
+            System.out.println(student.getPublications());
+        }
         FileWriter fileWriter = null;
         try {
             fileWriter = new FileWriter("Output.json");
