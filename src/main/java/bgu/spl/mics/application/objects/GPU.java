@@ -43,14 +43,17 @@ public class GPU {
             case GTX1080: {
                 this.awaitingProcessing.setSize(8);
                 this.processDuration = 4;
+                break;
             }
             case RTX2080: {
                 this.awaitingProcessing.setSize(16);
                 this.processDuration = 2;
+                break;
             }
             case RTX3090: {
                 this.awaitingProcessing.setSize(32);
                 this.processDuration = 1;
+                break;
             }
         }
     }
@@ -82,12 +85,13 @@ public class GPU {
         if (this.currentModel == null) {
             this.currentModel = trainEvent.getModel();
             this.currentModel.setStatus(Model.status.Training);
+            System.out.println("BLOOOOO " + Thread.currentThread().getName() + " " + this.currentModel.getName());
             Vector<DataBatch> initialBatch = this.currentModel.getData().batch(this.awaitingProcessing.size(), this);
             //System.out.println(initialBatch.size());
             CLUSTER.processData(initialBatch);
         }
         else {
-            trainEvent.getModel().setStatus(Model.status.Training);
+            //trainEvent.getModel().setStatus(Model.status.Training);
             this.trainingVector.add(trainEvent.getModel());
         }
     }
@@ -119,6 +123,7 @@ public class GPU {
             return;
         }
         if (currentModel.getStatus() == Model.status.Training){
+            //System.out.println(Thread.currentThread().getName());
             this.tickCounter++;
             this.runtime++;
             if (this.tickCounter >= this.processDuration) {

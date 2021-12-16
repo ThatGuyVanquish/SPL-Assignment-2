@@ -37,7 +37,7 @@ public class Data {
         return null;
     }
 
-    public synchronized Vector<DataBatch> batch(int size, GPU gpu) { // Splits into a vector based on size
+    public Vector<DataBatch> batch(int size, GPU gpu) { // Splits into a vector based on size
         Vector<DataBatch> ret = new Vector<>();
         size = Integer.min(size, this.size / 1000);
         for (int i = 0; i < size * 1000; i += 1000)
