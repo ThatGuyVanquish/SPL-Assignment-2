@@ -79,7 +79,7 @@ public class Cluster {
 	public void sendProcessedData(DataBatch dataBatch) {
 		this.batchesProcessed.addAndGet( 1);
 		synchronized (gpuLock) {
-			dataBatch.getData().processData();
+		//	dataBatch.getData().processData();
 			dataBatch.getGPU().addBatch(dataBatch);
 		}
 	}
