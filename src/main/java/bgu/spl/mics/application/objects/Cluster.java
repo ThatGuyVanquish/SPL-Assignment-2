@@ -30,7 +30,6 @@ public class Cluster {
 	private AtomicInteger batchesProcessed = new AtomicInteger(0);
 	private  final Object cpuLock = new Object();
 	private final Object gpuLock = new Object();
-	private int i = 0;
 
 	/**
      * Retrieves the single instance of this class.
@@ -78,11 +77,8 @@ public class Cluster {
 	}
 
 	public void sendProcessedData(DataBatch dataBatch) {
-		this.i++;
-		System.out.println("blyat" + i);
 		this.batchesProcessed.addAndGet( 1);
 		synchronized (gpuLock) {
-			System.out.println("succa " + i);
 			dataBatch.getGPU().addBatch(dataBatch);
 		}
 	}

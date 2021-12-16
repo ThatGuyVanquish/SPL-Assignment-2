@@ -33,7 +33,7 @@ public class CPU {
      */
     public synchronized void addDataBatch(DataBatch batch) {
         if (batch != null) {
-            dbVector.add(batch);
+            this.dbVector.add(batch);
             switch (batch.getData().getType()) { // Calculate how much time would it take to process current Data Batch
                 case Images: {
                     this.timeToProcessAll += 4 * (32 / this.cores);
@@ -49,11 +49,10 @@ public class CPU {
                 }
             }
             try{
-            if (currentDB == null) {
-                currentDB = dbVector.remove(0);
+            if (this.currentDB == null) {
+                this.currentDB = this.dbVector.remove(0);
             }
-            }catch(Exception e){};
-
+            }catch(Exception ignored){}
         }
     }
 
@@ -65,11 +64,11 @@ public class CPU {
      */
     private void setNextBatch(){
         CLUSTER.sendProcessedData(currentDB); // Packing processed data and sending it back to the cluster to be sent to the GPU
-        if (!dbVector.isEmpty())
-            currentDB = dbVector.remove(0);
+        if (!this.dbVector.isEmpty())
+            this.currentDB = dbVector.remove(0);
         else
-            currentDB = null;
-        tickCounter = 0;
+            this.currentDB = null;
+        this.tickCounter = 0;
     }
 
     public void process() {

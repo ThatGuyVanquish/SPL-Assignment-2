@@ -9,13 +9,13 @@
                 {
                     "name": "YOLO10",
                     "type": "images",
-                    "size": 20000
+                    "size": 200000
                 }
             ]
         }
         ],
-    "GPUS": ["RTX3090","RTX2080"],
-    "CPUS": [32,32,32,32],
+    "GPUS": ["RTX3090","RTX3090","RTX2080","GTX1080"],
+    "CPUS": [32,32,32,16,16,16,16],
     "Conferences":
     [
         {"name": "ICML", "date": 20000},

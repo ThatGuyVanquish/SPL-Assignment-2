@@ -16,34 +16,34 @@ public class Data {
 
     private Type type;
     private int processed;
+    private int sentToCPU;
     private int size;
 
     public Data(Type type, int size) {
         this.type = type;
         this.size = size;
         this.processed = 0;
+        this.sentToCPU = 0;
     }
 
     /**
     Creates a new batch
      */
     public synchronized DataBatch batch(GPU gpu) {
-        if (!isDone())
-            return new DataBatch(size-processed, this, gpu);
+        if (!isDone()) {
+            this.sentToCPU += 1000;
+            return new DataBatch(size - processed, this, gpu);
+        }
         return null;
     }
 
     public synchronized Vector<DataBatch> batch(int size, GPU gpu) { // Splits into a vector based on size
-        if (!isDone()){
-            Vector<DataBatch> ret = new Vector<>();
-            int index = this.size-this.processed;
-            while (index < this.size) {
-                ret.add(new DataBatch(index, this, gpu));
-                index += 1000;
-            }
-            return ret;
-        }
-        return null;
+        Vector<DataBatch> ret = new Vector<>();
+        size = Integer.min(size, this.size / 1000);
+        for (int i = 0; i < size * 1000; i += 1000)
+            ret.add(new DataBatch(i, this, gpu));
+        this.sentToCPU = 1000 * ret.size();
+        return ret;
     }
 
     public boolean isDone() {
@@ -74,4 +74,6 @@ public class Data {
     public int getSize() {
         return size;
     }
+
+    public boolean sentAllToCPU() { return this.sentToCPU == this.size;}
 }

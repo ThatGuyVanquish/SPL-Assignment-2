@@ -26,6 +26,7 @@ public class GPU {
     private int tickCounter;
     private int processDuration;
     private int runtime;
+    int j = 0;
     private Vector<Model> trainingVector;
     private Vector<Model> testingVector;
 
@@ -81,7 +82,9 @@ public class GPU {
         if (this.currentModel == null) {
             this.currentModel = trainEvent.getModel();
             this.currentModel.setStatus(Model.status.Training);
-            CLUSTER.processData(this.currentModel.getData().batch(this.awaitingProcessing.size(), this));
+            Vector<DataBatch> initialBatch = this.currentModel.getData().batch(this.awaitingProcessing.size(), this);
+            //System.out.println(initialBatch.size());
+            CLUSTER.processData(initialBatch);
         }
         else {
             trainEvent.getModel().setStatus(Model.status.Training);
@@ -96,10 +99,11 @@ public class GPU {
     private void setNextBatch(){
         if (!this.awaitingProcessing.isEmpty()) {
             this.currentDB = this.awaitingProcessing.remove(0);
-            CLUSTER.processData(this.currentModel.getData().batch(this));
+            if (!this.currentModel.getData().sentAllToCPU()) CLUSTER.processData(this.currentModel.getData().batch(this));
         }
-        else
+        else {
             this.currentDB = null;
+        }
         tickCounter = 0;
     }
 

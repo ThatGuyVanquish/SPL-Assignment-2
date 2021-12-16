@@ -1,10 +1,10 @@
 [Name: Simba Dept: Computer Science Status: MSc
 Models:
-1) Model Name: YOLO10 Data: Type: Images Size: 20000 Status: Published Result: Good
+1) Model Name: YOLO10 Data: Type: Images Size: 200000 Status: Tested Result: Bad
 ]
 [Conference name: ICML Date: 20000
 Published Models:
- Model Name: YOLO10 Data: Type: Images Size: 20000 Status: Published Result: Good, Conference name: NeurIPS Date: 25000
+, Conference name: NeurIPS Date: 25000
 Published Models:
 , Conference name: CVPR Date: 30000
 Published Models:
@@ -13,6 +13,6 @@ Published Models:
 , Conference name: AISTATS Date: 50000
 Published Models:
 ]
-cpuTimeUsed: 76
-gpuTimeUsed: 20
-batchesProcessed: 19
+cpuTimeUsed: 1108
+gpuTimeUsed: 200
+batchesProcessed: 200
