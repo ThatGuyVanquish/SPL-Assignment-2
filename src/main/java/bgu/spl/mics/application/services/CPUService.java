@@ -3,6 +3,8 @@ package bgu.spl.mics.application.services;
 import bgu.spl.mics.*;
 import bgu.spl.mics.application.objects.CPU;
 
+import java.util.concurrent.CountDownLatch;
+
 /**
  * This class may not hold references for objects which it is not responsible for.
  *
@@ -12,8 +14,8 @@ import bgu.spl.mics.application.objects.CPU;
 public class CPUService extends MicroService {
     private CPU cpu;
 
-    public CPUService(String name, CPU cpu) {
-        super(name);
+    public CPUService(String name, CPU cpu,CountDownLatch countDownTimer,CountDownLatch countDownStudent) {
+        super(name, countDownTimer,countDownStudent);
         this.cpu = cpu;
     }
 

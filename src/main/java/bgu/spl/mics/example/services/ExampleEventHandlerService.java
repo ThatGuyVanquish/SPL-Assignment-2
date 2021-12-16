@@ -8,7 +8,7 @@ public class ExampleEventHandlerService extends MicroService {
     private int mbt;
 
     public ExampleEventHandlerService(String name, String[] args) {
-        super(name);
+        super(name,null,null);
 
         if (args.length != 1) {
             throw new IllegalArgumentException("Event Handler expecting a single argument: mbt (the number of events to answer before termination)");

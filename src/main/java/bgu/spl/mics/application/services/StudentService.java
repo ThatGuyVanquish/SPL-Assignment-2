@@ -5,6 +5,7 @@ import bgu.spl.mics.application.objects.Model;
 import bgu.spl.mics.application.objects.Student;
 
 import java.util.Vector;
+import java.util.concurrent.CountDownLatch;
 
 /**
  * Student is responsible for sending the {@link TrainModelEvent},
@@ -18,40 +19,44 @@ import java.util.Vector;
 public class StudentService extends MicroService {
     private String name;
     private Student student;
-    private int published;
-    private static final MessageBusImpl MESSAGE_BUS = MessageBusImpl.getInstance();
+    private Model currModel;
+    private Vector<Model> studentModels;
 
-    public StudentService(String name, Student student) {
-        super(name);
+
+
+    public StudentService(String name, Student student, CountDownLatch countDownTimer) {
+        super(name,countDownTimer,null);
         this.student = student;
-        this.published = 0;
+        currModel = student.getNextModel();
+        studentModels = student.getModels();
     }
 
     @Override
     protected void initialize() {
-        Vector<Model> studentModels = student.getModels();
-        for (Model model : studentModels){
-            sendEvent(new TrainModelEvent(model));
-        }
-        Callback<TerminateBroadCast> TerminateCallBack = (TerminateBroadCast c) -> this.terminate();
+        sendEvent(new TrainModelEvent(currModel));
+        Callback<TerminateBroadCast> TerminateCallBack = (TerminateBroadCast c) -> {this.terminate();};
         subscribeBroadcast(TerminateBroadCast.class,TerminateCallBack);
         Callback<FinishedTrainingEvent> finishedTrainingEventCallback = (FinishedTrainingEvent c) -> {sendEvent(new TestModelEvent(c.getModel()));};
         subscribeEvent(FinishedTrainingEvent.class, finishedTrainingEventCallback);
         Callback<FinishedTestedEvent> finishedTestedEventCallback = (FinishedTestedEvent c) ->
         {
             sendEvent(new PublishResultsEvent(c.getModel()));
+            currModel = student.getNextModel();
+            if (currModel!=null){
+                sendEvent(new TrainModelEvent(currModel));
+            }
         };
         subscribeEvent(FinishedTestedEvent.class,finishedTestedEventCallback);
         Callback<PublishConfrenceBroadcast> PublishConfrenceBroadcastCallBack = (PublishConfrenceBroadcast e) ->
         {
-            for (Model model : studentModels){
-                if (model.getStatus() == Model.status.Tested && model.getResult() == Model.results.Good) {
-                    published++;
-                    MESSAGE_BUS.getNextConference().addModel(model);
-                    model.setStatus(Model.status.Published);
-                }
+            int published = 0, papersRead = 0;
+            for (Model model : e.getPublishedModels()) {
+                if (model.getStudent() != this.student) papersRead++;
+                else published++;
+                model.setStatus(Model.status.Published);
             }
-            student.addPaperRead(MESSAGE_BUS.getNextConference().papersRead(this.student));
+            this.student.addPublications(published);
+            this.student.addPaperRead(papersRead);
         };
         subscribeBroadcast(PublishConfrenceBroadcast.class,PublishConfrenceBroadcastCallBack);
     }

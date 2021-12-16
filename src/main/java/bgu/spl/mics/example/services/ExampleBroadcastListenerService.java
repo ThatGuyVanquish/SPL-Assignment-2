@@ -8,7 +8,7 @@ public class ExampleBroadcastListenerService extends MicroService {
     private int mbt;
 
     public ExampleBroadcastListenerService(String name, String[] args) {
-        super(name);
+        super(name,null,null);
 
         if (args.length != 1) {
             throw new IllegalArgumentException("Listener expecting a single argument: mbt (the number of requests to answer before termination)");

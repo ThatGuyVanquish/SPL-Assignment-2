@@ -1,6 +1,9 @@
 package bgu.spl.mics.application.objects;
 
 import bgu.spl.mics.application.objects.Data;
+import jdk.nashorn.internal.runtime.arrays.ArrayIndex;
+
+import java.lang.reflect.Array;
 import java.util.Vector;
 
 /**
@@ -31,24 +34,27 @@ public class CPU {
      * @param batch
      * @post currentDB != null
      */
-    public synchronized void addDataBatch(DataBatch batch){
-        dbVector.add(batch);
-        switch (batch.getData().getType()) { // Calculate how much time would it take to process current Data Batch
-            case Images: {
-                this.timeToProcessAll += 4 * (32/this.cores);
-                break;
+    public synchronized void addDataBatch(DataBatch batch) {
+        if (batch != null) {
+            dbVector.add(batch);
+            switch (batch.getData().getType()) { // Calculate how much time would it take to process current Data Batch
+                case Images: {
+                    this.timeToProcessAll += 4 * (32 / this.cores);
+                    break;
+                }
+                case Text: {
+                    this.timeToProcessAll += 2 * (32 / this.cores);
+                    break;
+                }
+                case Tabular: {
+                    this.timeToProcessAll += 32 / this.cores;
+                    break;
+                }
             }
-            case Text: {
-                this.timeToProcessAll += 2 * (32/this.cores);
-                break;
+            if (currentDB == null) {
+                 try { currentDB = dbVector.remove(0); }
+                 catch (ArrayIndexOutOfBoundsException ignored) {} // No more data to process
             }
-            case Tabular: {
-                this.timeToProcessAll += 32/this.cores;
-                break;
-            }
-        }
-        if (currentDB==null){
-            currentDB = dbVector.remove(0);
         }
     }
 
@@ -107,5 +113,5 @@ public class CPU {
         return this.timeToProcessAll;
     }
 
-    public void addRuntime() { CLUSTER.addCPURuntime(this.runtime); }
+    public void addRuntime() { CLUSTER.addCPURuntime(this.runtime);}
 }

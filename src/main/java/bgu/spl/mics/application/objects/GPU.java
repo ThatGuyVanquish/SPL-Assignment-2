@@ -83,7 +83,6 @@ public class GPU {
             CLUSTER.processData(this.currentModel.getData().batch(this.awaitingProcessing.size(), this));
         }
         else {
-            trainEvent.getModel().setStatus(Model.status.Training);
             this.trainingVector.add(trainEvent.getModel());
         }
     }

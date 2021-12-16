@@ -4,6 +4,8 @@ import bgu.spl.mics.*;
 import bgu.spl.mics.application.objects.GPU;
 import bgu.spl.mics.application.objects.Model;
 
+import java.util.concurrent.CountDownLatch;
+
 /**
  * GPU service is responsible for handling the
  * {@link TrainModelEvent} and {@link TestModelEvent},
@@ -15,8 +17,8 @@ import bgu.spl.mics.application.objects.Model;
 public class GPUService extends MicroService {
 
     private GPU gpu;
-    public GPUService(String name, GPU gpu) {
-        super(name);
+    public GPUService(String name, GPU gpu, CountDownLatch countDownTimer,CountDownLatch countDownStudent) {
+        super(name,countDownTimer,countDownStudent);
         this.gpu = gpu;
     }
 

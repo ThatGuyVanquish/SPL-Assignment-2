@@ -25,7 +25,7 @@ public class TimeService extends MicroService{
     private  Timer TIMER;
 
 	public TimeService(int tickTime, int duration) {
-		super("Time Service");
+		super("Time Service",null,null);
 		this._tickTime = tickTime;
 		this._duration = duration;
 		this.endApp = false;
@@ -35,6 +35,7 @@ public class TimeService extends MicroService{
 
 	@Override
 	protected void initialize() {
+		System.out.println("time starting");
 		while (ticksPassed<=_duration-1) {
 
 			TIMER.schedule(new TimerTask() {
@@ -45,9 +46,6 @@ public class TimeService extends MicroService{
 			}, _tickTime);
 		}
 		TIMER.cancel();
-		System.out.println(ticksPassed);
-		System.out.println(Thread.activeCount());
-		System.out.println(MessageBusImpl.getInstance().print());
 		sendBroadcast(new TerminateBroadCast());
 		terminate();
 	}

@@ -1,28 +1,28 @@
 [Name: Simba Dept: Computer Science Status: MSc
 Models:
 1) Model Name: YOLO10 Data: Type: Images Size: 200000 Status: PreTrained Result: None
-2) Model Name: ResNet9000 Data: Type: Images Size: 200000 Status: PreTrained Result: None
+2) Model Name: ResNet9000 Data: Type: Images Size: 200000 Status: Training Result: None
 3) Model Name: LessEfficientNet Data: Type: Images Size: 20000 Status: PreTrained Result: None
 4) Model Name: DensestNet Data: Type: Images Size: 200000 Status: PreTrained Result: None
 , Name: Zazu Dept: EE Status: PhD
 Models:
-1) Model Name: VIT Data: Type: Images Size: 100000000 Status: PreTrained Result: None
+1) Model Name: VIT Data: Type: Images Size: 100000000 Status: Training Result: None
 , Name: Pumba Dept: Computer Science Status: PhD
 Models:
-1) Model Name: Bert Data: Type: Text Size: 1000000 Status: PreTrained Result: None
+1) Model Name: Bert Data: Type: Text Size: 1000000 Status: Tested Result: Bad
 2) Model Name: GPT4 Data: Type: Text Size: 1000000 Status: PreTrained Result: None
 3) Model Name: GPT5 Data: Type: Text Size: 200000 Status: PreTrained Result: None
 4) Model Name: GPT10 Data: Type: Text Size: 50000 Status: PreTrained Result: None
 , Name: Timon Dept: SE Status: MSc
 Models:
-1) Model Name: Percepetron Data: Type: Tabular Size: 1000000 Status: PreTrained Result: None
+1) Model Name: Percepetron Data: Type: Tabular Size: 1000000 Status: Published Result: Good
 2) Model Name: GNN Data: Type: Tabular Size: 1000000 Status: PreTrained Result: None
 3) Model Name: MoreStyleGAN Data: Type: Images Size: 100000 Status: PreTrained Result: None
 4) Model Name: ConditionalGAN Data: Type: Images Size: 500000 Status: PreTrained Result: None
 , Name: Nala Dept: Computer Science Status: PhD
 Models:
-1) Model Name: YOLO9000 Data: Type: Images Size: 100000 Status: PreTrained Result: None
-2) Model Name: VIT2 Data: Type: Images Size: 1000000 Status: PreTrained Result: None
+1) Model Name: YOLO9000 Data: Type: Images Size: 100000 Status: Published Result: Good
+2) Model Name: VIT2 Data: Type: Images Size: 1000000 Status: Training Result: None
 3) Model Name: MuchMoreEfficientNet Data: Type: Images Size: 20000 Status: PreTrained Result: None
 4) Model Name: DenserNet Data: Type: Images Size: 100000 Status: PreTrained Result: None
 ]
@@ -34,9 +34,11 @@ Published Models:
 Published Models:
 , Conference name: ECCV Date: 40000
 Published Models:
+Model Name: Percepetron Data: Type: Tabular Size: 1000000 Status: Published Result: Good
 , Conference name: AISTATS Date: 50000
 Published Models:
+Model Name: YOLO9000 Data: Type: Images Size: 100000 Status: Published Result: Good
 ]
-cpuTimeUsed: 0
-gpuTimeUsed: 0
-batchesProcessed: 0
+cpuTimeUsed: 380915
+gpuTimeUsed: 165069
+batchesProcessed: 68616
