@@ -44,10 +44,8 @@ public class TimeService extends MicroService{
 					ticksPassed++;
 				}
 			}, _tickTime);
-		//	System.out.println("check");
 		}
 		TIMER.cancel();
-		System.out.println(ticksPassed);
 		sendBroadcast(new TerminateBroadCast());
 		terminate();
 	}

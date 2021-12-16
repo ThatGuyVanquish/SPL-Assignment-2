@@ -40,8 +40,11 @@ public class Student {
         String ret = "Name: " + this.name + " Dept: " + this.department + " Status: " + this.status + "\n" + "Models:\n";
         int i = 1;
         for (Model m : this.modelVector) {
-            ret += i + ") " + m.toString() + "\n";
-            i++;
+            Model.status status = m.getStatus();
+            if (status == Model.status.Tested || status == Model.status.Published) {
+                ret += i + ") " + m.toString() + "\n";
+                i++;
+            }
         }
         return ret;
     }

@@ -113,5 +113,5 @@ public class CPU {
         return this.timeToProcessAll;
     }
 
-    public void addRuntime() { CLUSTER.addCPURuntime(this.runtime); }
+    public void addRuntime() { CLUSTER.addCPURuntime(this.runtime);}
 }

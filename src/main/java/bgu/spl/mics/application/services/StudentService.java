@@ -50,7 +50,6 @@ public class StudentService extends MicroService {
         Callback<PublishConfrenceBroadcast> PublishConfrenceBroadcastCallBack = (PublishConfrenceBroadcast e) ->
         {
             int published = 0, papersRead = 0;
-            this.student.addPublications(published);
             for (Model model : e.getPublishedModels()) {
                 if (model.getStudent() != this.student) papersRead++;
                 else published++;

@@ -101,5 +101,5 @@ public class Cluster {
 
 	public long getTotalGPURuntime() { return this.gpuTimeUsed.get();}
 
-	public long getBatchesProcessed() { return this.batchesProcessed.get(); }
+	public long getBatchesProcessed() { return this.batchesProcessed.longValue();}
 }
