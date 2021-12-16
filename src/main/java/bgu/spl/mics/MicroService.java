@@ -168,16 +168,13 @@ public abstract class MicroService implements Runnable {
             countDownStudent.countDown();
         while (!terminated) {
           try {
-
               Message msg = MESSAGE_BUS.awaitMessage(this);
               Callback callback = MsgToCallBack.get(msg.getClass());
               callback.call(msg);
-
           }
           catch (InterruptedException e) {
             }
         }
         MESSAGE_BUS.unregister(this);
     }
-
 }

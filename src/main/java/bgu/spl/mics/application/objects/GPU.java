@@ -3,7 +3,6 @@ package bgu.spl.mics.application.objects;
 import bgu.spl.mics.*;
 
 
-import java.util.Queue;
 import java.util.Vector;
 
 /**
@@ -118,7 +117,7 @@ public class GPU {
             return; }
         if (this.currentModel.getData().isDone()) {
             this.currentModel.setStatus(Model.status.Trained);
-            MESSAGE_BUS.sendEvent(new FinishedTrainingEvent(this.currentModel));
+            MESSAGE_BUS.sendBroadcast(new FinishedTrainingBroadcast(this.currentModel));
             //System.out.println("Finished training he model " + this.currentModel.getName());
             this.currentModel = null;
             this.tickCounter = 0;
@@ -166,7 +165,7 @@ public class GPU {
                 }
             }
             model.setStatus(Model.status.Tested);
-            MESSAGE_BUS.sendEvent(new FinishedTestedEvent(model));
+            MESSAGE_BUS.sendBroadcast(new FinishedTestingBroadcast(model));
             if (!this.testingVector.isEmpty()) {
                 test(testingVector.remove(0));
             }
