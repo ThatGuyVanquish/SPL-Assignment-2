@@ -6,7 +6,7 @@ public class PublishResultsEvent implements Event<Model>{ // Not sure Event<Futu
      private Model model;
 
      public PublishResultsEvent(Model model){ this.model = model;
-     System.out.println(model.getStudent().toString());}
+    }
 
      public Model getModel() {
           return this.model;

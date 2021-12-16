@@ -47,8 +47,10 @@ public class Data {
     }
 
     public boolean isDone() {
-        if (this.size == this.processed)
+        if (this.size <= this.processed){
             return true;
+        }
+
         return false;
     }
 
@@ -63,5 +65,13 @@ public class Data {
 
     public String toString() {
         return "Type: " + this.type.toString() + " Size: " + this.size;
+    }
+
+    public int getProcessed() {
+        return processed;
+    }
+
+    public int getSize() {
+        return size;
     }
 }

@@ -63,7 +63,7 @@ public class MessageBusImpl implements MessageBus {
 		}
 	}
 
-	public String print() { return this.MicroDict.toString();}
+
 
 	/**
 	 * @param e      The completed event.
@@ -96,19 +96,19 @@ public class MessageBusImpl implements MessageBus {
 
 	@Override
 	public  <T> Future<T> sendEvent(Event<T> e) {
+		synchronized (lockRoundRobin) {
 		Future<T>  result = new Future<T>();
 		if (!eventToMicro.containsKey(e.getClass())){
 			System.out.println(e.getClass());
 			return null;
 		}
-
-		synchronized (lockRoundRobin) {
 			MicroService s = eventToMicro.get(e.getClass()).remove(0); //round robin implement
 			MicroDict.get(s).add(e);
 			MsgToFutr.put(e, result);
 			eventToMicro.get(e.getClass()).add(s);
+			return result;
 	  }
-		return result;
+
 	}
 
 	public void register(MicroService m) {
@@ -163,17 +163,5 @@ public class MessageBusImpl implements MessageBus {
 		return MsgToFutr.get(e);
 	}
 
-	public void addConferences(Vector<ConfrenceInformation> vc) { this.conferences = vc; }
 
-	public void nextConference() { nextConference.addAndGet(1); }
-
-	public ConfrenceInformation getNextConference() {
-		if (nextConference.get()<conferences.size())
-			return this.conferences.get(nextConference.get());
-		else {
-			System.out.println(nextConference);
-			return null;
-		}
-
-	}
 }

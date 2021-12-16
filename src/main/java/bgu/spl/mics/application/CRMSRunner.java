@@ -132,7 +132,7 @@ public class CRMSRunner {
           //  threadHolder.add(thread);
             confVector.add(newConf);
         }
-        MESSAGE_BUS.addConferences(confVector);
+
         int countDownSizeTimer = confVector.size()+ gpus.size()+studentVector.size()+ cpus.size();//making sure all mircoservices register before time service
         int countDownSizeStudent = confVector.size() + gpus.size() + cpus.size();
         countDownTimer = new CountDownLatch(countDownSizeTimer);
@@ -159,6 +159,7 @@ public class CRMSRunner {
             countDownStudent.await(); // student threads wait for cpu,gpu and conference to register
         }catch (InterruptedException e){};
         for(Student student:studentVector){
+            student.setConfereceNum(confVector.size());
             StudentService studentService = new StudentService(student.getName(),student,countDownTimer);
             Thread thread = new Thread(studentService);
             threadHolder.add(thread);
@@ -187,10 +188,15 @@ public class CRMSRunner {
         try{
             thread1.join();
         }catch (InterruptedException e){};
-
+      int realProccesed = 0;
         for (Student student : studentVector){
-            System.out.println(student.getPublications());
+            System.out.println("paper"+student.getPapersRead());
+            for (Model model : student.getModels()){
+                System.out.println("Size:"+model.getData().getSize()+"  "+"Proccesed:"+model.getData().getProcessed());
+                realProccesed += model.getData().getProcessed();
+            }
         }
+        System.out.println(realProccesed/1000);
         FileWriter fileWriter = null;
         try {
             fileWriter = new FileWriter("Output.json");

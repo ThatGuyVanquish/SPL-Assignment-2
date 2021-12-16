@@ -2,6 +2,7 @@ package bgu.spl.mics.application.objects;
 
 import bgu.spl.mics.*;
 
+
 import java.util.Queue;
 import java.util.Vector;
 
@@ -83,7 +84,7 @@ public class GPU {
             CLUSTER.processData(this.currentModel.getData().batch(this.awaitingProcessing.size(), this));
         }
         else {
-           // trainEvent.getModel().setStatus(Model.status.Training);
+            trainEvent.getModel().setStatus(Model.status.Training);
             this.trainingVector.add(trainEvent.getModel());
         }
     }
@@ -106,6 +107,7 @@ public class GPU {
         if (this.currentModel == null) { return; }
         if (this.currentModel.getData().isDone()) {
             this.currentModel.setStatus(Model.status.Trained);
+
             MESSAGE_BUS.sendEvent(new FinishedTrainingEvent(this.currentModel));
             this.currentModel = null;
             this.tickCounter = 0;
@@ -121,6 +123,7 @@ public class GPU {
                 setNextBatch();
             }
         }
+       // if(currentModel.getStatus() == Model.status.PreTrained){currentModel.setStatus(Model.status.Training);}
     }
 
     /**
@@ -158,4 +161,8 @@ public class GPU {
     }
 
     public void addRuntime() {CLUSTER.addGPURuntime(this.runtime); }
+
+    public int getRuntime() {
+        return runtime;
+    }
 }

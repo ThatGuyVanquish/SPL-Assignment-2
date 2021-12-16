@@ -20,6 +20,7 @@ public class Student {
     private int publications;
     private int papersRead;
     private int modelIndex;
+    private int confereceNum;
     private Vector<Model> modelVector;
 
     public Student(String name, String dpt, Degree deg)
@@ -30,6 +31,7 @@ public class Student {
         this.publications = 0;
         this.papersRead = 0;
         modelIndex =0;
+        this.confereceNum = 0;
     }
 
     public void addModels(Vector<Model> modelVector) {
@@ -85,6 +87,12 @@ public class Student {
         return currModel;
 
     }
-
+    public void setConfereceNum(int confNum){
+        this.confereceNum = confNum;
     }
+
+    public int getConfereceNum() {
+        return confereceNum;
+    }
+}
 

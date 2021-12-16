@@ -4,6 +4,7 @@ import bgu.spl.mics.*;
 import bgu.spl.mics.application.objects.Model;
 import bgu.spl.mics.application.objects.Student;
 
+import javax.jws.WebParam;
 import java.util.Vector;
 import java.util.concurrent.CountDownLatch;
 
@@ -19,7 +20,7 @@ import java.util.concurrent.CountDownLatch;
 public class StudentService extends MicroService {
     private String name;
     private Student student;
-    private int published;
+
     private Model currModel;
     private Vector<Model> studentModels;
 
@@ -28,7 +29,7 @@ public class StudentService extends MicroService {
     public StudentService(String name, Student student, CountDownLatch countDownTimer) {
         super(name,countDownTimer,null);
         this.student = student;
-        this.published = 0;
+
         currModel = student.getNextModel();
         studentModels = student.getModels();
 
@@ -45,7 +46,10 @@ public class StudentService extends MicroService {
         subscribeEvent(FinishedTrainingEvent.class, finishedTrainingEventCallback);
         Callback<FinishedTestedEvent> finishedTestedEventCallback = (FinishedTestedEvent c) ->
         {
-            sendEvent(new PublishResultsEvent(c.getModel()));
+            if (student.getConfereceNum()>0){
+                sendEvent(new PublishResultsEvent(c.getModel()));
+            }
+
             currModel = student.getNextModel();
             if (currModel!=null){
                 sendEvent(new TrainModelEvent(currModel));
@@ -54,13 +58,21 @@ public class StudentService extends MicroService {
         subscribeEvent(FinishedTestedEvent.class,finishedTestedEventCallback);
         Callback<PublishConfrenceBroadcast> PublishConfrenceBroadcastCallBack = (PublishConfrenceBroadcast e) ->
         {
-            for (Model model : studentModels){
-                if (model.getStatus() == Model.status.Tested && model.getResult() == Model.results.Good) {
+            student.setConfereceNum(student.getConfereceNum()-1);
+            int published =0;
+            int paperread = 0;
+            for (Model model: e.getModels()){
+                model.setStatus(Model.status.Published);
+                if (model.getStudent() == this.student){
                     published++;
-                    //MESSAGE_BUS.getNextConference().addModel(model);
-                    model.setStatus(Model.status.Published);
                 }
+                else
+                    paperread++;
+                student.addPublications(published);
+                student.addPaperRead(paperread);
+
             }
+
           //  student.addPaperRead(MESSAGE_BUS.getNextConference().papersRead(this.student));
         };
         subscribeBroadcast(PublishConfrenceBroadcast.class,PublishConfrenceBroadcastCallBack);

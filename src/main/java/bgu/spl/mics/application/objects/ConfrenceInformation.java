@@ -33,7 +33,11 @@ public class ConfrenceInformation {
     }
 
     public String toString() {
-        String ret = "Conference name: " + this.name + " Date: " + this.date + "\n" + "Published Models:\n";
+        String stringModelsname="";
+        for(Model model : publications){
+            stringModelsname = stringModelsname +" "+model.toString();
+        }
+        String ret = "Conference name: " + this.name + " Date: " + this.date + "\n" + "Published Models:\n" +stringModelsname;
         // Add published models to ToString
         return ret;
     }
@@ -49,5 +53,7 @@ public class ConfrenceInformation {
         }
         return ret;
     }
+    public Vector<Model> getPublications(){return this.publications;}
+
 
 }

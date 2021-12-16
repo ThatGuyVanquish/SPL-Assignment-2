@@ -48,9 +48,12 @@ public class CPU {
                     break;
                 }
             }
+            try{
             if (currentDB == null) {
                 currentDB = dbVector.remove(0);
             }
+            }catch(Exception e){};
+
         }
     }
 
