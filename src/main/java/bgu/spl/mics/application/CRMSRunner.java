@@ -132,7 +132,7 @@ public class CRMSRunner {
           //  threadHolder.add(thread);
             confVector.add(newConf);
         }
-        MESSAGE_BUS.addConferences(confVector);
+        //MESSAGE_BUS.addConferences(confVector);
         int countDownSizeTimer = confVector.size()+ gpus.size()+studentVector.size()+ cpus.size();//making sure all mircoservices register before time service
         int countDownSizeStudent = confVector.size() + gpus.size() + cpus.size();
         countDownTimer = new CountDownLatch(countDownSizeTimer);
@@ -150,7 +150,7 @@ public class CRMSRunner {
             thread.start();
         }
         for(ConfrenceInformation confInformation:confVector){
-            ConferenceService confService = new ConferenceService(confInformation.toString(),confInformation,countDownTimer,countDownStudent);
+            ConferenceService confService = new ConferenceService(confInformation.getName(),confInformation,countDownTimer,countDownStudent);
             Thread thread = new Thread(confService);
             threadHolder.add(thread);
             thread.start();
@@ -188,12 +188,11 @@ public class CRMSRunner {
             thread1.join();
         }catch (InterruptedException e){};
 
-        for (Student student : studentVector){
-            System.out.println(student.getPublications());
-        }
+        for (Student s : studentVector) System.out.println(s.getPapersRead());
+
         FileWriter fileWriter = null;
         try {
-            fileWriter = new FileWriter("Output.json");
+            fileWriter = new FileWriter("Output.txt");
             fileWriter.write(studentVector.toString() + "\n");
             fileWriter.write(confVector.toString() + "\n");
             fileWriter.write("cpuTimeUsed: " + CLUSTER.getTotalCPURuntime() + "\n");

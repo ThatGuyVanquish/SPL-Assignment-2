@@ -21,8 +21,6 @@ public class MessageBusImpl implements MessageBus {
 	private ConcurrentHashMap<Message, Future> MsgToFutr;
 	private ConcurrentHashMap<Class<? extends Event<?>>, Vector<MicroService>> eventToMicro;
 	private ConcurrentHashMap<Class<? extends  Broadcast>,Vector<MicroService>> broadToMicro;
-	private Vector<ConfrenceInformation> conferences;
-	private AtomicInteger nextConference;
 
 	private  final Object lockRoundRobin = new Object();
 	private final Object broadCastLock = new Object();
@@ -32,8 +30,6 @@ public class MessageBusImpl implements MessageBus {
 	 this.MsgToFutr = new ConcurrentHashMap<Message, Future>();
 	 this.eventToMicro = new ConcurrentHashMap<Class<? extends Event<?>>, Vector<MicroService>>();
 	 this.broadToMicro = new ConcurrentHashMap<Class<? extends Broadcast>, Vector<MicroService>>();
-	 this.conferences = new Vector<>();
-	 this.nextConference = new AtomicInteger(-1);
 	}
 
 	 public static MessageBusImpl getInstance() {
@@ -98,7 +94,6 @@ public class MessageBusImpl implements MessageBus {
 	public  <T> Future<T> sendEvent(Event<T> e) {
 		Future<T>  result = new Future<T>();
 		if (!eventToMicro.containsKey(e.getClass())){
-			System.out.println(e.getClass());
 			return null;
 		}
 
@@ -126,9 +121,7 @@ public class MessageBusImpl implements MessageBus {
 				}
 				else{
 					eventToMicro.get(messege.getClass()).remove(m);
-					System.out.println("removed2");
 				 }
-
 			}
 		}
 	}
@@ -138,7 +131,6 @@ public class MessageBusImpl implements MessageBus {
 		try {
 			return MicroDict.get(m).take();
 		} catch (InterruptedException e) {
-			System.out.println("interrupted");
 			throw e;
 		}
 	}
@@ -161,19 +153,5 @@ public class MessageBusImpl implements MessageBus {
 	@Override
 	public <T> Future getFuture(Event<T> e) {
 		return MsgToFutr.get(e);
-	}
-
-	public void addConferences(Vector<ConfrenceInformation> vc) { this.conferences = vc; }
-
-	public void nextConference() { nextConference.addAndGet(1); }
-
-	public ConfrenceInformation getNextConference() {
-		if (nextConference.get()<conferences.size())
-			return this.conferences.get(nextConference.get());
-		else {
-			System.out.println(nextConference);
-			return null;
-		}
-
 	}
 }

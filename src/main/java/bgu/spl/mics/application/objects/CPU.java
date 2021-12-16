@@ -1,6 +1,9 @@
 package bgu.spl.mics.application.objects;
 
 import bgu.spl.mics.application.objects.Data;
+import jdk.nashorn.internal.runtime.arrays.ArrayIndex;
+
+import java.lang.reflect.Array;
 import java.util.Vector;
 
 /**
@@ -49,7 +52,8 @@ public class CPU {
                 }
             }
             if (currentDB == null) {
-                currentDB = dbVector.remove(0);
+                 try { currentDB = dbVector.remove(0); }
+                 catch (ArrayIndexOutOfBoundsException ignored) {} // No more data to process
             }
         }
     }

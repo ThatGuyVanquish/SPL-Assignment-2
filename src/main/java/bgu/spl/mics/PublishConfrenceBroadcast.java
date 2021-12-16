@@ -1,6 +1,9 @@
 package bgu.spl.mics;
 
 import bgu.spl.mics.application.objects.ConfrenceInformation;
+import bgu.spl.mics.application.objects.Model;
+
+import java.util.Vector;
 
 /**
  * Broadcast implementation to publish a conference result
@@ -8,7 +11,12 @@ import bgu.spl.mics.application.objects.ConfrenceInformation;
  */
 
 public class PublishConfrenceBroadcast implements Broadcast{
+    private Vector<Model> publishedModels;
 
-    public PublishConfrenceBroadcast(){}
+    public PublishConfrenceBroadcast(Vector<Model> modelVector){
+        this.publishedModels = modelVector;
+    }
+
+    public Vector<Model> getPublishedModels() { return this.publishedModels; }
 
 }

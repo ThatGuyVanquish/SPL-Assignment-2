@@ -31,7 +31,7 @@ public class ConferenceService extends MicroService {
     protected void initialize() {
         Callback<TickBroadcast> tickCallback = (TickBroadcast tickBroadcast)-> {
             tickPassed++; if(tickPassed>=conf.getDate()){
-                sendBroadcast(new PublishConfrenceBroadcast());
+                sendBroadcast(new PublishConfrenceBroadcast(this.conf.getPublications()));
 
                 System.out.println(tickPassed);
                 terminate();
