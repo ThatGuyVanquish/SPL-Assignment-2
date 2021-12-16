@@ -181,6 +181,7 @@ public class CRMSRunner {
         TimeService _globalTimer = new TimeService(tickTime, tickDur);
 
         Thread thread = new Thread(_globalTimer);
+        thread.setName("sheeeeesh");
         threadHolder.add(thread);
         thread.start();
         //Probably need to initialize _globalTimer here so that it would run ticks

@@ -7,6 +7,7 @@ public class TrainModelEvent implements Event<Model>{ // Not sure Event<Model> i
     private Model model;
 
     public TrainModelEvent(Model model){
+        //System.out.println("training model " + model.getName());
         this.model = model;
     }
 

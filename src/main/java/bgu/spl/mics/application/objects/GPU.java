@@ -81,18 +81,18 @@ public class GPU {
      * @post model.getStatus() == Trained
      * @post model.isDone()
      */
-    public  void train(TrainModelEvent trainEvent){
+    public void train(TrainModelEvent trainEvent){
         if (this.currentModel == null) {
+            trainEvent.getModel().setStatus(Model.status.Training);
             this.currentModel = trainEvent.getModel();
-            this.currentModel.setStatus(Model.status.Training);
-            System.out.println("BLOOOOO " + Thread.currentThread().getName() + " " + this.currentModel.getName());
             Vector<DataBatch> initialBatch = this.currentModel.getData().batch(this.awaitingProcessing.size(), this);
-            //System.out.println(initialBatch.size());
             CLUSTER.processData(initialBatch);
         }
         else {
-            //trainEvent.getModel().setStatus(Model.status.Training);
             this.trainingVector.add(trainEvent.getModel());
+            //System.out.println(Thread.currentThread().getName());
+            //System.out.println("current model is " + this.currentModel);
+            //System.out.println("training vecotr 2 is " + this.trainingVector);
         }
     }
 
@@ -112,18 +112,21 @@ public class GPU {
     }
 
     public void processData(){
-        if (this.currentModel == null) { return; }
+        if (this.currentModel == null) {
+            if (!this.testingVector.isEmpty()) test(testingVector.remove(0));
+            if (!this.trainingVector.isEmpty()) this.currentModel = this.trainingVector.remove(0);
+            return; }
         if (this.currentModel.getData().isDone()) {
             this.currentModel.setStatus(Model.status.Trained);
             MESSAGE_BUS.sendEvent(new FinishedTrainingEvent(this.currentModel));
+            //System.out.println("Finished training he model " + this.currentModel.getName());
             this.currentModel = null;
             this.tickCounter = 0;
-            if (!this.testingVector.isEmpty()) test(testingVector.remove(0));
-            if (!this.trainingVector.isEmpty()) this.currentModel = this.trainingVector.remove(0);
+            //System.out.println(this.trainingVector);
+            //System.out.println(this.currentModel);
             return;
         }
-        if (currentModel.getStatus() == Model.status.Training){
-            //System.out.println(Thread.currentThread().getName());
+        if (this.currentModel.getStatus() == Model.status.Training){
             this.tickCounter++;
             this.runtime++;
             if (this.tickCounter >= this.processDuration) {
@@ -131,7 +134,12 @@ public class GPU {
                 setNextBatch();
             }
         }
-       // if(currentModel.getStatus() == Model.status.PreTrained){currentModel.setStatus(Model.status.Training);}
+       if(this.currentModel.getStatus() == Model.status.PreTrained){
+           //System.out.println("current model is " + this.currentModel.getName());
+           //System.out.println("this is the training vector" + this.trainingVector);
+           this.currentModel.setStatus(Model.status.Training);
+           //System.out.println("current model status is " + this.currentModel.getStatus());
+       }
     }
 
     /**
@@ -173,4 +181,6 @@ public class GPU {
     public int getRuntime() {
         return runtime;
     }
+
+    public Vector<Model> getTrainingVector() { return this.trainingVector;}
 }

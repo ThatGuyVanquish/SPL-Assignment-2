@@ -23,7 +23,7 @@ public class StudentService extends MicroService {
 
     private Model currModel;
     private Vector<Model> studentModels;
-
+    int i=0, j=0;
 
 
     public StudentService(String name, Student student, CountDownLatch countDownTimer) {
@@ -42,10 +42,13 @@ public class StudentService extends MicroService {
        sendEvent(new TrainModelEvent(currModel));
         Callback<TerminateBroadCast> TerminateCallBack = (TerminateBroadCast c) -> {this.terminate();};
         subscribeBroadcast(TerminateBroadCast.class,TerminateCallBack);
-        Callback<FinishedTrainingEvent> finishedTrainingEventCallback = (FinishedTrainingEvent c) -> {sendEvent(new TestModelEvent(c.getModel()));};
+        Callback<FinishedTrainingEvent> finishedTrainingEventCallback = (FinishedTrainingEvent c) -> {
+            System.out.println("finished training " + i + " " + Thread.currentThread().getName()); i++;
+            sendEvent(new TestModelEvent(c.getModel()));};
         subscribeEvent(FinishedTrainingEvent.class, finishedTrainingEventCallback);
         Callback<FinishedTestedEvent> finishedTestedEventCallback = (FinishedTestedEvent c) ->
         {
+            System.out.println("finished testing " + j + " " + Thread.currentThread().getName()); j++;
             if (student.getConfereceNum()>0){
                 sendEvent(new PublishResultsEvent(c.getModel()));
             }
