@@ -4,10 +4,8 @@ Models:
 Models:
 , Name: Pumba Dept: Computer Science Status: PhD
 Models:
-1) Model Name: Bert Data: Type: Text Size: 1000000 Status: Published Result: Good
 , Name: Timon Dept: SE Status: MSc
 Models:
-1) Model Name: Percepetron Data: Type: Tabular Size: 1000000 Status: Tested Result: Bad
 , Name: Nala Dept: Computer Science Status: PhD
 Models:
 ]
@@ -17,12 +15,11 @@ Published Models:
 Published Models:
 , Conference name: CVPR Date: 30000
 Published Models:
-Model Name: Bert Data: Type: Text Size: 1000000 Status: Published Result: Good
 , Conference name: ECCV Date: 40000
 Published Models:
 , Conference name: AISTATS Date: 50000
 Published Models:
 ]
-cpuTimeUsed: 346873
-gpuTimeUsed: 165150
-batchesProcessed: 82221
+cpuTimeUsed: 321418
+gpuTimeUsed: 110701
+batchesProcessed: 94656
