@@ -107,7 +107,6 @@ public class GPU {
         if (this.currentModel == null) { return; }
         if (this.currentModel.getData().isDone()) {
             this.currentModel.setStatus(Model.status.Trained);
-
             MESSAGE_BUS.sendEvent(new FinishedTrainingEvent(this.currentModel));
             this.currentModel = null;
             this.tickCounter = 0;
