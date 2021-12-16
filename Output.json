@@ -1,7 +1,7 @@
 [Name: Simba Dept: Computer Science Status: MSc
 Models:
-1) Model Name: YOLO10 Data: Type: Images Size: 200000 Status: Tested Result: Bad
-2) Model Name: ResNet9000 Data: Type: Images Size: 200000 Status: Training Result: None
+1) Model Name: YOLO10 Data: Type: Images Size: 200000 Status: Trained Result: None
+2) Model Name: ResNet9000 Data: Type: Images Size: 200000 Status: PreTrained Result: None
 3) Model Name: LessEfficientNet Data: Type: Images Size: 20000 Status: PreTrained Result: None
 4) Model Name: DensestNet Data: Type: Images Size: 200000 Status: PreTrained Result: None
 , Name: Zazu Dept: EE Status: PhD
@@ -15,8 +15,8 @@ Models:
 4) Model Name: GPT10 Data: Type: Text Size: 50000 Status: PreTrained Result: None
 , Name: Timon Dept: SE Status: MSc
 Models:
-1) Model Name: Percepetron Data: Type: Tabular Size: 1000000 Status: Tested Result: Bad
-2) Model Name: GNN Data: Type: Tabular Size: 1000000 Status: Trained Result: None
+1) Model Name: Percepetron Data: Type: Tabular Size: 1000000 Status: Training Result: None
+2) Model Name: GNN Data: Type: Tabular Size: 1000000 Status: PreTrained Result: None
 3) Model Name: MoreStyleGAN Data: Type: Images Size: 100000 Status: PreTrained Result: None
 4) Model Name: ConditionalGAN Data: Type: Images Size: 500000 Status: PreTrained Result: None
 , Name: Nala Dept: Computer Science Status: PhD
@@ -37,6 +37,6 @@ Published Models:
 , Conference name: AISTATS Date: 50000
 Published Models:
 ]
-cpuTimeUsed: 379985
-gpuTimeUsed: 111126
-batchesProcessed: 68481
+cpuTimeUsed: 369748
+gpuTimeUsed: 110267
+batchesProcessed: 105567

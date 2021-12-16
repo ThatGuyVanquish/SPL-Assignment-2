@@ -162,12 +162,12 @@ public abstract class MicroService implements Runnable {
     public final void run() {
         MESSAGE_BUS.register(this);
         System.out.println(name);
+
+        initialize();
         if (countDownTimer!=null)
             countDownTimer.countDown();
         if(countDownStudent!=null)
             countDownStudent.countDown();
-        initialize();
-        ///Message msg = null;
         while (!terminated) {
           try {
 
