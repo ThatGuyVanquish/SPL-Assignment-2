@@ -1,8 +1,9 @@
 package bgu.spl.mics.application.objects;
 
 import bgu.spl.mics.*;
+import bgu.spl.mics.application.services.GPUService;
 
-import java.util.Queue;
+
 import java.util.Vector;
 
 /**
@@ -18,8 +19,7 @@ public class GPU {
 
     private Model currentModel;
     private static final Cluster CLUSTER = Cluster.getInstance();
-    private static final MessageBusImpl MESSAGE_BUS = MessageBusImpl.getInstance();
-    private Type type;
+    private final Type type;
     private Vector<DataBatch> awaitingProcessing;
     private DataBatch currentDB;
     private int tickCounter;
@@ -27,6 +27,7 @@ public class GPU {
     private int runtime;
     private Vector<Model> trainingVector;
     private Vector<Model> testingVector;
+    private GPUService gpuService;
 
     public GPU(Type t) {
         this.type = t;
@@ -41,14 +42,17 @@ public class GPU {
             case GTX1080: {
                 this.awaitingProcessing.setSize(8);
                 this.processDuration = 4;
+                break;
             }
             case RTX2080: {
                 this.awaitingProcessing.setSize(16);
                 this.processDuration = 2;
+                break;
             }
             case RTX3090: {
                 this.awaitingProcessing.setSize(32);
                 this.processDuration = 1;
+                break;
             }
         }
     }
@@ -65,6 +69,10 @@ public class GPU {
         return this.currentModel;
     }
 
+    public void setGpuService(GPUService gpus) {
+        this.gpuService = gpus;
+    }
+
     /**
      * Trains a model, therefore it should receive processed data batches from the CPU and run them based on the type:
      * 3090 - 1 Tick, 32 Batches, 2080 - 2 Ticks, 16 Batches, 1080 - 4 Ticks, 8 Batches
@@ -76,11 +84,12 @@ public class GPU {
      * @post model.getStatus() == Trained
      * @post model.isDone()
      */
-    public  void train(TrainModelEvent trainEvent){
+    public void train(TrainModelEvent trainEvent){
         if (this.currentModel == null) {
+            trainEvent.getModel().setStatus(Model.status.Training);
             this.currentModel = trainEvent.getModel();
-            this.currentModel.setStatus(Model.status.Training);
-            CLUSTER.processData(this.currentModel.getData().batch(this.awaitingProcessing.size(), this));
+            Vector<DataBatch> initialBatch = this.currentModel.getData().batch(this.awaitingProcessing.size(), this);
+            CLUSTER.processData(initialBatch);
         }
         else {
             this.trainingVector.add(trainEvent.getModel());
@@ -94,25 +103,38 @@ public class GPU {
     private void setNextBatch(){
         if (!this.awaitingProcessing.isEmpty()) {
             this.currentDB = this.awaitingProcessing.remove(0);
-            CLUSTER.processData(this.currentModel.getData().batch(this));
+            if (!this.currentModel.getData().sentAllToCPU())
+                CLUSTER.processData(this.currentModel.getData().batch(this));
         }
-        else
+        else {
             this.currentDB = null;
+        }
         tickCounter = 0;
     }
 
     public void processData(){
-        if (this.currentModel == null) { return; }
-        if (this.currentModel.getData().isDone()) {
-            this.currentModel.setStatus(Model.status.Trained);
-            MESSAGE_BUS.sendEvent(new FinishedTrainingEvent(this.currentModel));
-            this.currentModel = null;
-            this.tickCounter = 0;
-            if (!this.testingVector.isEmpty()) test(testingVector.remove(0));
-            if (!this.trainingVector.isEmpty()) this.currentModel = this.trainingVector.remove(0);
+        if (this.currentModel == null) {
+            // Check if we have models waiting to be tested by the GPU
+            if (!this.testingVector.isEmpty())
+                test(testingVector.remove(0));
+            // Check if we don't have a model to train but there is a model waiting to be trained by this GPU
+            if (!this.trainingVector.isEmpty())
+                this.currentModel = this.trainingVector.remove(0);
+
             return;
         }
-        if (currentModel.getStatus() == Model.status.Training){
+
+        // Setting the model which just finished training as Trained
+        if (this.currentModel.getData().isDone()) {
+            this.currentModel.setStatus(Model.status.Trained);
+            this.gpuService.sendGPUBroadcast(new FinishedTrainingBroadcast(this.currentModel));
+            this.currentModel = null;
+            this.tickCounter = 0;
+            return;
+        }
+
+        // Training the current model
+        if (this.currentModel.getStatus() == Model.status.Training){
             this.tickCounter++;
             this.runtime++;
             if (this.tickCounter >= this.processDuration) {
@@ -120,12 +142,16 @@ public class GPU {
                 setNextBatch();
             }
         }
+
+        // Setting the model which was in the training queue to Training
+        if (this.currentModel.getStatus() == Model.status.PreTrained){
+           this.currentModel.setStatus(Model.status.Training);
+       }
     }
 
     /**
      *
-     * @param model model to test
-     * @return true
+     * @param model Model to test
      * @pre Model.getStatus == Trained
      * @post Model.getStatus == Tested
      */
@@ -146,7 +172,7 @@ public class GPU {
                 }
             }
             model.setStatus(Model.status.Tested);
-            MESSAGE_BUS.sendEvent(new FinishedTestedEvent(model));
+            this.gpuService.sendGPUBroadcast(new FinishedTestingBroadcast(model));
             if (!this.testingVector.isEmpty()) {
                 test(testingVector.remove(0));
             }
@@ -156,5 +182,16 @@ public class GPU {
         }
     }
 
-    public void addRuntime() {CLUSTER.addGPURuntime(this.runtime); }
+    public void addRuntime() {
+        CLUSTER.addGPURuntime(this.runtime);
+    }
+
+    public int getRuntime() {
+        return runtime;
+    }
+
+    public Vector<Model> getTrainingVector() {
+        return this.trainingVector;
+    }
+
 }

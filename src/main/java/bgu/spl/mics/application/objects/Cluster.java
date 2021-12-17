@@ -19,17 +19,17 @@ public class Cluster {
 	private static class SingletonHolder{
 		private static final Cluster instance = new Cluster();
 	}
-	private Cluster(){}
-
 
 	private static final MessageBusImpl MESSAGE_BUS = MessageBusImpl.getInstance();
 	private Vector<GPU> gpuVector;
 	private PriorityBlockingQueue<CPU> cpuQueue;
-	private AtomicInteger cpuTimeUsed = new AtomicInteger(0);
-	private AtomicInteger gpuTimeUsed = new AtomicInteger(0);
-	private AtomicInteger batchesProcessed = new AtomicInteger(0);
+	private final AtomicInteger cpuTimeUsed = new AtomicInteger(0);
+	private final AtomicInteger gpuTimeUsed = new AtomicInteger(0);
+	private final AtomicInteger batchesProcessed = new AtomicInteger(0);
 	private  final Object cpuLock = new Object();
 	private final Object gpuLock = new Object();
+
+	private Cluster(){}
 
 	/**
      * Retrieves the single instance of this class.
@@ -42,8 +42,14 @@ public class Cluster {
 		this.gpuVector = gpus;
 	}
 
+	/**
+	 *
+	 * @param cpus CPU Vector to assign to Cluster
+	 * @pre this.cpuQueue.isEmpty()
+	 * @post !this.cpuQueue.isEmpty()
+	 */
 	public void addCPUS(Vector<CPU> cpus) {
-		cpuQueue = new PriorityBlockingQueue<CPU>(cpus.size(), new CPUWorkComparator());
+		cpuQueue = new PriorityBlockingQueue<>(cpus.size(), new CPUWorkComparator());
 		cpuQueue.addAll(cpus);
 	}
 
@@ -54,7 +60,7 @@ public class Cluster {
 			while (!dataBatchVector.isEmpty()) {
 				if (currentCPU != null) {
 					if (cpuQueue.peek() != null) {
-						if (Long.compare(currentCPU.getTimeToProcessAll(), cpuQueue.peek().getTimeToProcessAll()) >= 0) {
+						if (currentCPU.getTimeToProcessAll() >= cpuQueue.peek().getTimeToProcessAll()) {
 							cpuQueue.add(currentCPU);
 							currentCPU = cpuQueue.poll();
 						}
@@ -79,7 +85,6 @@ public class Cluster {
 	public void sendProcessedData(DataBatch dataBatch) {
 		this.batchesProcessed.addAndGet( 1);
 		synchronized (gpuLock) {
-			dataBatch.getData().processData();
 			dataBatch.getGPU().addBatch(dataBatch);
 		}
 	}
@@ -93,13 +98,24 @@ public class Cluster {
 		}
 	}
 
-	public void addGPURuntime(int runtime) { this.gpuTimeUsed.addAndGet(runtime);}
+	public void addGPURuntime(int runtime) {
+		this.gpuTimeUsed.addAndGet(runtime);
+	}
 
-	public void addCPURuntime(int runtime) { this.cpuTimeUsed.addAndGet(runtime);}
+	public void addCPURuntime(int runtime) {
+		this.cpuTimeUsed.addAndGet(runtime);
+	}
 
-	public long getTotalCPURuntime() { return this.cpuTimeUsed.get();}
+	public long getTotalCPURuntime() {
+		return this.cpuTimeUsed.get();
+	}
 
-	public long getTotalGPURuntime() { return this.gpuTimeUsed.get();}
+	public long getTotalGPURuntime() {
+		return this.gpuTimeUsed.get();
+	}
 
-	public long getBatchesProcessed() { return this.batchesProcessed.longValue();}
+	public long getBatchesProcessed() {
+		return this.batchesProcessed.get();
+	}
+
 }

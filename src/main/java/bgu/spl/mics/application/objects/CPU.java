@@ -1,9 +1,6 @@
 package bgu.spl.mics.application.objects;
 
 import bgu.spl.mics.application.objects.Data;
-import jdk.nashorn.internal.runtime.arrays.ArrayIndex;
-
-import java.lang.reflect.Array;
 import java.util.Vector;
 
 /**
@@ -30,13 +27,13 @@ public class CPU {
     }
 
     /**
-     * Method to add a single databatch to the CPU's "to do" DataBatch vector
-     * @param batch
-     * @post currentDB != null
+     * Method to add a single DataBatch to the CPU's "to do" DataBatch vector
+     * @param batch DataBatch the GPU asked the Cluster to process
+     * @post currentDB != null || currentDB.getData().isDone()
      */
     public synchronized void addDataBatch(DataBatch batch) {
         if (batch != null) {
-            dbVector.add(batch);
+            this.dbVector.add(batch);
             switch (batch.getData().getType()) { // Calculate how much time would it take to process current Data Batch
                 case Images: {
                     this.timeToProcessAll += 4 * (32 / this.cores);
@@ -51,10 +48,11 @@ public class CPU {
                     break;
                 }
             }
-            if (currentDB == null) {
-                 try { currentDB = dbVector.remove(0); }
-                 catch (ArrayIndexOutOfBoundsException ignored) {} // No more data to process
+            try{
+            if (this.currentDB == null) {
+                this.currentDB = this.dbVector.remove(0);
             }
+            }catch(Exception ignored){}
         }
     }
 
@@ -66,11 +64,11 @@ public class CPU {
      */
     private void setNextBatch(){
         CLUSTER.sendProcessedData(currentDB); // Packing processed data and sending it back to the cluster to be sent to the GPU
-        if (!dbVector.isEmpty())
-            currentDB = dbVector.remove(0);
+        if (!this.dbVector.isEmpty())
+            this.currentDB = dbVector.remove(0);
         else
-            currentDB = null;
-        tickCounter = 0;
+            this.currentDB = null;
+        this.tickCounter = 0;
     }
 
     public void process() {
@@ -107,11 +105,15 @@ public class CPU {
         return "" + this.cores;
     }
 
-    public int getCores() { return this.cores; }
+    public int getCores() {
+        return this.cores;
+    }
 
     public long getTimeToProcessAll() {
         return this.timeToProcessAll;
     }
 
-    public void addRuntime() { CLUSTER.addCPURuntime(this.runtime);}
+    public void addRuntime() {
+        CLUSTER.addCPURuntime(this.runtime);
+    }
 }

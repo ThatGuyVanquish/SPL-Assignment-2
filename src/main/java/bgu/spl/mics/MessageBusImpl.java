@@ -15,7 +15,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class MessageBusImpl implements MessageBus {
 	private static class SingletonHolder{
-		private static MessageBusImpl instance = new MessageBusImpl();
+		private static final MessageBusImpl instance = new MessageBusImpl();
 	}
 	private ConcurrentHashMap<MicroService, LinkedBlockingDeque<Message>> MicroDict;
 	private ConcurrentHashMap<Message, Future> MsgToFutr;
@@ -59,8 +59,6 @@ public class MessageBusImpl implements MessageBus {
 		}
 	}
 
-	public String print() { return this.MicroDict.toString();}
-
 	/**
 	 * @param e      The completed event.
 	 * @param result The resolved result of the completed event.
@@ -82,45 +80,41 @@ public class MessageBusImpl implements MessageBus {
 					for (MicroService microService : broad) {
 						if (MicroDict.containsKey(microService))
 						MicroDict.get(microService).add(b);
-
-
 				}
 			}
 		}
-
 	}
 
 	@Override
 	public  <T> Future<T> sendEvent(Event<T> e) {
-		Future<T>  result = new Future<T>();
+		synchronized (lockRoundRobin) {
+		Future<T> result = new Future<>();
 		if (!eventToMicro.containsKey(e.getClass())){
+			System.out.println(e.getClass());
 			return null;
 		}
-
-		synchronized (lockRoundRobin) {
-			MicroService s = eventToMicro.get(e.getClass()).remove(0); //round robin implement
+			MicroService s = eventToMicro.get(e.getClass()).remove(0);
 			MicroDict.get(s).add(e);
 			MsgToFutr.put(e, result);
 			eventToMicro.get(e.getClass()).add(s);
+			return result;
 	  }
-		return result;
 	}
 
 	public void register(MicroService m) {
-		MicroDict.put(m,new LinkedBlockingDeque<Message>());
+		MicroDict.put(m,new LinkedBlockingDeque<>());
 	}
 
 	@Override
 	public void unregister(MicroService m) {
 		synchronized (broadCastLock) {
-			LinkedBlockingDeque<Message> Subsricedto = MicroDict.remove(m);
-			for (Message messege : Subsricedto) {
-				if (messege instanceof Broadcast){
-					broadToMicro.get(messege.getClass()).remove(m);
-
+			LinkedBlockingDeque<Message> subscribedTo = MicroDict.remove(m);
+			for (Message message : subscribedTo) {
+				if (message instanceof Broadcast){
+					broadToMicro.get(message.getClass()).remove(m);
 				}
 				else{
-					eventToMicro.get(messege.getClass()).remove(m);
+					eventToMicro.get(message.getClass()).remove(m);
 				 }
 			}
 		}
@@ -131,6 +125,7 @@ public class MessageBusImpl implements MessageBus {
 		try {
 			return MicroDict.get(m).take();
 		} catch (InterruptedException e) {
+			System.out.println("interrupted");
 			throw e;
 		}
 	}
@@ -154,4 +149,5 @@ public class MessageBusImpl implements MessageBus {
 	public <T> Future getFuture(Event<T> e) {
 		return MsgToFutr.get(e);
 	}
+
 }

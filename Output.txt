@@ -1,25 +1,39 @@
 [Name: Simba Dept: Computer Science Status: MSc
 Models:
-, Name: Zazu Dept: EE Status: PhD
-Models:
+1) Model Name: YOLO10 Data: Type: Images Size: 200000 Status: Published Result: Good
+2) Model Name: ResNet9000 Data: Type: Images Size: 200000 Status: Trained Result: None
+Papers read: 4
 , Name: Pumba Dept: Computer Science Status: PhD
 Models:
+1) Model Name: Bert Data: Type: Text Size: 1000000 Status: Published Result: Good
+Papers read: 5
 , Name: Timon Dept: SE Status: MSc
 Models:
+1) Model Name: Percepetron Data: Type: Tabular Size: 1000000 Status: Tested Result: Bad
+2) Model Name: GNN Data: Type: Tabular Size: 1000000 Status: Published Result: Good
+Papers read: 5
 , Name: Nala Dept: Computer Science Status: PhD
 Models:
+Papers read: 6
+, Name: Null-a Dept: Computer Science Status: PhD
+Models:
+1) Model Name: YOLO9000 Data: Type: Images Size: 100000 Status: Published Result: Good
+2) Model Name: VIT2 Data: Type: Images Size: 1000000 Status: Published Result: Good
+3) Model Name: MuchMoreEfficientNet Data: Type: Images Size: 20000 Status: Tested Result: Bad
+4) Model Name: DenserNet Data: Type: Images Size: 100000 Status: Trained Result: None
+Papers read: 4
 ]
 [Conference name: ICML Date: 20000
 Published Models:
-, Conference name: NeurIPS Date: 25000
+ Model Name: Bert Data: Type: Text Size: 1000000 Status: Published Result: Good, Conference name: NeurIPS Date: 25000
 Published Models:
 , Conference name: CVPR Date: 30000
 Published Models:
-, Conference name: ECCV Date: 40000
+ Model Name: YOLO10 Data: Type: Images Size: 200000 Status: Published Result: Good Model Name: GNN Data: Type: Tabular Size: 1000000 Status: Published Result: Good, Conference name: ECCV Date: 40000
 Published Models:
-, Conference name: AISTATS Date: 50000
+ Model Name: VIT2 Data: Type: Images Size: 1000000 Status: Published Result: Good, Conference name: AISTATS Date: 50000
 Published Models:
-]
-cpuTimeUsed: 321418
-gpuTimeUsed: 110701
-batchesProcessed: 94656
+ Model Name: YOLO9000 Data: Type: Images Size: 100000 Status: Published Result: Good]
+cpuTimeUsed: 85484
+gpuTimeUsed: 60845
+batchesProcessed: 17136

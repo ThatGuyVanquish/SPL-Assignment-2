@@ -1,12 +1,11 @@
 package bgu.spl.mics;
 
-
 import bgu.spl.mics.application.objects.Model;
 
-public class FinishedTestedEvent  implements Event<Model> {
+public class FinishedTrainingBroadcast implements Broadcast{
     private Model model;
-    public FinishedTestedEvent(Model m){
-        this.model =m;
+    public FinishedTrainingBroadcast(Model model){
+        this.model = model;
     }
 
     public Model getModel() {

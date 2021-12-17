@@ -6,9 +6,9 @@ package bgu.spl.mics.application.objects;
  * Add fields and methods to this class as you see fit (including public methods and constructors).
  */
 public class Model {
-    private String name;
-    private Data data;
-    private Student student;
+    private final String name;
+    private final Data data;
+    private final Student student;
     public enum status {PreTrained, Training, Trained, Tested, Published}
     public enum results {None, Good, Bad}
     private status currentStatus;
@@ -22,17 +22,37 @@ public class Model {
         this.currentResult = results.None;
     }
 
-    public String getName() { return this.name;}
-    public Data getData() { return this.data;}
-    public Student getStudent() { return this.student;}
-    public status getStatus() { return this.currentStatus;}
-    public results getResult() { return this.currentResult;}
+    public String getName() {
+        return this.name;
+    }
 
-    public synchronized void setResult(results result) { this.currentResult = result;}
-    public synchronized void setStatus(status status) { this.currentStatus = status;}
+    public Data getData() {
+        return this.data;
+    }
+
+    public Student getStudent() {
+        return this.student;
+    }
+
+    public status getStatus() {
+        return this.currentStatus;
+    }
+
+    public results getResult() {
+        return this.currentResult;
+    }
+
+    public synchronized void setResult(results result) {
+        this.currentResult = result;
+    }
+
+    public synchronized void setStatus(status status) {
+        this.currentStatus = status;
+    }
 
     public String toString() {
-        return "Model Name: " + this.name + " Data: " + this.data.toString() + " Status: " + this.currentStatus.toString() + " Result: " + this.currentResult.toString();
+        return "Model Name: " + this.name + " Data: " + this.data.toString() + " Status: " +
+                this.currentStatus.toString() + " Result: " + this.currentResult.toString();
     }
 
 }

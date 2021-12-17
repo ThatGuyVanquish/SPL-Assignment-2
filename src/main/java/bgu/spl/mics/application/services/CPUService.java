@@ -2,7 +2,6 @@ package bgu.spl.mics.application.services;
 
 import bgu.spl.mics.*;
 import bgu.spl.mics.application.objects.CPU;
-
 import java.util.concurrent.CountDownLatch;
 
 /**
@@ -12,7 +11,7 @@ import java.util.concurrent.CountDownLatch;
  * You MAY change constructor signatures and even add new public constructors.
  */
 public class CPUService extends MicroService {
-    private CPU cpu;
+    private final CPU cpu;
 
     public CPUService(String name, CPU cpu,CountDownLatch countDownTimer,CountDownLatch countDownStudent) {
         super(name, countDownTimer,countDownStudent);
@@ -23,6 +22,7 @@ public class CPUService extends MicroService {
     protected void initialize() {
         Callback<TickBroadcast> callback1 = (TickBroadcast c)-> cpu.process();
         subscribeBroadcast(TickBroadcast.class,callback1);
+
         Callback<TerminateBroadCast> callback2 = (TerminateBroadCast c) -> {this.cpu.addRuntime(); this.terminate();};
         subscribeBroadcast(TerminateBroadCast.class,callback2);
     }

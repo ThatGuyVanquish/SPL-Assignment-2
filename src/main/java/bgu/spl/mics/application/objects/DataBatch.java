@@ -8,8 +8,8 @@ package bgu.spl.mics.application.objects;
 public class DataBatch {
 
     private int index;
-    private Data data;
-    private GPU gpu;
+    private final Data data;
+    private final GPU gpu;
 
     public DataBatch(int index, Data data, GPU gpu) {
         this.data = data;

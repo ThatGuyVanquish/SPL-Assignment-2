@@ -14,12 +14,14 @@ public class Student {
         MSc, PhD
     }
 
-    private String name;
-    private String department;
-    private Degree status;
+    private final String name;
+    private final String department;
+    private final Degree status;
     private int publications;
     private int papersRead;
     private int modelIndex;
+    private int conferenceNum;
+    private Vector<ConfrenceInformation> confVector;
     private Vector<Model> modelVector;
 
     public Student(String name, String dpt, Degree deg)
@@ -29,23 +31,29 @@ public class Student {
         this.status = deg;
         this.publications = 0;
         this.papersRead = 0;
-        modelIndex =0;
+        this. modelIndex = 0;
+        this.conferenceNum = 0;
+        this.confVector = null;
     }
 
     public void addModels(Vector<Model> modelVector) {
         this.modelVector = modelVector;
     }
 
+    public void addConferences(Vector<ConfrenceInformation> confVector) { this.confVector = confVector;}
+
+    public ConfrenceInformation getConference(int index) {return this.confVector.get(index);}
+
     public String toString() {
         String ret = "Name: " + this.name + " Dept: " + this.department + " Status: " + this.status + "\n" + "Models:\n";
         int i = 1;
         for (Model m : this.modelVector) {
-            Model.status status = m.getStatus();
-            if (status == Model.status.Tested || status == Model.status.Published) {
+            if (m.getStatus() != Model.status.PreTrained && m.getStatus() != Model.status.Training) {
                 ret += i + ") " + m.toString() + "\n";
                 i++;
             }
         }
+        ret += "Papers read: " + this.papersRead+"\n";
         return ret;
     }
     public String getName() {
@@ -75,12 +83,13 @@ public class Student {
         return papersRead;
     }
 
-    public Vector<Model> getModels(){return modelVector; }
+    public Vector<Model> getModels(){
+        return modelVector; }
+
     public  Model getNextModel(){
         Model currModel;
         if(modelVector.size()>modelIndex) {
             currModel= modelVector.get(modelIndex);
-
         }
         else
             currModel = null;
@@ -88,6 +97,12 @@ public class Student {
         return currModel;
 
     }
-
+    public void setConferenceNum(int confNum){
+        this.conferenceNum = confNum;
     }
+
+    public int getConferenceNum() {
+        return conferenceNum;
+    }
+}
 

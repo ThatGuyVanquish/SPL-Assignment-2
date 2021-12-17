@@ -3,7 +3,7 @@
     [
         {
             "name": "Simba",
-            "department": "Computer Science",            
+            "department": "Computer Science",
             "status": "MSc",
             "models":
             [
@@ -31,22 +31,8 @@
 
         },
         {
-            "name": "Zazu",
-            "department": "EE",            
-            "status": "PhD",
-            "models":
-            [
-                {
-                    "name": "VIT",
-                    "type": "images",
-                    "size": 100000000
-                }
-            ]
-
-        },
-        {
             "name": "Pumba",
-            "department": "Computer Science",            
+            "department": "Computer Science",
             "status": "PhD",
             "models":
             [
@@ -75,7 +61,7 @@
         },
         {
             "name": "Timon",
-            "department": "SE",            
+            "department": "SE",
             "status": "MSc",
             "models":
             [
@@ -104,7 +90,36 @@
         },
         {
             "name": "Nala",
-            "department": "Computer Science",            
+            "department": "Computer Science",
+            "status": "PhD",
+            "models":
+            [
+                {
+                    "name": "YOLO9000",
+                    "type": "images",
+                    "size": 1000000000
+                },
+                {
+                    "name": "VIT2",
+                    "type": "images",
+                    "size": 1000000
+                },
+                {
+                    "name": "MuchMoreEfficientNet",
+                    "type": "images",
+                    "size": 20000
+                },
+                {
+                    "name": "DenserNet",
+                    "type": "images",
+                    "size": 100000
+                }
+            ]
+
+        },
+        {
+            "name": "Null-a",
+            "department": "Computer Science",
             "status": "PhD",
             "models":
             [

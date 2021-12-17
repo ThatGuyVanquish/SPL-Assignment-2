@@ -1,6 +1,5 @@
 package bgu.spl.mics.application.objects;
 
-import java.util.List;
 import java.util.Vector;
 
 /**
@@ -10,9 +9,9 @@ import java.util.Vector;
 public class ConfrenceInformation {
 
     // FIELDS
-    private String name;
-    private int date;
-    private Vector<Model> publications;
+    private final String name;
+    private final int date;
+    private final Vector<Model> publications;
 
     /**
      * Class to hold all the given in formation about a conference: It's name, date, and publications
@@ -33,11 +32,11 @@ public class ConfrenceInformation {
     }
 
     public String toString() {
-        String ret = "Conference name: " + this.name + " Date: " + this.date + "\n" + "Published Models:\n";
-        for (Model model : publications) {
-            ret += model.toString() + "\n";
+        String stringModelsName="";
+        for(Model model : publications){
+            stringModelsName += " " + model.toString();
         }
-        return ret;
+        return "Conference name: " + this.name + " Date: " + this.date + "\n" + "Published Models:\n" + stringModelsName;
     }
 
     public int getDate() {
@@ -51,8 +50,8 @@ public class ConfrenceInformation {
         }
         return ret;
     }
+    public Vector<Model> getPublications(){
+        return this.publications;
+    }
 
-    public String getName() { return this.name; }
-
-    public Vector<Model> getPublications() { return this.publications; }
 }

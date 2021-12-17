@@ -14,54 +14,71 @@ public class Data {
         Images, Text, Tabular
     }
 
-    private Type type;
+    private final Type type;
     private int processed;
-    private int size;
+    private int sentToCPU;
+    private final int size;
 
     public Data(Type type, int size) {
         this.type = type;
         this.size = size;
         this.processed = 0;
+        this.sentToCPU = 0;
     }
 
     /**
     Creates a new batch
      */
     public synchronized DataBatch batch(GPU gpu) {
-        if (!isDone())
-            return new DataBatch(size-processed, this, gpu);
-        return null;
-    }
-
-    public synchronized Vector<DataBatch> batch(int size, GPU gpu) { // Splits into a vector based on size
-        if (!isDone()){
-            Vector<DataBatch> ret = new Vector<>();
-            int index = this.size-this.processed;
-            while (index < this.size) {
-                ret.add(new DataBatch(index, this, gpu));
-                index += 1000;
-            }
-            return ret;
+        if (!isDone()) {
+            this.sentToCPU += 1000;
+            return new DataBatch(size - processed, this, gpu);
         }
         return null;
     }
 
+    /**
+     * Splits Data into data batches based on the given size. If it can create a vector of the given size, do so
+     * otherwise it will create a vector of batches from the entire size of the data.
+     * @param size Requested vector size
+     * @param gpu GPU who trains this data
+     * @return Vector of data batches
+     */
+    public synchronized  Vector<DataBatch> batch(int size, GPU gpu) {
+        Vector<DataBatch> ret = new Vector<>();
+        size = Integer.min(size, this.size / 1000);
+        for (int i = 0; i < size * 1000; i += 1000)
+            ret.add(new DataBatch(i, this, gpu));
+        this.sentToCPU = 1000 * ret.size();
+        return ret;
+    }
+
     public boolean isDone() {
-        if (this.size == this.processed)
-            return true;
-        return false;
+        return this.size == this.processed;
     }
 
     public Type getType() {
         return this.type;
     }
 
-    public synchronized boolean processData() {
+    public synchronized void processData() {
         this.processed += 1000;
-        return isDone();
     }
 
     public String toString() {
         return "Type: " + this.type.toString() + " Size: " + this.size;
     }
+
+    public int getProcessed() {
+        return processed;
+    }
+
+    public int getSize() {
+        return size;
+    }
+
+    public boolean sentAllToCPU() {
+        return this.sentToCPU == this.size;
+    }
+
 }

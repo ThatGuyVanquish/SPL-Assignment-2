@@ -2,7 +2,6 @@ package bgu.spl.mics.application.services;
 
 import bgu.spl.mics.*;
 import bgu.spl.mics.application.objects.ConfrenceInformation;
-
 import java.util.concurrent.CountDownLatch;
 
 /**
@@ -16,33 +15,36 @@ import java.util.concurrent.CountDownLatch;
  */
 public class ConferenceService extends MicroService {
 
-    private ConfrenceInformation conf;
+    private final ConfrenceInformation conf;
     private  int tickPassed;
-    private static final MessageBusImpl MESSAGE_BUS = MessageBusImpl.getInstance();
+    // If you want to do the implementation based on your idea we should add a model vector | DELETE BEFORE UPLOAD
 
-    //after the time of the conf, the service need to PublicConferenceBroadcast, and then register
     public ConferenceService(String name, ConfrenceInformation conf, CountDownLatch countDownTimer,CountDownLatch countDownStudent) {
         super(name, countDownTimer,countDownStudent);
         this.conf = conf;
-        tickPassed =0;
+        this.tickPassed = 0;
     }
 
+    // After the conference, the service should call PublicConferenceBroadcast, and then terminate
     @Override
     protected void initialize() {
-        Callback<TickBroadcast> tickCallback = (TickBroadcast tickBroadcast)-> {
-            tickPassed++; if(tickPassed>=conf.getDate()){
+        Callback<TickBroadcast> tickCallback = (TickBroadcast tickBroadcast) -> {
+            tickPassed++;
+            if(tickPassed >= conf.getDate()){
                 sendBroadcast(new PublishConfrenceBroadcast(this.conf.getPublications()));
-
-                System.out.println(tickPassed);
+                System.out.println(conf.getDate()); // DELETE | FOR TESTS
                 terminate();
             }
         };
         subscribeBroadcast(TickBroadcast.class, tickCallback);
+
         Callback<PublishResultsEvent> publishCallBack =  (PublishResultsEvent c) -> {
               conf.addModel(c.getModel());
         };
         subscribeEvent(PublishResultsEvent.class,publishCallBack);
-        Callback<TerminateBroadCast> TerminateCallBack = (TerminateBroadCast c) -> {this.terminate();System.out.println("terminate called");};
+
+        Callback<TerminateBroadCast> TerminateCallBack = (TerminateBroadCast c) -> this.terminate();
         subscribeBroadcast(TerminateBroadCast.class,TerminateCallBack);
     }
+
 }

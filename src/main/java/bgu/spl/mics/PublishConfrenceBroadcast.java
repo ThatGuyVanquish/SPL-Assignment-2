@@ -3,6 +3,7 @@ package bgu.spl.mics;
 import bgu.spl.mics.application.objects.ConfrenceInformation;
 import bgu.spl.mics.application.objects.Model;
 
+import javax.jws.WebParam;
 import java.util.Vector;
 
 /**
@@ -11,12 +12,14 @@ import java.util.Vector;
  */
 
 public class PublishConfrenceBroadcast implements Broadcast{
-    private Vector<Model> publishedModels;
 
-    public PublishConfrenceBroadcast(Vector<Model> modelVector){
-        this.publishedModels = modelVector;
+   private final Vector<Model> models;
+
+    public PublishConfrenceBroadcast(Vector<Model> models){
+        this.models = models;
     }
 
-    public Vector<Model> getPublishedModels() { return this.publishedModels; }
-
+    public Vector<Model> getModels() {
+        return models;
+    }
 }

@@ -17,47 +17,61 @@ import java.util.concurrent.CountDownLatch;
  * You MAY change constructor signatures and even add new public constructors.
  */
 public class StudentService extends MicroService {
-    private String name;
-    private Student student;
+    private final Student student;
     private Model currModel;
-    private Vector<Model> studentModels;
-
-
+    private final Vector<Model> studentModels;
 
     public StudentService(String name, Student student, CountDownLatch countDownTimer) {
         super(name,countDownTimer,null);
         this.student = student;
-        currModel = student.getNextModel();
-        studentModels = student.getModels();
+        this.currModel = student.getNextModel();
+        this.studentModels = student.getModels();
     }
 
     @Override
     protected void initialize() {
         sendEvent(new TrainModelEvent(currModel));
-        Callback<TerminateBroadCast> TerminateCallBack = (TerminateBroadCast c) -> {this.terminate();};
-        subscribeBroadcast(TerminateBroadCast.class,TerminateCallBack);
-        Callback<FinishedTrainingEvent> finishedTrainingEventCallback = (FinishedTrainingEvent c) -> {sendEvent(new TestModelEvent(c.getModel()));};
-        subscribeEvent(FinishedTrainingEvent.class, finishedTrainingEventCallback);
-        Callback<FinishedTestedEvent> finishedTestedEventCallback = (FinishedTestedEvent c) ->
+
+        Callback<FinishedTrainingBroadcast> finishedTrainingEventCallback = (FinishedTrainingBroadcast c) ->
         {
-            sendEvent(new PublishResultsEvent(c.getModel()));
-            currModel = student.getNextModel();
-            if (currModel!=null){
-                sendEvent(new TrainModelEvent(currModel));
+            if (this.studentModels.contains(c.getModel()))
+                sendEvent(new TestModelEvent(c.getModel()));
+        };
+        subscribeBroadcast(FinishedTrainingBroadcast.class, finishedTrainingEventCallback);
+
+        Callback<FinishedTestingBroadcast> finishedTestingBroadcastCallback = (FinishedTestingBroadcast c) ->
+        {
+            if (this.studentModels.contains(c.getModel())) {
+                if (student.getConferenceNum()>0){
+                    sendEvent(new PublishResultsEvent(c.getModel()));
+                }
+                currModel = student.getNextModel();
+                if (currModel!=null){
+                    sendEvent(new TrainModelEvent(currModel));
+                }
             }
         };
-        subscribeEvent(FinishedTestedEvent.class,finishedTestedEventCallback);
+        subscribeBroadcast(FinishedTestingBroadcast.class, finishedTestingBroadcastCallback);
+
         Callback<PublishConfrenceBroadcast> PublishConfrenceBroadcastCallBack = (PublishConfrenceBroadcast e) ->
         {
-            int published = 0, papersRead = 0;
-            for (Model model : e.getPublishedModels()) {
-                if (model.getStudent() != this.student) papersRead++;
-                else published++;
+            this.student.setConferenceNum(student.getConferenceNum()-1);
+            int published = 0;
+            int papersRead = 0;
+            for (Model model: e.getModels()){
                 model.setStatus(Model.status.Published);
+                if (model.getStudent() == this.student)
+                    published++;
+                else
+                    papersRead++;
+                student.addPublications(published);
+                student.addPaperRead(papersRead);
             }
-            this.student.addPublications(published);
-            this.student.addPaperRead(papersRead);
         };
         subscribeBroadcast(PublishConfrenceBroadcast.class,PublishConfrenceBroadcastCallBack);
+
+        Callback<TerminateBroadCast> TerminateCallBack = (TerminateBroadCast c) -> this.terminate();
+        subscribeBroadcast(TerminateBroadCast.class,TerminateCallBack);
     }
+
 }
