@@ -7,7 +7,6 @@ import bgu.spl.mics.application.objects.Cluster;
 import com.google.gson.*;
 
 import java.io.*;
-import java.util.Locale;
 import java.util.Vector;
 import java.util.concurrent.CountDownLatch;
 
@@ -28,9 +27,10 @@ public class CRMSRunner {
         Reader reader = new InputStreamReader(inputStream);
         JsonElement rootElement = PARSER.parse(reader);
         JsonObject rootObject = rootElement.getAsJsonObject();
-        Vector<Thread> threadHolder = new Vector<Thread>();
+        Vector<Thread> threadHolder = new Vector<>();
         CountDownLatch countDownTimer;
         CountDownLatch countDownStudent;
+
         // Creating all of the Student Services
         Vector<StudentService> studentServiceVector = new Vector<>(); // Vector to store StudentService objects, need to move to msgBus?
         Vector<Student> studentVector = new Vector<>();
@@ -50,10 +50,8 @@ public class CRMSRunner {
                     break;
             }
             Student newStudent = new Student(name, department, deg);
-          //  StudentService currentStudentService = new StudentService(name, newStudent,countDown);
             studentVector.add(newStudent);
-          //  Thread thread = new Thread(currentStudentService);
-          //  threadHolder.add(thread);
+
             // Creating the models which are connected to the current Student object
             Vector<Model> modelVector = new Vector<>();
             JsonArray models = currentStudent.getAsJsonArray("models");
@@ -78,7 +76,6 @@ public class CRMSRunner {
                 modelVector.add(new Model(modelName, currentModelData, newStudent));
             }
             newStudent.addModels(modelVector);
-            //thread.start();
         }
 
         // Creating the GPU Services
@@ -100,10 +97,6 @@ public class CRMSRunner {
             }
             GPU newGPU = new GPU(gpuType);
             gpus.add(newGPU);
-           // GPUService currentGPU = new GPUService(gpuTypeStr, newGPU);
-           // Thread thread = new Thread(currentGPU);
-          //  threadHolder.add(thread);
-            //thread.start();
         }
         CLUSTER.addGPUS(gpus);
 
@@ -114,10 +107,6 @@ public class CRMSRunner {
             int cpuCoreCount = e.getAsInt();
             CPU newCPU = new CPU(cpuCoreCount);
             cpus.add(newCPU);
-           // CPUService currentCPU = new CPUService(e.getAsString(), newCPU);
-           // Thread thread = new Thread(currentCPU);
-           // threadHolder.add(thread);
-           // thread.start();
         }
         CLUSTER.addCPUS(cpus);
         Vector<ConfrenceInformation> confVector = new Vector<>();
@@ -126,15 +115,11 @@ public class CRMSRunner {
             String confName = e.getAsJsonObject().get("name").getAsString();
             int confDate = e.getAsJsonObject().get("date").getAsInt();
             ConfrenceInformation newConf = new ConfrenceInformation(confName, confDate);
-          //  ConferenceService currentConf = new ConferenceService(confName, newConf);
-          //  Thread thread = new Thread(currentConf);
-            //thread.start();
-          //  threadHolder.add(thread);
             confVector.add(newConf);
         }
-        for (Student student : studentVector) student.addConfrences(confVector);
+        for (Student student : studentVector) student.addConferences(confVector);
 
-        int countDownSizeTimer = confVector.size()+ gpus.size()+studentVector.size()+ cpus.size();//making sure all mircoservices register before time service
+        int countDownSizeTimer = confVector.size() + gpus.size() + studentVector.size() + cpus.size(); // Making sure all mircoservices register before time service
         int countDownSizeStudent = confVector.size() + gpus.size() + cpus.size();
         countDownTimer = new CountDownLatch(countDownSizeTimer);
         countDownStudent = new CountDownLatch(countDownSizeStudent);
@@ -157,11 +142,12 @@ public class CRMSRunner {
             threadHolder.add(thread);
             thread.start();
         }
-        try{
-            countDownStudent.await(); // student threads wait for cpu,gpu and conference to register
-        }catch (InterruptedException e){};
+        try {
+            countDownStudent.await(); // Student threads wait for cpus, gpus and conferences to register
+        }
+        catch (InterruptedException ignored){}
         for(Student student:studentVector){
-            student.setConfereceNum(confVector.size());
+            student.setConferenceNum(confVector.size());
             StudentService studentService = new StudentService(student.getName(),student,countDownTimer);
             Thread thread = new Thread(studentService);
             threadHolder.add(thread);
@@ -178,31 +164,31 @@ public class CRMSRunner {
         }
         try{
             countDownTimer.await();
-        }catch (InterruptedException e){};
+        }
+        catch (InterruptedException ignored){}
 
         TimeService _globalTimer = new TimeService(tickTime, tickDur);
-
         Thread thread = new Thread(_globalTimer);
-        thread.setName("sheeeeesh");
+        thread.setName("Sheeeeeeesh");
         threadHolder.add(thread);
         thread.start();
-        //Probably need to initialize _globalTimer here so that it would run ticks
-        for (Thread thread1 : threadHolder) // fininsh all threads before outpot
+
+        for (Thread thread1 : threadHolder) // Shut down all the threads
         try{
             thread1.join();
-        }catch (InterruptedException e){};
-      int realProccesed = 0;
+        }catch (InterruptedException ignored){}
+      int realProcessed = 0;
         for (Student student : studentVector){
-            System.out.println("paper"+student.getPapersRead());
+            System.out.println("paper "+student.getPapersRead());
             for (Model model : student.getModels()){
-                System.out.println("Size:"+model.getData().getSize()+"  "+"Proccesed:"+model.getData().getProcessed());
-                realProccesed += model.getData().getProcessed();
+                System.out.println("Size: "+model.getData().getSize()+"  "+"Processed: "+model.getData().getProcessed());
+                realProcessed += model.getData().getProcessed();
             }
         }
-        System.out.println(realProccesed/1000);
+        System.out.println(realProcessed/1000);
         FileWriter fileWriter = null;
         try {
-            fileWriter = new FileWriter("Output.json");
+            fileWriter = new FileWriter("Output.txt");
             fileWriter.write(studentVector.toString() + "\n");
             fileWriter.write(confVector.toString() + "\n");
             fileWriter.write("cpuTimeUsed: " + CLUSTER.getTotalCPURuntime() + "\n");

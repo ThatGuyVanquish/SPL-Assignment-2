@@ -3,7 +3,9 @@ package bgu.spl.mics;
 import bgu.spl.mics.application.objects.Model;
 
 public class FinishedTestingBroadcast implements Broadcast {
-    private Model model;
+
+    private final Model model;
+
     public FinishedTestingBroadcast(Model m){
         this.model = m;
     }

@@ -14,10 +14,10 @@ public class Data {
         Images, Text, Tabular
     }
 
-    private Type type;
+    private final Type type;
     private int processed;
     private int sentToCPU;
-    private int size;
+    private final int size;
 
     public Data(Type type, int size) {
         this.type = type;
@@ -37,7 +37,14 @@ public class Data {
         return null;
     }
 
-    public synchronized  Vector<DataBatch> batch(int size, GPU gpu) { // Splits into a vector based on size
+    /**
+     * Splits Data into data batches based on the given size. If it can create a vector of the given size, do so
+     * otherwise it will create a vector of batches from the entire size of the data.
+     * @param size Requested vector size
+     * @param gpu GPU who trains this data
+     * @return Vector of data batches
+     */
+    public synchronized  Vector<DataBatch> batch(int size, GPU gpu) {
         Vector<DataBatch> ret = new Vector<>();
         size = Integer.min(size, this.size / 1000);
         for (int i = 0; i < size * 1000; i += 1000)
@@ -54,9 +61,8 @@ public class Data {
         return this.type;
     }
 
-    public synchronized boolean processData() {
+    public synchronized void processData() {
         this.processed += 1000;
-        return isDone();
     }
 
     public String toString() {
@@ -71,5 +77,8 @@ public class Data {
         return size;
     }
 
-    public boolean sentAllToCPU() { return this.sentToCPU == this.size;}
+    public boolean sentAllToCPU() {
+        return this.sentToCPU == this.size;
+    }
+
 }

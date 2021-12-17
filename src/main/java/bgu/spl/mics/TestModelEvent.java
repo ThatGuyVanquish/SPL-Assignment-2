@@ -2,9 +2,9 @@ package bgu.spl.mics;
 
 import bgu.spl.mics.application.objects.Model;
 
-public class TestModelEvent implements Event<Model>{ // Not sure Event<Model> is the correct implementation
+public class TestModelEvent implements Event<Model>{
 
-    private Model model;
+    private final Model model;
 
     public TestModelEvent(Model model) {
         this.model = model;

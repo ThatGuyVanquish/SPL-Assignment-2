@@ -2,7 +2,6 @@ package bgu.spl.mics.application.services;
 
 import bgu.spl.mics.*;
 import bgu.spl.mics.application.objects.GPU;
-import bgu.spl.mics.application.objects.Model;
 
 import java.util.concurrent.CountDownLatch;
 
@@ -16,28 +15,27 @@ import java.util.concurrent.CountDownLatch;
  */
 public class GPUService extends MicroService {
 
-    private GPU gpu;
+    private final GPU gpu;
     public GPUService(String name, GPU gpu, CountDownLatch countDownTimer,CountDownLatch countDownStudent) {
         super(name,countDownTimer,countDownStudent);
         this.gpu = gpu;
     }
 
-    public GPU getGpu() { return this.gpu;}
-
     @Override
     protected void initialize() {
-        Callback<TickBroadcast> tickCallback = (TickBroadcast tickBroadcast)-> {gpu.processData();};
+        Callback<TickBroadcast> tickCallback = (TickBroadcast tickBroadcast)-> gpu.processData();
         subscribeBroadcast(TickBroadcast.class, tickCallback);
-        Callback<TrainModelEvent> trainCallback = (TrainModelEvent e)-> {
-            //System.out.println("GPU " + Thread.currentThread().getName() + " called to train the model " + e.getModel().getName());
-            gpu.train(e);};
+
+        Callback<TrainModelEvent> trainCallback = (TrainModelEvent e) -> gpu.train(e);
         subscribeEvent(TrainModelEvent.class, trainCallback);
+
         Callback<TestModelEvent> testCallback = (TestModelEvent e)-> gpu.test(e.getModel());
         subscribeEvent(TestModelEvent.class, testCallback);
+
         Callback<TerminateBroadCast> TerminateCallBack = (TerminateBroadCast c) -> {
             this.gpu.addRuntime();
-            System.out.println("gpu time:"+gpu.getRuntime());
-            System.out.println(this.getName()+gpu.getTrainingVector());
+            System.out.println("gpu time:"+gpu.getRuntime()); // DELETE BEFORE UPLOADING
+            System.out.println(this.getName()+gpu.getTrainingVector()); // DELETE BEFORE UPLOADING
             this.terminate();};
         subscribeBroadcast(TerminateBroadCast.class,TerminateCallBack);
     }

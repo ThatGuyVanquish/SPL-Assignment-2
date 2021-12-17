@@ -12,8 +12,12 @@ import java.util.Vector;
  */
 
 public class PublishConfrenceBroadcast implements Broadcast{
-   private Vector<Model> models;
-    public PublishConfrenceBroadcast(Vector<Model> models){this.models = models;}
+
+   private final Vector<Model> models;
+
+    public PublishConfrenceBroadcast(Vector<Model> models){
+        this.models = models;
+    }
 
     public Vector<Model> getModels() {
         return models;

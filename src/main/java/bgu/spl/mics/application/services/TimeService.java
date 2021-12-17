@@ -18,11 +18,11 @@ import java.util.TimerTask;
  */
 public class TimeService extends MicroService{
 
-	private int _tickTime;
-	private int _duration;
+	private final int _tickTime;
+	private final int _duration;
 	private boolean endApp;
 	private int ticksPassed;
-    private  Timer TIMER;
+    private final Timer TIMER;
 
 	public TimeService(int tickTime, int duration) {
 		super("Time Service",null,null);
@@ -37,17 +37,15 @@ public class TimeService extends MicroService{
 	protected void initialize() {
 		System.out.println("time starting");
 		while (ticksPassed<=_duration-1) {
-
 			TIMER.schedule(new TimerTask() {
 				public void run() {
 					sendBroadcast(new TickBroadcast());
 					ticksPassed++;
 				}
 			}, _tickTime);
-		//	System.out.println("check");
 		}
 		TIMER.cancel();
-		System.out.println(ticksPassed);
+		System.out.println(ticksPassed); // DELETE BEFORE UPLOADING
 		sendBroadcast(new TerminateBroadCast());
 		terminate();
 	}

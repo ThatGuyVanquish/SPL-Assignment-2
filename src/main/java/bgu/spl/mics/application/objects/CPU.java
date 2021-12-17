@@ -27,9 +27,9 @@ public class CPU {
     }
 
     /**
-     * Method to add a single databatch to the CPU's "to do" DataBatch vector
-     * @param batch
-     * @post currentDB != null
+     * Method to add a single DataBatch to the CPU's "to do" DataBatch vector
+     * @param batch DataBatch the GPU asked the Cluster to process
+     * @post currentDB != null || currentDB.getData().isDone()
      */
     public synchronized void addDataBatch(DataBatch batch) {
         if (batch != null) {
@@ -105,11 +105,15 @@ public class CPU {
         return "" + this.cores;
     }
 
-    public int getCores() { return this.cores; }
+    public int getCores() {
+        return this.cores;
+    }
 
     public long getTimeToProcessAll() {
         return this.timeToProcessAll;
     }
 
-    public void addRuntime() { CLUSTER.addCPURuntime(this.runtime); }
+    public void addRuntime() {
+        CLUSTER.addCPURuntime(this.runtime);
+    }
 }

@@ -2,12 +2,11 @@ package bgu.spl.mics;
 
 import bgu.spl.mics.application.objects.Model;
 
-public class TrainModelEvent implements Event<Model>{ // Not sure Event<Model> is the correct implementation
+public class TrainModelEvent implements Event<Model>{
 
-    private Model model;
+    private final Model model;
 
     public TrainModelEvent(Model model){
-        //System.out.println("training model " + model.getName());
         this.model = model;
     }
 

@@ -19,8 +19,7 @@ public class GPU {
 
     private Model currentModel;
     private static final Cluster CLUSTER = Cluster.getInstance();
-    private static final MessageBusImpl MESSAGE_BUS = MessageBusImpl.getInstance();
-    private Type type;
+    private final Type type;
     private Vector<DataBatch> awaitingProcessing;
     private DataBatch currentDB;
     private int tickCounter;
@@ -70,7 +69,9 @@ public class GPU {
         return this.currentModel;
     }
 
-    public void setGpuService(GPUService gpus) { this.gpuService = gpus;}
+    public void setGpuService(GPUService gpus) {
+        this.gpuService = gpus;
+    }
 
     /**
      * Trains a model, therefore it should receive processed data batches from the CPU and run them based on the type:
@@ -92,9 +93,6 @@ public class GPU {
         }
         else {
             this.trainingVector.add(trainEvent.getModel());
-            //System.out.println(Thread.currentThread().getName());
-            //System.out.println("current model is " + this.currentModel);
-            //System.out.println("training vecotr 2 is " + this.trainingVector);
         }
     }
 
@@ -105,7 +103,8 @@ public class GPU {
     private void setNextBatch(){
         if (!this.awaitingProcessing.isEmpty()) {
             this.currentDB = this.awaitingProcessing.remove(0);
-            if (!this.currentModel.getData().sentAllToCPU()) CLUSTER.processData(this.currentModel.getData().batch(this));
+            if (!this.currentModel.getData().sentAllToCPU())
+                CLUSTER.processData(this.currentModel.getData().batch(this));
         }
         else {
             this.currentDB = null;
@@ -115,19 +114,26 @@ public class GPU {
 
     public void processData(){
         if (this.currentModel == null) {
-            if (!this.testingVector.isEmpty()) test(testingVector.remove(0));
-            if (!this.trainingVector.isEmpty()) this.currentModel = this.trainingVector.remove(0);
-            return; }
+            // Check if we have models waiting to be tested by the GPU
+            if (!this.testingVector.isEmpty())
+                test(testingVector.remove(0));
+            // Check if we don't have a model to train but there is a model waiting to be trained by this GPU
+            if (!this.trainingVector.isEmpty())
+                this.currentModel = this.trainingVector.remove(0);
+
+            return;
+        }
+
+        // Setting the model which just finished training as Trained
         if (this.currentModel.getData().isDone()) {
             this.currentModel.setStatus(Model.status.Trained);
             this.gpuService.sendGPUBroadcast(new FinishedTrainingBroadcast(this.currentModel));
-            //System.out.println("Finished training he model " + this.currentModel.getName());
             this.currentModel = null;
             this.tickCounter = 0;
-            //System.out.println(this.trainingVector);
-            //System.out.println(this.currentModel);
             return;
         }
+
+        // Training the current model
         if (this.currentModel.getStatus() == Model.status.Training){
             this.tickCounter++;
             this.runtime++;
@@ -136,18 +142,16 @@ public class GPU {
                 setNextBatch();
             }
         }
-       if(this.currentModel.getStatus() == Model.status.PreTrained){
-           //System.out.println("current model is " + this.currentModel.getName());
-           //System.out.println("this is the training vector" + this.trainingVector);
+
+        // Setting the model which was in the training queue to Training
+        if (this.currentModel.getStatus() == Model.status.PreTrained){
            this.currentModel.setStatus(Model.status.Training);
-           //System.out.println("current model status is " + this.currentModel.getStatus());
        }
     }
 
     /**
      *
-     * @param model model to test
-     * @return true
+     * @param model Model to test
      * @pre Model.getStatus == Trained
      * @post Model.getStatus == Tested
      */
@@ -178,11 +182,16 @@ public class GPU {
         }
     }
 
-    public void addRuntime() {CLUSTER.addGPURuntime(this.runtime); }
+    public void addRuntime() {
+        CLUSTER.addGPURuntime(this.runtime);
+    }
 
     public int getRuntime() {
         return runtime;
     }
 
-    public Vector<Model> getTrainingVector() { return this.trainingVector;}
+    public Vector<Model> getTrainingVector() {
+        return this.trainingVector;
+    }
+
 }
