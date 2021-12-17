@@ -141,6 +141,7 @@ public class CRMSRunner {
 
         for(GPU gpu:gpus){
             GPUService gpuService = new GPUService(gpu.toString(),gpu,countDownTimer,countDownStudent);
+            gpu.setGpuService(gpuService);
             Thread thread = new Thread(gpuService);
             thread.start();
         }

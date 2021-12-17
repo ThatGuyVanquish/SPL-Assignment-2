@@ -22,6 +22,8 @@ public class GPUService extends MicroService {
         this.gpu = gpu;
     }
 
+    public GPU getGpu() { return this.gpu;}
+
     @Override
     protected void initialize() {
         Callback<TickBroadcast> tickCallback = (TickBroadcast tickBroadcast)-> {gpu.processData();};
@@ -38,5 +40,9 @@ public class GPUService extends MicroService {
             System.out.println(this.getName()+gpu.getTrainingVector());
             this.terminate();};
         subscribeBroadcast(TerminateBroadCast.class,TerminateCallBack);
+    }
+
+    public void sendGPUBroadcast(Broadcast b) {
+        this.sendBroadcast(b);
     }
 }

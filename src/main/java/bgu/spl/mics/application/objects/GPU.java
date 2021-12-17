@@ -1,6 +1,7 @@
 package bgu.spl.mics.application.objects;
 
 import bgu.spl.mics.*;
+import bgu.spl.mics.application.services.GPUService;
 
 
 import java.util.Vector;
@@ -27,6 +28,7 @@ public class GPU {
     private int runtime;
     private Vector<Model> trainingVector;
     private Vector<Model> testingVector;
+    private GPUService gpuService;
 
     public GPU(Type t) {
         this.type = t;
@@ -67,6 +69,8 @@ public class GPU {
     public Model getModel() {
         return this.currentModel;
     }
+
+    public void setGpuService(GPUService gpus) { this.gpuService = gpus;}
 
     /**
      * Trains a model, therefore it should receive processed data batches from the CPU and run them based on the type:
@@ -116,7 +120,7 @@ public class GPU {
             return; }
         if (this.currentModel.getData().isDone()) {
             this.currentModel.setStatus(Model.status.Trained);
-            MESSAGE_BUS.sendBroadcast(new FinishedTrainingBroadcast(this.currentModel));
+            this.gpuService.sendGPUBroadcast(new FinishedTrainingBroadcast(this.currentModel));
             //System.out.println("Finished training he model " + this.currentModel.getName());
             this.currentModel = null;
             this.tickCounter = 0;
@@ -164,7 +168,7 @@ public class GPU {
                 }
             }
             model.setStatus(Model.status.Tested);
-            MESSAGE_BUS.sendBroadcast(new FinishedTestingBroadcast(model));
+            this.gpuService.sendGPUBroadcast(new FinishedTestingBroadcast(model));
             if (!this.testingVector.isEmpty()) {
                 test(testingVector.remove(0));
             }
