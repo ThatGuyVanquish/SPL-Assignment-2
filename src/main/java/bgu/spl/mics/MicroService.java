@@ -26,9 +26,9 @@ public abstract class MicroService implements Runnable {
     private boolean terminated = false;
     private final String name;
     private static final MessageBusImpl MESSAGE_BUS = MessageBusImpl.getInstance();
-    private HashMap <Class<? extends Message>,Callback> MsgToCallBack;
-    private CountDownLatch countDownTimer;
-    private CountDownLatch countDownStudent;
+    private final HashMap <Class<? extends Message>,Callback> MsgToCallBack;
+    private final CountDownLatch countDownTimer;
+    private final CountDownLatch countDownStudent;
 
     /**
      * @param name the micro-service name (used mainly for debugging purposes -
@@ -172,8 +172,7 @@ public abstract class MicroService implements Runnable {
               Callback callback = MsgToCallBack.get(msg.getClass());
               callback.call(msg);
           }
-          catch (InterruptedException e) {
-            }
+          catch (InterruptedException ignored) {}
         }
         MESSAGE_BUS.unregister(this);
     }
