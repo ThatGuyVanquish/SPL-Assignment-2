@@ -35,6 +35,7 @@ public class GPUService extends MicroService {
         Callback<TerminateBroadCast> TerminateCallBack = (TerminateBroadCast c) -> {
             this.gpu.addRuntime();
             System.out.println("gpu time:"+gpu.getRuntime());
+            System.out.println(this.getName()+gpu.getTrainingVector());
             this.terminate();};
         subscribeBroadcast(TerminateBroadCast.class,TerminateCallBack);
     }

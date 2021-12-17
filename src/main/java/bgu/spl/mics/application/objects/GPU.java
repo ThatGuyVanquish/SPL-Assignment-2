@@ -25,7 +25,6 @@ public class GPU {
     private int tickCounter;
     private int processDuration;
     private int runtime;
-    int j = 0;
     private Vector<Model> trainingVector;
     private Vector<Model> testingVector;
 

@@ -97,7 +97,7 @@
                 {
                     "name": "YOLO9000",
                     "type": "images",
-                    "size": 100000
+                    "size": 1000000000
                 },
                 {
                     "name": "VIT2",
@@ -147,7 +147,7 @@
 
         }
     ],
-    "GPUS": ["RTX3090","RTX2080","GTX1080"],
+    "GPUS": ["RTX3090","RTX3090","RTX2080","GTX1080"],
     "CPUS": [32,32,32,16,16,16,16],
     "Conferences":
     [
@@ -158,5 +158,5 @@
         {"name": "AISTATS", "date": 50000}
     ],
     "TickTime": 2,
-    "Duration": 10000
+    "Duration": 55000
 }

@@ -62,6 +62,7 @@ public class StudentService extends MicroService {
                 model.setStatus(Model.status.Published);
                 if (model.getStudent() == this.student){
                     published++;
+                //    this.student.getConference(this.student.getConfereceNum()).addModel(model);
                 }
                 else
                     paperread++;

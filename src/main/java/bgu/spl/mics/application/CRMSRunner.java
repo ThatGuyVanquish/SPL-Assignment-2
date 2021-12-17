@@ -132,6 +132,7 @@ public class CRMSRunner {
           //  threadHolder.add(thread);
             confVector.add(newConf);
         }
+        for (Student student : studentVector) student.addConfrences(confVector);
 
         int countDownSizeTimer = confVector.size()+ gpus.size()+studentVector.size()+ cpus.size();//making sure all mircoservices register before time service
         int countDownSizeStudent = confVector.size() + gpus.size() + cpus.size();

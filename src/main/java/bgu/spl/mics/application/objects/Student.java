@@ -21,6 +21,7 @@ public class Student {
     private int papersRead;
     private int modelIndex;
     private int confereceNum;
+    private Vector<ConfrenceInformation> confVector;
     private Vector<Model> modelVector;
 
     public Student(String name, String dpt, Degree deg)
@@ -30,13 +31,18 @@ public class Student {
         this.status = deg;
         this.publications = 0;
         this.papersRead = 0;
-        modelIndex =0;
+        this. modelIndex = 0;
         this.confereceNum = 0;
+        this.confVector = null;
     }
 
     public void addModels(Vector<Model> modelVector) {
         this.modelVector = modelVector;
     }
+
+    public void addConfrences(Vector<ConfrenceInformation> confVector) { this.confVector = confVector;}
+
+    public ConfrenceInformation getConference(int index) {return this.confVector.get(index);}
 
     public String toString() {
         String ret = "Name: " + this.name + " Dept: " + this.department + " Status: " + this.status + "\n" + "Models:\n";
