@@ -22,7 +22,7 @@ public class Cluster {
 
 	private static final MessageBusImpl MESSAGE_BUS = MessageBusImpl.getInstance();
 	private Vector<GPU> gpuVector;
-	private PriorityBlockingQueue<CPU> cpuQueue;
+	private PriorityQueue<CPU> cpuQueue;
 	private final AtomicInteger cpuTimeUsed = new AtomicInteger(0);
 	private final AtomicInteger gpuTimeUsed = new AtomicInteger(0);
 	private final AtomicInteger batchesProcessed = new AtomicInteger(0);
@@ -49,8 +49,8 @@ public class Cluster {
 	 * @post !this.cpuQueue.isEmpty()
 	 */
 	public void addCPUS(Vector<CPU> cpus) {
-		cpuQueue = new PriorityBlockingQueue<>(cpus.size(), new CPUWorkComparator());
-		cpuQueue.addAll(cpus);
+		this.cpuQueue = new PriorityQueue<>(cpus.size(), new CPUWorkComparator());
+		this.cpuQueue.addAll(cpus);
 	}
 
 	public void processData(Vector<DataBatch> dataBatchVector) {

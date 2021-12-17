@@ -56,6 +56,7 @@ public class Student {
         ret += "Papers read: " + this.papersRead+"\n";
         return ret;
     }
+
     public String getName() {
         return name;
     }

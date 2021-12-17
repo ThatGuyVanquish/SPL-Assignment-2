@@ -1,37 +1,39 @@
 [Name: Simba Dept: Computer Science Status: MSc
 Models:
-1) Model Name: YOLO10 Data: Type: Images Size: 200000 Status: Published Result: Good
-Papers read: 4
+1) Model Name: YOLO10 Data: Type: Images Size: 200000 Status: Trained Result: None
+Papers read: 2
 , Name: Pumba Dept: Computer Science Status: PhD
 Models:
-1) Model Name: Bert Data: Type: Text Size: 1000000 Status: Published Result: Good
-2) Model Name: GPT4 Data: Type: Text Size: 1000000 Status: Published Result: Good
-Papers read: 3
+1) Model Name: Bert Data: Type: Text Size: 1000000 Status: Trained Result: None
+Papers read: 2
 , Name: Timon Dept: SE Status: MSc
 Models:
-1) Model Name: Percepetron Data: Type: Tabular Size: 1000000 Status: Published Result: Good
-2) Model Name: GNN Data: Type: Tabular Size: 1000000 Status: Published Result: Good
-3) Model Name: MoreStyleGAN Data: Type: Images Size: 100000 Status: Trained Result: None
-Papers read: 3
+1) Model Name: Percepetron Data: Type: Tabular Size: 1000000 Status: Tested Result: Bad
+2) Model Name: GNN Data: Type: Tabular Size: 1000000 Status: Tested Result: Bad
+3) Model Name: MoreStyleGAN Data: Type: Images Size: 100000 Status: Published Result: Good
+4) Model Name: ConditionalGAN Data: Type: Images Size: 500000 Status: Trained Result: None
+Papers read: 1
 , Name: Nala Dept: Computer Science Status: PhD
 Models:
-Papers read: 5
+Papers read: 2
 , Name: Null-a Dept: Computer Science Status: PhD
 Models:
-1) Model Name: YOLO9000 Data: Type: Images Size: 100000 Status: Trained Result: None
-Papers read: 5
+1) Model Name: YOLO9000 Data: Type: Images Size: 100000 Status: Tested Result: Bad
+2) Model Name: VIT2 Data: Type: Images Size: 1000000 Status: Tested Result: Bad
+3) Model Name: MuchMoreEfficientNet Data: Type: Images Size: 20000 Status: Published Result: Good
+Papers read: 1
 ]
 [Conference name: ICML Date: 20000
 Published Models:
- Model Name: GPT4 Data: Type: Text Size: 1000000 Status: Published Result: Good, Conference name: NeurIPS Date: 25000
+, Conference name: NeurIPS Date: 25000
 Published Models:
- Model Name: GNN Data: Type: Tabular Size: 1000000 Status: Published Result: Good, Conference name: CVPR Date: 30000
+, Conference name: CVPR Date: 30000
 Published Models:
- Model Name: Bert Data: Type: Text Size: 1000000 Status: Published Result: Good, Conference name: ECCV Date: 40000
+ Model Name: MoreStyleGAN Data: Type: Images Size: 100000 Status: Published Result: Good, Conference name: ECCV Date: 40000
 Published Models:
- Model Name: Percepetron Data: Type: Tabular Size: 1000000 Status: Published Result: Good, Conference name: AISTATS Date: 50000
+, Conference name: AISTATS Date: 50000
 Published Models:
- Model Name: YOLO10 Data: Type: Images Size: 200000 Status: Published Result: Good]
-cpuTimeUsed: 306650
-gpuTimeUsed: 64001
-batchesProcessed: 56194
+ Model Name: MuchMoreEfficientNet Data: Type: Images Size: 20000 Status: Published Result: Good]
+cpuTimeUsed: 300048
+gpuTimeUsed: 65385
+batchesProcessed: 55683
