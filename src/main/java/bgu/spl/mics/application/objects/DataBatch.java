@@ -28,5 +28,4 @@ public class DataBatch {
     public Data getData() {
         return this.data;
     }
-
 }
