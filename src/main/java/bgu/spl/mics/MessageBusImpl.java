@@ -38,7 +38,7 @@ public class MessageBusImpl implements MessageBus {
 
 	@Override
 	public   <T> void subscribeEvent(Class<? extends Event<T>> type, MicroService m) {
-		synchronized (lockRoundRobin) {
+		synchronized (eventToMicro) {
 			if (!eventToMicro.containsKey(type))
 				eventToMicro.put(type, new Vector<MicroService>());
 		 }
@@ -95,9 +95,14 @@ public class MessageBusImpl implements MessageBus {
 		}
 			MicroService s = eventToMicro.get(e.getClass()).remove(0);
 			eventToMicro.get(e.getClass()).add(s);
-			MicroDict.get(s).add(e);
-			MsgToFutr.put(e, result);
-
+			if (MicroDict.get(s) == null) {
+				this.sendEvent(e);
+				return null;
+			}
+			else {
+				MicroDict.get(s).add(e);
+				MsgToFutr.put(e, result);
+			}
 			return result;
 	  }
 	}
