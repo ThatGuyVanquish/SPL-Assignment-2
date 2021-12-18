@@ -1,11 +1,8 @@
 package bgu.spl.mics;
-import bgu.spl.mics.application.objects.ConfrenceInformation;
-import bgu.spl.mics.application.services.ConferenceService;
 
 import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingDeque;
-import java.util.concurrent.atomic.AtomicInteger;
 
 
 /**
@@ -73,7 +70,7 @@ public class MessageBusImpl implements MessageBus {
 	}
 
 	@Override
-	public  void sendBroadcast(Broadcast b) {
+	public void sendBroadcast(Broadcast b) {
 		synchronized (broadCastLock) {
 				Vector<MicroService> broad = broadToMicro.get(b.getClass());
 				if (broad != null) {
@@ -121,10 +118,12 @@ public class MessageBusImpl implements MessageBus {
 	}
 
 	@Override
-	public   Message awaitMessage(MicroService m) throws InterruptedException {
+	public Message awaitMessage(MicroService m) throws InterruptedException {
+		//if (MicroDict.isEmpty()) return null;
 		try {
-			return MicroDict.get(m).take();
-		} catch (InterruptedException e) {
+				return MicroDict.get(m).take();
+		}
+		catch (InterruptedException e) {
 			System.out.println("interrupted");
 			throw e;
 		}
@@ -148,6 +147,12 @@ public class MessageBusImpl implements MessageBus {
 	@Override
 	public <T> Future getFuture(Event<T> e) {
 		return MsgToFutr.get(e);
+	}
+
+	public String toString() { // DELETE BEFORE UPLOADING
+		String ret = "";
+		for (MicroService m : MicroDict.keySet()) ret += m.getName();
+		return ret;
 	}
 
 }

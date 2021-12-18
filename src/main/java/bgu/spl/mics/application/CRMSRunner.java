@@ -5,8 +5,12 @@ import bgu.spl.mics.application.objects.*;
 import bgu.spl.mics.application.services.*;
 import bgu.spl.mics.application.objects.Cluster;
 import com.google.gson.*;
+import org.junit.rules.Stopwatch;
 
 import java.io.*;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.Timer;
 import java.util.Vector;
 import java.util.concurrent.CountDownLatch;
 
@@ -20,8 +24,8 @@ public class CRMSRunner {
     private static final Cluster CLUSTER = Cluster.getInstance();
     private static final MessageBusImpl MESSAGE_BUS = MessageBusImpl.getInstance();
 
-
     public static void main(String[] args) {
+        Instant start = Instant.now();
         //InputStream inputStream = CRMSRunner.class.getClassLoader().getResourceAsStream(args[0]); The line we'd probably use to compile
         InputStream inputStream = CRMSRunner.class.getClassLoader().getResourceAsStream("test.json");
         Reader reader = new InputStreamReader(inputStream);
@@ -124,22 +128,29 @@ public class CRMSRunner {
         countDownTimer = new CountDownLatch(countDownSizeTimer);
         countDownStudent = new CountDownLatch(countDownSizeStudent);
 
-        for(GPU gpu:gpus){
+        for(GPU gpu : gpus){
+            int i = 0;
             GPUService gpuService = new GPUService(gpu.toString(),gpu,countDownTimer,countDownStudent);
             gpu.setGpuService(gpuService);
             Thread thread = new Thread(gpuService);
+            thread.setName("GPU " + i + " Thread");
             thread.start();
+            i++;
         }
-        for(CPU cpu:cpus){
+        for(CPU cpu : cpus){
+            int i = 0;
             CPUService cpuService = new CPUService(cpu.toString(),cpu,countDownTimer,countDownStudent);
             Thread thread = new Thread(cpuService);
             threadHolder.add(thread);
+            thread.setName("CPU " + i + " Thread");
             thread.start();
+            i++;
         }
-        for(ConfrenceInformation confInformation:confVector){
-            ConferenceService confService = new ConferenceService(confInformation.toString(),confInformation,countDownTimer,countDownStudent);
+        for(ConfrenceInformation confInformation : confVector){
+            ConferenceService confService = new ConferenceService(confInformation.getName(),confInformation,countDownTimer,countDownStudent);
             Thread thread = new Thread(confService);
             threadHolder.add(thread);
+            thread.setName("Conference " + confInformation.getName() + " Thread");
             thread.start();
         }
         try {
@@ -151,6 +162,7 @@ public class CRMSRunner {
             StudentService studentService = new StudentService(student.getName(),student,countDownTimer);
             Thread thread = new Thread(studentService);
             threadHolder.add(thread);
+            thread.setName("Student " + student.getName() + " Thread");
             thread.start();
         }
 
@@ -185,7 +197,11 @@ public class CRMSRunner {
                 realProcessed += model.getData().getProcessed();
             }
         }
-        System.out.println(realProcessed/1000);
+        //System.out.println(realProcessed/1000);
+        //System.out.println("Message Bus: ");
+        //System.out.println(MESSAGE_BUS.toString()+"\n\n");
+        Instant end1 = Instant.now();
+        System.out.println("Stopwatch stopped at " + Duration.between(start, end1).toMillis());
         FileWriter fileWriter = null;
         try {
             fileWriter = new FileWriter("Output.txt");
