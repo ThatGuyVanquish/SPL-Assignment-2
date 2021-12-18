@@ -43,10 +43,6 @@ public class ConfrenceInformation {
         return date;
     }
 
-    public String getName() {
-        return this.name;
-    }
-
     public  synchronized int papersRead(Student student) {
         int ret = 0;
         for (Model model : this.publications) {
