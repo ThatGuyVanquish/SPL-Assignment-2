@@ -38,7 +38,7 @@ public class MessageBusImpl implements MessageBus {
 
 	@Override
 	public   <T> void subscribeEvent(Class<? extends Event<T>> type, MicroService m) {
-		synchronized (eventToMicro) {
+		synchronized (lockRoundRobin) {
 			if (!eventToMicro.containsKey(type))
 				eventToMicro.put(type, new Vector<MicroService>());
 		 }
@@ -94,9 +94,10 @@ public class MessageBusImpl implements MessageBus {
 			return null;
 		}
 			MicroService s = eventToMicro.get(e.getClass()).remove(0);
+			eventToMicro.get(e.getClass()).add(s);
 			MicroDict.get(s).add(e);
 			MsgToFutr.put(e, result);
-			eventToMicro.get(e.getClass()).add(s);
+
 			return result;
 	  }
 	}
@@ -107,15 +108,16 @@ public class MessageBusImpl implements MessageBus {
 
 	@Override
 	public void unregister(MicroService m) {
-		synchronized (broadCastLock) {
+		synchronized (lockRoundRobin) {
+			synchronized (broadCastLock){
 			LinkedBlockingDeque<Message> subscribedTo = MicroDict.remove(m);
 			for (Message message : subscribedTo) {
-				if (message instanceof Broadcast){
+				if (message instanceof Broadcast) {
 					broadToMicro.get(message.getClass()).remove(m);
-				}
-				else{
+				} else {
 					eventToMicro.get(message.getClass()).remove(m);
-				 }
+				}
+			}
 			}
 		}
 	}

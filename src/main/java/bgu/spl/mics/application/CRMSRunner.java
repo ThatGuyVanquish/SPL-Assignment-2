@@ -173,10 +173,12 @@ public class CRMSRunner {
         threadHolder.add(thread);
         thread.start();
 
-        for (Thread thread1 : threadHolder) // Shut down all the threads
-        try{
-            thread1.join();
-        }catch (InterruptedException ignored){}
+        for (Thread thread1 : threadHolder) { // Shut down all the threads
+            try {
+                thread1.join();
+            } catch (InterruptedException ignored) {
+            }
+        }
       int realProcessed = 0;
         for (Student student : studentVector){
             System.out.println("paper "+student.getPapersRead());
