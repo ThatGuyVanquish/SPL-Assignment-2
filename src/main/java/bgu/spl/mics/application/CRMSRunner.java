@@ -7,6 +7,8 @@ import bgu.spl.mics.application.objects.Cluster;
 import com.google.gson.*;
 
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Vector;
 import java.util.concurrent.CountDownLatch;
 
@@ -18,12 +20,12 @@ import java.util.concurrent.CountDownLatch;
 public class CRMSRunner {
     private static final JsonParser PARSER = new JsonParser();
     private static final Cluster CLUSTER = Cluster.getInstance();
-    private static final MessageBusImpl MESSAGE_BUS = MessageBusImpl.getInstance();
 
 
     public static void main(String[] args) {
-        //InputStream inputStream = CRMSRunner.class.getClassLoader().getResourceAsStream(args[0]); The line we'd probably use to compile
-        InputStream inputStream = CRMSRunner.class.getClassLoader().getResourceAsStream("test.json");
+        InputStream inputStream = null;
+        try { inputStream = new FileInputStream(args[0]);}
+        catch (FileNotFoundException ignored) {}
         Reader reader = new InputStreamReader(inputStream);
         JsonElement rootElement = PARSER.parse(reader);
         JsonObject rootObject = rootElement.getAsJsonObject();
@@ -31,8 +33,7 @@ public class CRMSRunner {
         CountDownLatch countDownTimer;
         CountDownLatch countDownStudent;
 
-        // Creating all of the Student Services
-        Vector<StudentService> studentServiceVector = new Vector<>(); // Vector to store StudentService objects, need to move to msgBus?
+        // Creating all the Student Services
         Vector<Student> studentVector = new Vector<>();
         JsonArray students = rootObject.getAsJsonArray("Students");
         for (JsonElement student : students) {
@@ -119,7 +120,7 @@ public class CRMSRunner {
         }
         for (Student student : studentVector) student.addConferences(confVector);
 
-        int countDownSizeTimer = confVector.size() + gpus.size() + studentVector.size() + cpus.size(); // Making sure all mircoservices register before time service
+        int countDownSizeTimer = confVector.size() + gpus.size() + studentVector.size() + cpus.size(); // Ensuring Mirco-Services register before time service starts
         int countDownSizeStudent = confVector.size() + gpus.size() + cpus.size();
         countDownTimer = new CountDownLatch(countDownSizeTimer);
         countDownStudent = new CountDownLatch(countDownSizeStudent);
@@ -169,7 +170,7 @@ public class CRMSRunner {
 
         TimeService _globalTimer = new TimeService(tickTime, tickDur);
         Thread thread = new Thread(_globalTimer);
-        thread.setName("Sheeeeeeesh");
+        thread.setName("Time Service");
         threadHolder.add(thread);
         thread.start();
 
@@ -179,20 +180,12 @@ public class CRMSRunner {
             } catch (InterruptedException ignored) {
             }
         }
-      int realProcessed = 0;
-        for (Student student : studentVector){
-            System.out.println("paper "+student.getPapersRead());
-            for (Model model : student.getModels()){
-                System.out.println("Size: "+model.getData().getSize()+"  "+"Processed: "+model.getData().getProcessed());
-                realProcessed += model.getData().getProcessed();
-            }
-        }
-        System.out.println(realProcessed/1000);
+
         FileWriter fileWriter = null;
         try {
             fileWriter = new FileWriter("Output.txt");
-            fileWriter.write(studentVector.toString() + "\n");
-            fileWriter.write(confVector.toString() + "\n");
+            fileWriter.write(studentVector + "\n");
+            fileWriter.write(confVector + "\n");
             fileWriter.write("cpuTimeUsed: " + CLUSTER.getTotalCPURuntime() + "\n");
             fileWriter.write("gpuTimeUsed: " + CLUSTER.getTotalGPURuntime() + "\n");
             fileWriter.write("batchesProcessed: " + CLUSTER.getBatchesProcessed() + "\n");
@@ -207,6 +200,5 @@ public class CRMSRunner {
                     e.printStackTrace();
                 }
         }
-        return;
     }
 }

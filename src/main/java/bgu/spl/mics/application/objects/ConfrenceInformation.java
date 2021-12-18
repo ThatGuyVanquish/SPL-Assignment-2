@@ -43,13 +43,6 @@ public class ConfrenceInformation {
         return date;
     }
 
-    public  synchronized int papersRead(Student student) {
-        int ret = 0;
-        for (Model model : this.publications) {
-            if (model.getStudent() != student) ret++;
-        }
-        return ret;
-    }
     public Vector<Model> getPublications(){
         return this.publications;
     }

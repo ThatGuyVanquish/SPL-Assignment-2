@@ -17,7 +17,6 @@ public class ConferenceService extends MicroService {
 
     private final ConfrenceInformation conf;
     private  int tickPassed;
-    // If you want to do the implementation based on your idea we should add a model vector | DELETE BEFORE UPLOAD
 
     public ConferenceService(String name, ConfrenceInformation conf, CountDownLatch countDownTimer,CountDownLatch countDownStudent) {
         super(name, countDownTimer,countDownStudent);
@@ -32,15 +31,12 @@ public class ConferenceService extends MicroService {
             tickPassed++;
             if(tickPassed >= conf.getDate()){
                 sendBroadcast(new PublishConfrenceBroadcast(this.conf.getPublications()));
-                System.out.println(conf.getDate()); // DELETE | FOR TESTS
                 terminate();
             }
         };
         subscribeBroadcast(TickBroadcast.class, tickCallback);
 
-        Callback<PublishResultsEvent> publishCallBack =  (PublishResultsEvent c) -> {
-              conf.addModel(c.getModel());
-        };
+        Callback<PublishResultsEvent> publishCallBack =  (PublishResultsEvent c) -> conf.addModel(c.getModel());
         subscribeEvent(PublishResultsEvent.class,publishCallBack);
 
         Callback<TerminateBroadCast> TerminateCallBack = (TerminateBroadCast c) -> this.terminate();

@@ -25,9 +25,8 @@ public class GPUService extends MicroService {
     protected void initialize() {
         Callback<TerminateBroadCast> TerminateCallBack = (TerminateBroadCast c) -> {
             this.gpu.addRuntime();
-            System.out.println("gpu time:"+gpu.getRuntime()); // DELETE BEFORE UPLOADING
-            System.out.println(this.getName()+gpu.getTrainingVector()); // DELETE BEFORE UPLOADING
-            this.terminate();};
+            this.terminate();
+        };
         subscribeBroadcast(TerminateBroadCast.class,TerminateCallBack);
         Callback<TickBroadcast> tickCallback = (TickBroadcast tickBroadcast)-> gpu.processData();
         subscribeBroadcast(TickBroadcast.class, tickCallback);

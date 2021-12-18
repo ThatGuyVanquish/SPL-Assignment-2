@@ -1,5 +1,4 @@
 package bgu.spl.mics.application.services;
-import bgu.spl.mics.Callback;
 import bgu.spl.mics.MicroService;
 import bgu.spl.mics.TerminateBroadCast;
 import bgu.spl.mics.TickBroadcast;
@@ -17,25 +16,21 @@ import java.util.TimerTask;
  */
 public class TimeService extends MicroService{
 
-	private long tickTime;
-	private long duration;
+	private final long tickTime;
+	private final long duration;
 	private long ticksPassed;
-	private long time;
 
 	public TimeService(int tickTime,int duration) {
 		super("TimeService",null,null);
 		this.tickTime=tickTime;
 		this.duration=duration;
-		ticksPassed = 0;
-		time=0;
+		this.ticksPassed = 0;
 	}
 
-	private void setTime (long time) {this.time=time;}
-	private long getTime (){return time;}
 	@Override
 	protected void initialize() {
-		Timer t = new Timer();
-		TimerTask tt = new TimerTask() {
+		Timer TIMER = new Timer();
+		TimerTask timerTask = new TimerTask() {
 			@Override
 			public void run() {
 				if(ticksPassed <= duration){
@@ -47,36 +42,9 @@ public class TimeService extends MicroService{
 					cancel();
 					terminate();
 				}
-			};
+			}
 		};
-		t.scheduleAtFixedRate(tt,tickTime,tickTime);
-		// creating timer task, timer
-		//imerTask tasknew = new TimerScheduleFixedRateDelay();
-		//Callback<TimerTask> aa = (TimerTask e) -> {sendEvent(new TestModelEvent(e.getModel()));};
-		//Timer timer1 = new Timer();
-
-		// scheduling the task at fixed rate delay
-		//timer.scheduleAtFixedRate(tasknew,500,1000);
-//		timer.scheduleAtFixedRate(() -> {
-//
-//		}, tickTime, tickTime);
-
-
-		subscribeBroadcast(TerminateBroadCast.class, (TerminateBroadCast b)->{ terminate();});
-//		while (ticksPassed<=duration-1) {
-//			timer.schedule(new TimerTask() {
-//				public void run() {
-//					sendBroadcast(new TickBroadcast());
-//					ticksPassed++;
-//				}
-//			}, ticksPassed);
-//		}
-//
-//		timer.cancel();
-//		System.out.println("terminate");
-//		sendBroadcast(new TerminateBroadcast());
-
-
+		TIMER.scheduleAtFixedRate(timerTask,tickTime,tickTime);
+		subscribeBroadcast(TerminateBroadCast.class, (TerminateBroadCast b)-> terminate());
 	}
-
 }

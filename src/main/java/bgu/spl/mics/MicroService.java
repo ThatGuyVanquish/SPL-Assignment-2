@@ -39,7 +39,6 @@ public abstract class MicroService implements Runnable {
         this.name = name;
         this.countDownTimer = countDownTimer;
         this.countDownStudent = countDownStudent;
-
     }
 
     /**

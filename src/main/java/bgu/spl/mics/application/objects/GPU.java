@@ -3,7 +3,6 @@ package bgu.spl.mics.application.objects;
 import bgu.spl.mics.*;
 import bgu.spl.mics.application.services.GPUService;
 
-
 import java.util.Vector;
 
 /**
@@ -35,7 +34,7 @@ public class GPU {
         this.currentDB = null;
         this.tickCounter = 0;
         this.runtime = 0;
-        this.awaitingProcessing = new Vector<DataBatch>();
+        this.awaitingProcessing = new Vector<>();
         this.trainingVector = new Vector<>();
         this.testingVector = new Vector<>();
         switch (this.type) {
