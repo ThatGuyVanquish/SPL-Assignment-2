@@ -1,9 +1,8 @@
 package bgu.spl.mics.application.services;
-
-import bgu.spl.mics.*;
-
-import javax.security.auth.callback.Callback;
-import java.sql.Time;
+import bgu.spl.mics.Callback;
+import bgu.spl.mics.MicroService;
+import bgu.spl.mics.TerminateBroadCast;
+import bgu.spl.mics.TickBroadcast;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -12,42 +11,81 @@ import java.util.TimerTask;
  * It keeps track of the amount of ticks passed since initialization and notifies
  * all other micro-services about the current time tick using {@link TickBroadcast}.
  * This class may not hold references for objects which it is not responsible for.
- * 
+ *
  * You can add private fields and public methods to this class.
  * You MAY change constructor signatures and even add new public constructors.
  */
 public class TimeService extends MicroService{
 
-	private final int _tickTime;
-	private final int _duration;
-	private boolean endApp;
-	private int ticksPassed;
-    private final Timer TIMER;
+	private long tickTime;
+	private long duration;
+	//private Timer timer;
+	private long ticksPassed;
+	private long time;
 
-	public TimeService(int tickTime, int duration) {
-		super("Time Service",null,null);
-		this._tickTime = tickTime;
-		this._duration = duration;
-		this.endApp = false;
-		this.ticksPassed=0;
-		TIMER = new Timer();
+	public TimeService(int tickTime,int duration) {
+		super("TimeService",null,null);
+		this.tickTime=tickTime;
+		this.duration=duration;
+		//timer = new Timer();
+		ticksPassed = 0;
+		time=0;
 	}
 
+	private void setTime (long time) {this.time=time;}
+	private long getTime (){return time;}
 	@Override
 	protected void initialize() {
-		System.out.println("time starting");
-		while (ticksPassed<=_duration-1) {
-			TIMER.schedule(new TimerTask() {
-				public void run() {
-					sendBroadcast(new TickBroadcast());
+		Timer t = new Timer();
+		TimerTask tt = new TimerTask() {
+			@Override
+			public void run() {
+				//setTime(time+tickTime);
+				if(ticksPassed <= duration){
 					ticksPassed++;
+					sendBroadcast(new TickBroadcast());
+					if(ticksPassed%1000==0) System.out.println("tick: " + ticksPassed);
+
 				}
-			}, _tickTime);
-		}
-		TIMER.cancel();
-		System.out.println(ticksPassed); // DELETE BEFORE UPLOADING
-		sendBroadcast(new TerminateBroadCast());
-		terminate();
+				if(ticksPassed>=duration){
+
+					System.out.println("in Cancel!");
+					sendBroadcast(new TerminateBroadCast());
+					cancel();
+					terminate();
+
+
+				}
+			};
+		};
+		t.scheduleAtFixedRate(tt,tickTime,tickTime);
+		// creating timer task, timer
+		//imerTask tasknew = new TimerScheduleFixedRateDelay();
+		//Callback<TimerTask> aa = (TimerTask e) -> {sendEvent(new TestModelEvent(e.getModel()));};
+		//Timer timer1 = new Timer();
+
+		// scheduling the task at fixed rate delay
+		//timer.scheduleAtFixedRate(tasknew,500,1000);
+//		timer.scheduleAtFixedRate(() -> {
+//
+//		}, tickTime, tickTime);
+
+
+		subscribeBroadcast(TerminateBroadCast.class, (TerminateBroadCast b)->{ terminate();});
+//		while (ticksPassed<=duration-1) {
+//			timer.schedule(new TimerTask() {
+//				public void run() {
+//					sendBroadcast(new TickBroadcast());
+//					ticksPassed++;
+//				}
+//			}, ticksPassed);
+//		}
+//
+//		timer.cancel();
+//		System.out.println("terminate");
+//		sendBroadcast(new TerminateBroadcast());
+
+
 	}
 
 }

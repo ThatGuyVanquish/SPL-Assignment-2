@@ -23,6 +23,12 @@ public class GPUService extends MicroService {
 
     @Override
     protected void initialize() {
+        Callback<TerminateBroadCast> TerminateCallBack = (TerminateBroadCast c) -> {
+            this.gpu.addRuntime();
+            System.out.println("gpu time:"+gpu.getRuntime()); // DELETE BEFORE UPLOADING
+            System.out.println(this.getName()+gpu.getTrainingVector()); // DELETE BEFORE UPLOADING
+            this.terminate();};
+        subscribeBroadcast(TerminateBroadCast.class,TerminateCallBack);
         Callback<TickBroadcast> tickCallback = (TickBroadcast tickBroadcast)-> gpu.processData();
         subscribeBroadcast(TickBroadcast.class, tickCallback);
 
@@ -32,12 +38,7 @@ public class GPUService extends MicroService {
         Callback<TestModelEvent> testCallback = (TestModelEvent e)-> gpu.test(e.getModel());
         subscribeEvent(TestModelEvent.class, testCallback);
 
-        Callback<TerminateBroadCast> TerminateCallBack = (TerminateBroadCast c) -> {
-            this.gpu.addRuntime();
-            System.out.println("gpu time:"+gpu.getRuntime()); // DELETE BEFORE UPLOADING
-            System.out.println(this.getName()+gpu.getTrainingVector()); // DELETE BEFORE UPLOADING
-            this.terminate();};
-        subscribeBroadcast(TerminateBroadCast.class,TerminateCallBack);
+
     }
 
     public void sendGPUBroadcast(Broadcast b) {
