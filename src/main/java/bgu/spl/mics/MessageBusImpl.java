@@ -33,7 +33,7 @@ public class MessageBusImpl implements MessageBus {
 	}
 
 	 public static MessageBusImpl getInstance() {
-		return SingletonHolder.instance;
+	 	return SingletonHolder.instance;
 	}
 
 	@Override
@@ -41,7 +41,7 @@ public class MessageBusImpl implements MessageBus {
 		synchronized (eventToMicro) {
 			if (!eventToMicro.containsKey(type))
 				eventToMicro.put(type, new Vector<MicroService>());
-		 }
+	 	}
 			eventToMicro.get(type).add(m);
 	}
 
@@ -113,8 +113,7 @@ public class MessageBusImpl implements MessageBus {
 
 	@Override
 	public void unregister(MicroService m) {
-		synchronized (lockRoundRobin) {
-			synchronized (broadCastLock){
+		synchronized (broadCastLock){
 			LinkedBlockingDeque<Message> subscribedTo = MicroDict.remove(m);
 			for (Message message : subscribedTo) {
 				if (message instanceof Broadcast) {
@@ -122,7 +121,6 @@ public class MessageBusImpl implements MessageBus {
 				} else {
 					eventToMicro.get(message.getClass()).remove(m);
 				}
-			}
 			}
 		}
 	}

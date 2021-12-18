@@ -1,10 +1,8 @@
 package bgu.spl.mics.application.objects;
 
-
-import bgu.spl.mics.MessageBusImpl;
-
-import java.util.*;
-import java.util.concurrent.PriorityBlockingQueue;
+import java.util.Comparator;
+import java.util.PriorityQueue;
+import java.util.Vector;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -20,7 +18,6 @@ public class Cluster {
 		private static final Cluster instance = new Cluster();
 	}
 
-	private static final MessageBusImpl MESSAGE_BUS = MessageBusImpl.getInstance();
 	private Vector<GPU> gpuVector;
 	private PriorityQueue<CPU> cpuQueue;
 	private final AtomicInteger cpuTimeUsed = new AtomicInteger(0);

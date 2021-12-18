@@ -19,7 +19,6 @@ public class TimeService extends MicroService{
 
 	private long tickTime;
 	private long duration;
-	//private Timer timer;
 	private long ticksPassed;
 	private long time;
 
@@ -27,7 +26,6 @@ public class TimeService extends MicroService{
 		super("TimeService",null,null);
 		this.tickTime=tickTime;
 		this.duration=duration;
-		//timer = new Timer();
 		ticksPassed = 0;
 		time=0;
 	}
@@ -40,21 +38,14 @@ public class TimeService extends MicroService{
 		TimerTask tt = new TimerTask() {
 			@Override
 			public void run() {
-				//setTime(time+tickTime);
 				if(ticksPassed <= duration){
 					ticksPassed++;
 					sendBroadcast(new TickBroadcast());
-					if(ticksPassed%1000==0) System.out.println("tick: " + ticksPassed);
-
 				}
 				if(ticksPassed>=duration){
-
-					System.out.println("in Cancel!");
 					sendBroadcast(new TerminateBroadCast());
 					cancel();
 					terminate();
-
-
 				}
 			};
 		};
