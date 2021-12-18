@@ -58,15 +58,15 @@ public class StudentService extends MicroService {
             this.student.setConferenceNum(student.getConferenceNum()-1);
             int published = 0;
             int papersRead = 0;
-            for (Model model: e.getModels()){
+            for (Model model: e.getModels()) {
                 model.setStatus(Model.status.Published);
                 if (model.getStudent() == this.student)
                     published++;
                 else
                     papersRead++;
+            }
                 student.addPublications(published);
                 student.addPaperRead(papersRead);
-            }
         };
         subscribeBroadcast(PublishConfrenceBroadcast.class,PublishConfrenceBroadcastCallBack);
 
