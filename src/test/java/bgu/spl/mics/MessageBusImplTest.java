@@ -21,7 +21,7 @@ public class MessageBusImplTest {
     @Before
     public void setup() {
         messageBus = MessageBusImpl.getInstance();
-        event = new ExampleEvent("Event");
+        //event = new ExampleEvent("Event");
         ms_event = new ExampleEventHandlerService("EventHandler", new String[]{"tst,tst"});
         broadcast = new ExampleBroadcast("Broadcast");
         ftr = new Future<>();

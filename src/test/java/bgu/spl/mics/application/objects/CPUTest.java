@@ -17,7 +17,7 @@ public class CPUTest {
     }
 
     @Test
-    public void compute() {
-        //assertTrue(this.cpu.process(data.batch()));
+    public void getTimeToProcessAll() {
+        assertTrue(this.cpu.getTimeToProcessAll()>=0);
     }
 }
